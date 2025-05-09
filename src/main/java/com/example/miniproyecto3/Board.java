@@ -53,12 +53,13 @@ public class Board {
     }
 
     public boolean checkWin() {
-        for (Ship ship : playerShips) {
+        // Cambié la lógica para chequear si todos los barcos enemigos han sido hundidos
+        for (Ship ship : enemyShips) {
             for (int i = 0; i < ship.size; i++) {
                 int r = ship.startRow + (ship.horizontal ? 0 : i);
                 int c = ship.startCol + (ship.horizontal ? i : 0);
-                if (!playerBoard[r][c]) {
-                    return false;
+                if (enemyBoard[r][c]) {
+                    return false;  // Si aún hay una parte del barco que no ha sido destruido
                 }
             }
         }
@@ -73,4 +74,20 @@ public class Board {
             enemyShips.add(ship);
         }
     }
+
+    // Método que obtiene las coordenadas de un barco
+    public List<int[]> getShipCoordinates(Ship ship) {
+        List<int[]> coordinates = new ArrayList<>();
+        for (int i = 0; i < ship.size; i++) {
+            int r = ship.startRow + (ship.horizontal ? 0 : i);
+            int c = ship.startCol + (ship.horizontal ? i : 0);
+            coordinates.add(new int[]{r, c});
+        }
+        return coordinates;
+    }
+
+    public boolean shoot(int row, int col) {
+        return enemyBoard[row][col];
+    }
+
 }

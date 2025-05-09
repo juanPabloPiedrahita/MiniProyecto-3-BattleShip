@@ -1,16 +1,13 @@
 package com.example.miniproyecto3;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class GameController {
 
@@ -20,201 +17,168 @@ public class GameController {
     @FXML private ToggleButton orientationToggle;
     @FXML private Button monitorButton;
 
-    private boolean placementFinished = false;
+    private Board playerBoardModel = new Board();
+    private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
-    private Set<String> playerShots = new HashSet<>();
-    private Set<String> enemyShots = new HashSet<>();
 
-    private static final int BOARD_SIZE = 10; // Tamaño del tablero
+    private boolean finishedPlacing = false;
+    private boolean monitorMode = false;
 
     @FXML
     public void initialize() {
-        createBoard(playerBoard, false);
-        createBoard(enemyBoard, true);
-        enemyBoard.setVisible(false);
-
-        orientationToggle.setOnAction(e -> {
-            if (orientationToggle.isSelected()) {
-                orientationToggle.setText("Vertical");
-            } else {
-                orientationToggle.setText("Horizontal");
-            }
-        });
+        createBoard(playerBoard, true);
+        createBoard(enemyBoard, false);
+        shipSizeSelector.getSelectionModel().selectFirst();
+        orientationToggle.setOnAction(e -> toggleOrientation());
+        monitorButton.setDisable(true);
     }
 
-    // Crear el tablero con botones
-    private void createBoard(GridPane board, boolean isEnemy) {
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
+    private void createBoard(GridPane board, boolean isPlayer) {
+        board.getChildren().clear();
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                StackPane cell = new StackPane();
                 Button btn = new Button();
                 btn.setMinSize(30, 30);
-                btn.setStyle("-fx-background-color: lightblue;");
+                btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
+                cell.getChildren().add(btn);
+
                 int finalRow = row;
                 int finalCol = col;
-                btn.setOnAction(e -> handlePlayerClick(finalRow, finalCol, btn));
+                btn.setOnMouseClicked(e -> {
+                    if (!finishedPlacing && isPlayer) {
+                        placePlayerShip(finalRow, finalCol);
+                    } else if (finishedPlacing && !isPlayer && e.getButton() == MouseButton.PRIMARY) {
+                        handlePlayerShot(finalRow, finalCol);
+                    }
+                });
 
-                if (isEnemy) {
-                    int finalRow1 = row;
-                    int finalCol1 = col;
-                    btn.setOnAction(e -> handleEnemyClick(finalRow1, finalCol1, btn));
-                }
-
-                board.add(btn, col, row);
+                board.add(cell, col, row);
             }
         }
     }
 
-    // Manejar clic en el tablero del jugador
-    private void handlePlayerClick(int row, int col, Button cell) {
-        if (placementFinished) return;
+    private void toggleOrientation() {
+        if (orientationToggle.isSelected()) {
+            orientationToggle.setText("Vertical");
+        } else {
+            orientationToggle.setText("Horizontal");
+        }
+    }
 
-        Integer size = shipSizeSelector.getValue();
-        if (size == null) return;
-
+    private void placePlayerShip(int row, int col) {
+        int size = shipSizeSelector.getValue();
         boolean horizontal = !orientationToggle.isSelected();
+        Ship ship = new Ship(size, row, col, horizontal);
 
-        if (canPlaceShip(row, col, size, horizontal, playerBoard)) {
-            Ship ship = new Ship(size, row, col, horizontal);
+        if (playerBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, true)) {
             playerShips.add(ship);
-            placeShipVisual(ship, playerBoard);
+            placeShipVisual(playerBoard, ship, Color.DARKGRAY);
+            shipSizeSelector.getItems().remove((Integer) size);
+
+            if (shipSizeSelector.getItems().isEmpty()) {
+                shipSizeSelector.setDisable(true);
+                orientationToggle.setDisable(true);
+                monitorButton.setDisable(false);
+            }
         }
     }
 
-    private boolean canPlaceShip(int row, int col, int size, boolean horizontal, GridPane board) {
-        for (int i = 0; i < size; i++) {
-            int r = row + (horizontal ? 0 : i);
-            int c = col + (horizontal ? i : 0);
+    private void placeShipVisual(GridPane board, Ship ship, Color color) {
+        for (int[] coord : ship.getCoordinates()) {
+            int row = coord[0];
+            int col = coord[1];
+            StackPane cell = getStackPaneAt(board, row, col);
 
-            if (r >= BOARD_SIZE || c >= BOARD_SIZE) return false;
-
-            Button btn = getButtonAt(board, r, c);
-            if (btn.getStyle().contains("gray")) return false;
-        }
-        return true;
-    }
-
-    private void placeShipVisual(Ship ship, GridPane board) {
-        for (int i = 0; i < ship.size; i++) {
-            int r = ship.startRow + (ship.horizontal ? 0 : i);
-            int c = ship.startCol + (ship.horizontal ? i : 0);
-            Button btn = getButtonAt(board, r, c);
-            btn.setStyle("-fx-background-color: gray;");
+            Rectangle rect = new Rectangle(30, 30);
+            rect.setFill(color);
+            cell.getChildren().add(rect);
         }
     }
 
-    private Button getButtonAt(GridPane grid, int row, int col) {
-        for (javafx.scene.Node node : grid.getChildren()) {
+    private void placeShipVisualHidden(GridPane board, Ship ship) {
+        for (int[] coord : ship.getCoordinates()) {
+            int row = coord[0];
+            int col = coord[1];
+            StackPane cell = getStackPaneAt(board, row, col);
+
+            Rectangle rect = new Rectangle(30, 30);
+            rect.setFill(Color.LIGHTGREEN);
+            rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
+            cell.getChildren().add(rect);
+        }
+    }
+
+    private StackPane getStackPaneAt(GridPane board, int row, int col) {
+        for (javafx.scene.Node node : board.getChildren()) {
             if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
-                return (Button) node;
+                return (StackPane) node;
             }
         }
         return null;
     }
 
-    @FXML
-    private void handleFinishPlacement() {
-        placementFinished = true;
-        System.out.println("Colocación terminada. Comienza la batalla.");
-        generateEnemyShips();
+    private void handlePlayerShot(int row, int col) {
+        StackPane cell = getStackPaneAt(enemyBoard, row, col);
+        Button btn = (Button) cell.getChildren().get(0);
+
+        if (!btn.getText().isEmpty()) return;
+
+        if (enemyBoardModel.shoot(row, col)) {
+            btn.setText("X");
+            btn.setStyle("-fx-background-color: red;");
+        } else {
+            btn.setText("O");
+            btn.setStyle("-fx-background-color: white;");
+        }
     }
 
-    private void generateEnemyShips() {
-        Random random = new Random();
-        int[] shipSizes = {5, 4, 3, 3, 2}; // Tamaño de los barcos enemigos
-        enemyShips.clear();
+    @FXML
+    private void handleFinishPlacement() {
+        if (shipSizeSelector.getItems().isEmpty()) {
+            finishedPlacing = true;
+            placeEnemyShips();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
+
+    private void placeEnemyShips() {
+        Random rand = new Random();
+        List<Integer> shipSizes = Arrays.asList(2, 3, 4, 5);
 
         for (int size : shipSizes) {
             boolean placed = false;
             while (!placed) {
-                boolean horizontal = random.nextBoolean();
-                int row = random.nextInt(BOARD_SIZE);
-                int col = random.nextInt(BOARD_SIZE);
-
-                if (canPlaceShip(row, col, size, horizontal, enemyBoard)) {
-                    Ship ship = new Ship(size, row, col, horizontal);
+                int row = rand.nextInt(10);
+                int col = rand.nextInt(10);
+                boolean horizontal = rand.nextBoolean();
+                Ship ship = new Ship(size, row, col, horizontal);
+                if (enemyBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, true)) {
                     enemyShips.add(ship);
-                    placeShipVisualHidden(ship, enemyBoard);
+                    placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
                 }
             }
         }
     }
 
-    private void placeShipVisualHidden(Ship ship, GridPane board) {
-        for (int i = 0; i < ship.size; i++) {
-            int r = ship.startRow + (ship.horizontal ? 0 : i);
-            int c = ship.startCol + (ship.horizontal ? i : 0);
-            Button btn = getButtonAt(board, r, c);
-            // Si quieres verlas para monitoreo:
-            // btn.setStyle("-fx-background-color: darkgray;");
-        }
-    }
-
-    // Disparos del jugador
-    private void handleEnemyClick(int row, int col, Button cell) {
-        if (!placementFinished || playerShots.contains(row + "-" + col)) return;
-
-        playerShots.add(row + "-" + col);
-
-        if (isHit(row, col, enemyShips)) {
-            cell.setText("O");
-            cell.setStyle("-fx-background-color: red;");
-        } else {
-            cell.setText("X");
-            cell.setStyle("-fx-background-color: lightblue;");
-        }
-
-        cell.setDisable(true);
-
-        // Turno de la máquina
-        enemyShoot();
-    }
-
-    // Disparo de la máquina
-    private void enemyShoot() {
-        Random rand = new Random();
-        int row, col;
-        String key;
-        do {
-            row = rand.nextInt(BOARD_SIZE);
-            col = rand.nextInt(BOARD_SIZE);
-            key = row + "-" + col;
-        } while (enemyShots.contains(key));
-
-        enemyShots.add(key);
-
-        Button cell = getButtonAt(playerBoard, row, col);
-
-        if (isHit(row, col, playerShips)) {
-            cell.setText("O");
-            cell.setStyle("-fx-background-color: darkred;");
-        } else {
-            cell.setText("X");
-            cell.setStyle("-fx-background-color: lightgray;");
-        }
-
-        cell.setDisable(true);
-    }
-
-    private boolean isHit(int row, int col, List<Ship> ships) {
-        for (Ship ship : ships) {
-            for (int i = 0; i < ship.size; i++) {
-                int r = ship.startRow + (ship.horizontal ? 0 : i);
-                int c = ship.startCol + (ship.horizontal ? i : 0);
-                if (r == row && c == col) {
-                    return true;
+    @FXML
+    private void toggleEnemyBoard() {
+        monitorMode = !monitorMode;
+        for (javafx.scene.Node node : enemyBoard.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane cell = (StackPane) node;
+                for (javafx.scene.Node child : cell.getChildren()) {
+                    if (child instanceof Rectangle) {
+                        child.setVisible(monitorMode);
+                    }
                 }
             }
         }
-        return false;
-    }
-
-    @FXML
-    private void toggleEnemyBoard() {
-        boolean isVisible = enemyBoard.isVisible();
-        enemyBoard.setVisible(!isVisible);
-        monitorButton.setText(isVisible ? "Mostrar Tablero Enemigo" : "Ocultar Tablero Enemigo");
     }
 }
 
