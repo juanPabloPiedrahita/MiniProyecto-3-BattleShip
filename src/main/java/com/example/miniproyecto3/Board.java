@@ -7,6 +7,7 @@ public class Board {
     private static final int SIZE = 10;
     private boolean[][] playerBoard = new boolean[SIZE][SIZE]; // Indica si hay un barco en la posición
     private boolean[][] enemyBoard = new boolean[SIZE][SIZE];  // Indica si el enemigo tiene un barco en la posición
+    private boolean[][] shotsOnEnemyBoard = new boolean[SIZE][SIZE];
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
 
@@ -32,6 +33,12 @@ public class Board {
                     enemyBoard[r][c] = true;
                 }
             }
+            Ship ship = new Ship(size, row, col, horizontal);
+            if(isPlayer) {
+                playerShips.add(ship);
+            } else {
+                enemyShips.add(ship);
+            }
             return true;
         }
         return false;
@@ -46,6 +53,7 @@ public class Board {
             for (int c = 0; c < SIZE; c++) {
                 playerBoard[r][c] = false;
                 enemyBoard[r][c] = false;
+                shotsOnEnemyBoard[r][c] = false;
             }
         }
         playerShips.clear();
@@ -87,7 +95,25 @@ public class Board {
     }
 
     public boolean shoot(int row, int col) {
-        return enemyBoard[row][col];
+        shotsOnEnemyBoard[row][col] = true;
+        boolean hit = enemyBoard[row][col];
+        if(hit){
+            enemyBoard[row][col] = false;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean wasShot(int row, int col){
+        return shotsOnEnemyBoard[row][col];
+    }
+
+    public boolean[][] getPlayerBoard() {
+        return playerBoard;
+    }
+
+    public boolean[][] getEnemyBoard() {
+        return enemyBoard;
     }
 
 }

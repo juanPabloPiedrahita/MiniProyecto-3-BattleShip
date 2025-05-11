@@ -36,4 +36,20 @@ public class Ship {
         }
         return false;
     }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public int getStartCol() {
+        return startCol;
+    }
+
+    public boolean isHorizontal() {
+        return horizontal;
+    }
 }

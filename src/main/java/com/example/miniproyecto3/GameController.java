@@ -6,6 +6,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.FontWeight;
 
 import java.util.*;
 
@@ -21,6 +22,7 @@ public class GameController {
     private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
+    private StackPane[][] enemyCells = new StackPane[10][10];
 
     private boolean finishedPlacing = false;
     private boolean monitorMode = false;
@@ -44,6 +46,10 @@ public class GameController {
                 btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
                 cell.getChildren().add(btn);
+
+                if(!isPlayer) {
+                    enemyCells[row][col] = cell;
+                }
 
                 int finalRow = row;
                 int finalCol = col;
@@ -107,7 +113,16 @@ public class GameController {
             Rectangle rect = new Rectangle(30, 30);
             rect.setFill(Color.LIGHTGREEN);
             rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
+            rect.setMouseTransparent(true);
+            //rect.toBack();
+            //rect.setVisible(false);
             cell.getChildren().add(rect);
+
+            Label marker = new Label("");
+            marker.setFont(javafx.scene.text.Font.font("Arial", FontWeight.BOLD, 15));
+            //assert cell != null;
+            cell.getChildren().add(marker);
+            //enemyBoard.add(cell, col, row);
         }
     }
 
@@ -122,16 +137,33 @@ public class GameController {
 
     private void handlePlayerShot(int row, int col) {
         StackPane cell = getStackPaneAt(enemyBoard, row, col);
-        Button btn = (Button) cell.getChildren().get(0);
+        //assert cell != null;
+        if(cell == null) return;
+        for(javafx.scene.Node child : cell.getChildren()) {
+            if(child instanceof Label label && (label.getText().equals("X") || label.getText().equals("O"))) {
+                return;
+            }
+        }
+        //Button btn = (Button) cell.getChildren().get(0);
 
-        if (!btn.getText().isEmpty()) return;
+        //if (!btn.getText().isEmpty()) return;
 
         if (enemyBoardModel.shoot(row, col)) {
-            btn.setText("X");
-            btn.setStyle("-fx-background-color: red;");
+            System.out.println("Shot at " + row + ", " + col);
+            //btn.setDisable(true);
+            //cell.getChildren().remove(btn);
+            Label hitLabel = new Label("X");
+            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+            cell.getChildren().add(hitLabel);
+            //btn.setDisable(true);
+            //btn.setText("X");
+            //btn.setStyle("-fx-background-color: red;");
         } else {
-            btn.setText("O");
-            btn.setStyle("-fx-background-color: white;");
+            Label missLabel = new Label("O");
+            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+            cell.getChildren().add(missLabel);
+            //btn.setText("O");
+            //btn.setStyle("-fx-background-color: white;");
         }
     }
 
@@ -173,8 +205,8 @@ public class GameController {
             if (node instanceof StackPane) {
                 StackPane cell = (StackPane) node;
                 for (javafx.scene.Node child : cell.getChildren()) {
-                    if (child instanceof Rectangle) {
-                        child.setVisible(monitorMode);
+                    if (child instanceof Rectangle rect && rect.getFill().equals(Color.LIGHTGREEN)) {
+                        rect.setVisible(monitorMode);
                     }
                 }
             }
