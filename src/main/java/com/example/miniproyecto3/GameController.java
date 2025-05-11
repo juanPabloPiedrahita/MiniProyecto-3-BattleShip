@@ -189,13 +189,15 @@ public class GameController {
                 int col = rand.nextInt(10);
                 boolean horizontal = rand.nextBoolean();
                 Ship ship = new Ship(size, row, col, horizontal);
-                if (enemyBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, true)) {
+                if (enemyBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, false)) {
                     enemyShips.add(ship);
                     placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
                 }
             }
+
         }
+        debugEnemyBoard();
     }
 
     @FXML
@@ -212,5 +214,18 @@ public class GameController {
             }
         }
     }
+
+    private void debugEnemyBoard() {
+        System.out.println("=== DEBUG: enemyBoardModel ===");
+
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                boolean isShip = enemyBoardModel.shoot(row, col);  // No afecta lógica si solo se consulta
+                System.out.print(isShip ? "[X]" : "[ ]");
+            }
+            System.out.println();  // Salto de línea por fila
+        }
+    }
+
 }
 

@@ -97,11 +97,13 @@ public class Board {
     public boolean shoot(int row, int col) {
         shotsOnEnemyBoard[row][col] = true;
         boolean hit = enemyBoard[row][col];
-        if(hit){
-            enemyBoard[row][col] = false;
+
+        return hit;
+        /*if(hit){
+            //enemyBoard[row][col] = false;
             return true;
         }
-        return false;
+        return false;*/
     }
 
     public boolean wasShot(int row, int col){
