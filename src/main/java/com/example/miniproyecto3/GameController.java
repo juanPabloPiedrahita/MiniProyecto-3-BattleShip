@@ -26,6 +26,7 @@ public class GameController {
 
     private boolean finishedPlacing = false;
     private boolean monitorMode = false;
+    private boolean playerTurn = true;
 
     @FXML
     public void initialize() {
@@ -136,6 +137,8 @@ public class GameController {
     }
 
     private void handlePlayerShot(int row, int col) {
+        if(!playerTurn) return;
+
         StackPane cell = getStackPaneAt(enemyBoard, row, col);
         //assert cell != null;
         if(cell == null) return;
@@ -149,7 +152,7 @@ public class GameController {
 
         //if (!btn.getText().isEmpty()) return;
 
-        Ship hitShip = enemyBoardModel.shoot(row, col);
+        Ship hitShip = enemyBoardModel.shoot(row, col, true);
         if (hitShip != null) {
             System.out.println("Shot at " + row + ", " + col);
             //btn.setDisable(true);
@@ -171,6 +174,21 @@ public class GameController {
             //btn.setText("O");
             //btn.setStyle("-fx-background-color: white;");
         }
+
+        playerTurn = false;
+        checkWinCondition();
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                javafx.application.Platform.runLater(() -> {
+                    handleComputerShot();
+                    playerTurn = true;
+                    checkWinCondition();
+                });
+
+            }
+        }, 1000);
     }
 
     private void highlightSunkShip(Ship ship) {
@@ -193,6 +211,88 @@ public class GameController {
                 //cell.setOpacity(0.5);
                 //cell.setMouseTransparent(true);
             }
+        }
+    }
+
+    private void highlightPlayerSunkShip(Ship ship) {
+        for(int[] coord : ship.getCoordinates()) {
+            int row = coord[0];
+            int col = coord[1];
+            StackPane cell = getStackPaneAt(playerBoard, row, col);
+
+            if(cell != null) {
+                Rectangle burnMark = new Rectangle(30, 30);
+                burnMark.setFill(Color.LIGHTPINK);
+                burnMark.setOpacity(0.6);
+                burnMark.setMouseTransparent(true);
+                cell.getChildren().add(burnMark);
+                //cell.setStyle("-fx-background-color: red;");
+                //cell.setMouseTransparent(true);
+                //cell.toBack();
+                //cell.setVisible(false);
+                //cell.setDisable(true);
+                //cell.setOpacity(0.5);
+                //cell.setMouseTransparent(true);
+            }
+        }
+    }
+
+    private void handleComputerShot() {
+        Random rand = new Random();
+        int row, col;
+
+        do{
+            row = rand.nextInt(10);
+            col = rand.nextInt(10);
+        } while (playerBoardModel.alreadyShotAt(row, col, false));
+
+
+
+        playerBoardModel.registerShot(row, col, false);
+
+        StackPane cell = getStackPaneAt(playerBoard, row, col);
+        if(cell == null) return;
+
+        if(playerBoardModel.hasShipAt(row, col, true)) {
+            Ship hitShipAtPosition = getShipAt(playerShips, row, col);
+            if(hitShipAtPosition != null) {
+                System.out.println("Shot at " + row + ", " + col);
+                hitShipAtPosition.registerHit(row, col);
+                Label hitMachineLabel = new Label("X");
+                hitMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+                cell.getChildren().add(hitMachineLabel);
+                if(hitShipAtPosition.isSunk()) {
+                    highlightPlayerSunkShip(hitShipAtPosition);
+                }
+            }
+        } else {
+            Label missMachineLabel = new Label("O");
+            missMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+            cell.getChildren().add(missMachineLabel);
+        }
+    }
+
+    private Ship getShipAt(List<Ship> ships, int row, int col) {
+        for(Ship ship : ships) {
+            if(ship.occupies(row, col)) {
+                return ship;
+            }
+        }
+        return null;
+    }
+
+    private void checkWinCondition() {
+        boolean allEnemySunk = enemyShips.stream().allMatch(Ship::isSunk);
+        boolean allPlayerSunk = playerShips.stream().allMatch(Ship::isSunk);
+
+        if(allEnemySunk) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
+            alert.showAndWait();
+            playerTurn = false;
+        } else if(allPlayerSunk) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
+            alert.showAndWait();
+            playerTurn = false;
         }
     }
 
