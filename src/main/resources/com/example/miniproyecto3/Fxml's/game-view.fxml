@@ -9,7 +9,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.collections.FXCollections?>
 <?import java.lang.Integer?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.miniproyecto3.GameController">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.miniproyecto3.controller.GameController">
     <Label text="Configurar barco:" />
     <ComboBox fx:id="shipSizeSelector" promptText="Tamaño del barco">
         <items>

@@ -1,5 +1,7 @@
-package com.example.miniproyecto3;
+package com.example.miniproyecto3.controller;
 
+import com.example.miniproyecto3.model.Board;
+import com.example.miniproyecto3.model.Ship;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
