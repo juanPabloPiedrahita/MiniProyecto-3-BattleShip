@@ -8,6 +8,7 @@ public class Board {
     private boolean[][] playerBoard = new boolean[SIZE][SIZE]; // Indica si hay un barco en la posición
     private boolean[][] enemyBoard = new boolean[SIZE][SIZE];  // Indica si el enemigo tiene un barco en la posición
     private boolean[][] shotsOnEnemyBoard = new boolean[SIZE][SIZE];
+    private boolean[][] shotsOnPlayerBoard = new boolean[SIZE][SIZE];
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
 
@@ -54,6 +55,7 @@ public class Board {
                 playerBoard[r][c] = false;
                 enemyBoard[r][c] = false;
                 shotsOnEnemyBoard[r][c] = false;
+                shotsOnPlayerBoard[r][c] = false;
             }
         }
         playerShips.clear();
@@ -94,11 +96,16 @@ public class Board {
         return coordinates;
     }
 
-    public Ship shoot(int row, int col) {
-        shotsOnEnemyBoard[row][col] = true;
+    public Ship shoot(int row, int col, boolean isPlayer) {
+        if(alreadyShotAt(row, col, isPlayer)) return null;
 
-        if(enemyBoard[row][col]) {
-            for(Ship ship : enemyShips) {
+        registerShot(row, col, isPlayer);
+
+        List<Ship> targetShips = isPlayer ? enemyShips : playerShips;
+        boolean[][] targetBoard = isPlayer ? enemyBoard : playerBoard;
+
+        if(targetBoard[row][col]) {
+            for(Ship ship : targetShips) {
                 if(ship.occupies(row, col)) {
                     ship.registerHit(row, col);
                     return ship;
@@ -107,7 +114,7 @@ public class Board {
                 /*if(ship.isSunk()) {
                     System.out.println("Barco hundido en " + row + ", " + col + ".");
                     return ship;
-                }*/
+                */
             }
         }
         return null;
@@ -157,6 +164,22 @@ public class Board {
 
     public List<Ship> getEnemyShips() {
         return enemyShips;
+    }
+
+    public boolean alreadyShotAt(int row, int col, boolean isPlayer) {
+        return isPlayer ? shotsOnEnemyBoard[row][col] : shotsOnPlayerBoard[row][col];
+    }
+
+    public void registerShot(int row, int col, boolean isPlayer) {
+        if(isPlayer) {
+            shotsOnEnemyBoard[row][col] = true;
+        } else {
+            shotsOnPlayerBoard[row][col] = true;
+        }
+    }
+
+    public boolean hasShipAt(int row, int col, boolean isPlayer) {
+        return isPlayer ? playerBoard[row][col] : enemyBoard[row][col];
     }
 
 }
