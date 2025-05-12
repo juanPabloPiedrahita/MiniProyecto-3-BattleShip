@@ -94,11 +94,39 @@ public class Board {
         return coordinates;
     }
 
-    public boolean shoot(int row, int col) {
+    public Ship shoot(int row, int col) {
         shotsOnEnemyBoard[row][col] = true;
-        boolean hit = enemyBoard[row][col];
 
-        return hit;
+        if(enemyBoard[row][col]) {
+            for(Ship ship : enemyShips) {
+                if(ship.occupies(row, col)) {
+                    ship.registerHit(row, col);
+                    return ship;
+                    //return null;
+                }
+                /*if(ship.isSunk()) {
+                    System.out.println("Barco hundido en " + row + ", " + col + ".");
+                    return ship;
+                }*/
+            }
+        }
+        return null;
+        /*boolean hit = enemyBoard[row][col];
+
+        if(hit) {
+            for(Ship ship : enemyShips) {
+                if(ship.registerHit(row, col)) {
+                    if(ship.isSunk()) {
+                        System.out.println("Barco hundido en " + row + ", " + col + ".");
+                        Ship sunkShipLast = ship;
+                    }
+                    break;
+                }
+            }
+            return true;
+        }
+
+        return false;*/
         /*if(hit){
             //enemyBoard[row][col] = false;
             return true;
@@ -110,12 +138,25 @@ public class Board {
         return shotsOnEnemyBoard[row][col];
     }
 
+    public boolean wasHit(int row, int col) {
+        for(Ship ship : enemyShips) {
+            if(ship.occupies(row, col)) {
+                return shotsOnEnemyBoard[row][col];
+            }
+        }
+        return false;
+    }
+
     public boolean[][] getPlayerBoard() {
         return playerBoard;
     }
 
     public boolean[][] getEnemyBoard() {
         return enemyBoard;
+    }
+
+    public List<Ship> getEnemyShips() {
+        return enemyShips;
     }
 
 }

@@ -139,6 +139,7 @@ public class GameController {
         StackPane cell = getStackPaneAt(enemyBoard, row, col);
         //assert cell != null;
         if(cell == null) return;
+
         for(javafx.scene.Node child : cell.getChildren()) {
             if(child instanceof Label label && (label.getText().equals("X") || label.getText().equals("O"))) {
                 return;
@@ -148,13 +149,18 @@ public class GameController {
 
         //if (!btn.getText().isEmpty()) return;
 
-        if (enemyBoardModel.shoot(row, col)) {
+        Ship hitShip = enemyBoardModel.shoot(row, col);
+        if (hitShip != null) {
             System.out.println("Shot at " + row + ", " + col);
             //btn.setDisable(true);
             //cell.getChildren().remove(btn);
             Label hitLabel = new Label("X");
             hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
             cell.getChildren().add(hitLabel);
+
+            if(hitShip.isSunk()) {
+                highlightSunkShip(hitShip);
+            }
             //btn.setDisable(true);
             //btn.setText("X");
             //btn.setStyle("-fx-background-color: red;");
@@ -164,6 +170,29 @@ public class GameController {
             cell.getChildren().add(missLabel);
             //btn.setText("O");
             //btn.setStyle("-fx-background-color: white;");
+        }
+    }
+
+    private void highlightSunkShip(Ship ship) {
+        for(int[] coord : ship.getCoordinates()) {
+            int row = coord[0];
+            int col = coord[1];
+            StackPane cell = getStackPaneAt(enemyBoard, row, col);
+
+            if(cell != null) {
+                Rectangle burnMark = new Rectangle(30, 30);
+                burnMark.setFill(Color.LIGHTPINK);
+                burnMark.setOpacity(0.6);
+                burnMark.setMouseTransparent(true);
+                cell.getChildren().add(burnMark);
+                //cell.setStyle("-fx-background-color: red;");
+                //cell.setMouseTransparent(true);
+                //cell.toBack();
+                //cell.setVisible(false);
+                //cell.setDisable(true);
+                //cell.setOpacity(0.5);
+                //cell.setMouseTransparent(true);
+            }
         }
     }
 
@@ -217,10 +246,11 @@ public class GameController {
 
     private void debugEnemyBoard() {
         System.out.println("=== DEBUG: enemyBoardModel ===");
+        boolean[][] enemyGrid = enemyBoardModel.getEnemyBoard();
 
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                boolean isShip = enemyBoardModel.shoot(row, col);  // No afecta lógica si solo se consulta
+                boolean isShip = enemyGrid[row][col];  // No afecta lógica si solo se consulta
                 System.out.print(isShip ? "[X]" : "[ ]");
             }
             System.out.println();  // Salto de línea por fila
