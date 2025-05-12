@@ -2,6 +2,8 @@ package com.example.miniproyecto3.controller;
 
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
+import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
+import com.example.miniproyecto3.model.GameState;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
@@ -9,6 +11,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import java.io.*;
 
 import java.util.*;
 
@@ -30,6 +34,8 @@ public class GameController {
     private boolean monitorMode = false;
     private boolean playerTurn = true;
 
+    SerializableFileHandler serializableFileHandler;
+
     @FXML
     public void initialize() {
         createBoard(playerBoard, true);
@@ -37,6 +43,9 @@ public class GameController {
         shipSizeSelector.getSelectionModel().selectFirst();
         orientationToggle.setOnAction(e -> toggleOrientation());
         monitorButton.setDisable(true);
+
+        SerializableFileHandler serializableFileHandler = new SerializableFileHandler();
+
     }
 
     private void createBoard(GridPane board, boolean isPlayer) {
@@ -357,6 +366,11 @@ public class GameController {
             }
             System.out.println();  // Salto de línea por fila
         }
+    }
+
+    public void saveGameStage(){
+        GameState gameState = new GameState();
+        serializableFileHandler.serialize("dataGame.ser", gameState);
     }
 
 }
