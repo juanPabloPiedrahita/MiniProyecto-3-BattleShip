@@ -1,4 +1,4 @@
-package com.example.miniproyecto3;
+package com.example.miniproyecto3.model;
 
 import java.util.ArrayList;
 import java.util.List;
