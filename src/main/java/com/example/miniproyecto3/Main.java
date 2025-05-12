@@ -7,12 +7,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import com.example.miniproyecto3.controller.WelcomeController;
 import com.example.miniproyecto3.view.WelcomeStage;
+import com.example.miniproyecto3.view.GameStage;
+import com.example.miniproyecto3.controller.GameController;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
+        /*
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/game-view.fxml"));
         Parent root = loader.load();
 
@@ -20,7 +22,9 @@ public class Main extends Application {
         primaryStage.setTitle("Batalla Naval");
         primaryStage.setScene(scene);
         primaryStage.show();
+        */
 
+        GameStage.getInstance();
     }
 
     public static void main(String[] args) {
