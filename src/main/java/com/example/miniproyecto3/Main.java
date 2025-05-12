@@ -23,8 +23,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         */
-
-        GameStage.getInstance();
+        WelcomeStage.getInstance();
+        //GameStage.getInstance();
     }
 
     public static void main(String[] args) {
