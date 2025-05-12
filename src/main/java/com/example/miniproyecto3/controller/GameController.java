@@ -29,6 +29,7 @@ public class GameController {
     private boolean finishedPlacing = false;
     private boolean monitorMode = false;
     private boolean playerTurn = true;
+    private boolean gameEnded = false;
 
     @FXML
     public void initialize() {
@@ -80,9 +81,9 @@ public class GameController {
     private void placePlayerShip(int row, int col) {
         int size = shipSizeSelector.getValue();
         boolean horizontal = !orientationToggle.isSelected();
-        Ship ship = new Ship(size, row, col, horizontal);
+        Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
 
-        if (playerBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, true)) {
+        if (ship != null) {
             playerShips.add(ship);
             placeShipVisual(playerBoard, ship, Color.DARKGRAY);
             shipSizeSelector.getItems().remove((Integer) size);
@@ -139,7 +140,7 @@ public class GameController {
     }
 
     private void handlePlayerShot(int row, int col) {
-        if(!playerTurn) return;
+        if(!playerTurn || gameEnded) return;
 
         StackPane cell = getStackPaneAt(enemyBoard, row, col);
         //assert cell != null;
@@ -179,6 +180,8 @@ public class GameController {
 
         playerTurn = false;
         checkWinCondition();
+
+        if(gameEnded) return;
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -284,14 +287,18 @@ public class GameController {
     }
 
     private void checkWinCondition() {
+        if(gameEnded) return;
+
         boolean allEnemySunk = enemyShips.stream().allMatch(Ship::isSunk);
         boolean allPlayerSunk = playerShips.stream().allMatch(Ship::isSunk);
 
         if(allEnemySunk) {
+            gameEnded = true;
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
             alert.showAndWait();
             playerTurn = false;
         } else if(allPlayerSunk) {
+            gameEnded = true;
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
             alert.showAndWait();
             playerTurn = false;
@@ -319,8 +326,8 @@ public class GameController {
                 int row = rand.nextInt(10);
                 int col = rand.nextInt(10);
                 boolean horizontal = rand.nextBoolean();
-                Ship ship = new Ship(size, row, col, horizontal);
-                if (enemyBoardModel.placeShip(ship.startRow, ship.startCol, ship.size, ship.horizontal, false)) {
+                Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
+                if (ship != null) {
                     enemyShips.add(ship);
                     placeShipVisualHidden(enemyBoard, ship);
                     placed = true;

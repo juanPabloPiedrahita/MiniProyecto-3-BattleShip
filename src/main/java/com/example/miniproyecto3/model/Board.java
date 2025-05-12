@@ -12,7 +12,7 @@ public class Board {
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
 
-    public boolean placeShip(int row, int col, int size, boolean horizontal, boolean isPlayer) {
+    public Ship placeShip(int row, int col, int size, boolean horizontal, boolean isPlayer) {
         boolean canPlace = true;
         for (int i = 0; i < size; i++) {
             int r = row + (horizontal ? 0 : i);
@@ -40,9 +40,9 @@ public class Board {
             } else {
                 enemyShips.add(ship);
             }
-            return true;
+            return ship;
         }
-        return false;
+        return null;
     }
 
     public boolean isHit(int row, int col, boolean isPlayer) {
