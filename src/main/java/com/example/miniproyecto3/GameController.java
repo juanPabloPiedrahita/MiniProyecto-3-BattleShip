@@ -1,6 +1,8 @@
 package com.example.miniproyecto3;
 
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
@@ -95,14 +97,48 @@ public class GameController {
     }
 
     private void placeShipVisual(GridPane board, Ship ship, Color color) {
-        for (int[] coord : ship.getCoordinates()) {
+        //for (int[] coord : ship.getCoordinates()) {
+            //int row = coord[0];
+            //int col = coord[1];
+            //StackPane cell = getStackPaneAt(board, row, col);
+            //if(cell != null) {
+                /*Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+
+                if(ship.isHorizontal()) {
+                    gc.setFill(color);
+                    gc.fillRect(0, 0, 30 * ship.getSize(), 30);
+                } else {
+                    gc.setFill(color);
+                    gc.fillRect(0, 0, 30, 30 * ship.getSize());
+                }
+
+                cell.getChildren().add(canvas);*/
+                //Rectangle rect = new Rectangle(30, 30);
+                //rect.setFill(color);
+                //cell.getChildren().add(rect);
+            //}
+
+
+        //}
+        List<int[]> coords = ship.getCoordinates();
+
+        for(int i = 0; i < coords.size(); i++) {
+            int[] coord = coords.get(i);
             int row = coord[0];
             int col = coord[1];
-            StackPane cell = getStackPaneAt(board, row, col);
 
-            Rectangle rect = new Rectangle(30, 30);
-            rect.setFill(color);
-            cell.getChildren().add(rect);
+            boolean isFirst = (i == 0);
+            boolean isLast = (i == coords.size() - 1);
+
+            StackPane cell = getStackPaneAt(board, row, col);
+            if(cell != null) {
+                Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, color);
+                canvas.setMouseTransparent(true);
+                cell.getChildren().add(canvas);
+            }
         }
     }
 
@@ -112,18 +148,46 @@ public class GameController {
             int col = coord[1];
             StackPane cell = getStackPaneAt(board, row, col);
 
-            Rectangle rect = new Rectangle(30, 30);
+            if(cell != null) {
+                Rectangle rect = new Rectangle(30, 30);
+                rect.setFill(Color.LIGHTGREEN);
+                rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
+                rect.setMouseTransparent(true);
+            //rect.toBack();
+            //rect.setVisible(false);
+                cell.getChildren().add(rect);
+                /*Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+
+                if(ship.isHorizontal()) {
+                    gc.setFill(Color.LIGHTGREEN);
+                    gc.fillRect(0, 0, 30 * ship.getSize(), 30);
+                } else {
+                    gc.setFill(Color.LIGHTGREEN);
+                    gc.fillRect(0, 0, 30, 30 * ship.getSize());
+                }
+
+                canvas.setVisible(monitorMode);
+                canvas.setMouseTransparent(true);
+                cell.getChildren().add(canvas);
+
+                Label marker = new Label("");
+                marker.setFont(javafx.scene.text.Font.font("Arial", FontWeight.BOLD, 15));
+                //assert cell != null;
+                cell.getChildren().add(marker);*/
+
+
+            }
+
+            /*Rectangle rect = new Rectangle(30, 30);
             rect.setFill(Color.LIGHTGREEN);
             rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
             rect.setMouseTransparent(true);
             //rect.toBack();
             //rect.setVisible(false);
-            cell.getChildren().add(rect);
+            cell.getChildren().add(rect);*/
 
-            Label marker = new Label("");
-            marker.setFont(javafx.scene.text.Font.font("Arial", FontWeight.BOLD, 15));
-            //assert cell != null;
-            cell.getChildren().add(marker);
+
             //enemyBoard.add(cell, col, row);
         }
     }
@@ -201,6 +265,16 @@ public class GameController {
             StackPane cell = getStackPaneAt(enemyBoard, row, col);
 
             if(cell != null) {
+                /*Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+
+                gc.setFill(Color.LIGHTPINK);
+                gc.setGlobalAlpha(0.6);
+                gc.fillRect(0, 0, 30, 30);
+                gc.setGlobalAlpha(1);
+
+                canvas.setMouseTransparent(true);
+                cell.getChildren().add(canvas);*/
                 Rectangle burnMark = new Rectangle(30, 30);
                 burnMark.setFill(Color.LIGHTPINK);
                 burnMark.setOpacity(0.6);
@@ -224,6 +298,16 @@ public class GameController {
             StackPane cell = getStackPaneAt(playerBoard, row, col);
 
             if(cell != null) {
+                /*Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+
+                gc.setFill(Color.LIGHTPINK);
+                gc.setGlobalAlpha(0.6);
+                gc.fillRect(0, 0, 30, 30);
+                gc.setGlobalAlpha(1);
+
+                canvas.setMouseTransparent(true);
+                cell.getChildren().add(canvas);*/
                 Rectangle burnMark = new Rectangle(30, 30);
                 burnMark.setFill(Color.LIGHTPINK);
                 burnMark.setOpacity(0.6);
@@ -349,6 +433,78 @@ public class GameController {
                 }
             }
         }
+    }
+
+    private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, Color color) {
+        gc.clearRect(0, 0, 30, 30);
+
+        gc.setFill(color);
+        /*double boatWidth = 20;
+        double boatHeight = 20;
+
+        if(horizontal) {
+            gc.fillRoundRect(5, 5, boatWidth * 2, boatHeight, 10, 10);
+        } else {
+            gc.fillRoundRect(5, 5, boatWidth, boatHeight * 2, 10, 10);
+        }
+        //gc.fillRoundRect(5, 5, 20, 20, 10, 10);
+
+        gc.setFill(color.darker());
+        if(horizontal) {
+            gc.fillRoundRect(10, 10, boatWidth * 2, boatHeight - 5, 10, 10);
+        } else {
+            gc.fillRoundRect(10, 10, boatWidth - 5, boatHeight * 2, 10, 10);
+        }*/
+
+        if(isFirst) {
+            gc.setFill(color.darker());
+            if(horizontal) {
+                gc.fillPolygon(new double[]{25, 5, 5}, new double[]{0, 30, 15}, 3);
+            } else {
+                gc.fillPolygon(new double[]{0, 30, 15}, new double[]{5, 5, 25}, 3);
+            }
+        }
+
+        else if(isLast) {
+            gc.setFill(color.darker());
+            if(horizontal) {
+                //gc.fillPolygon(new double[]{30, 25, 25}, new double[]{15, 5, 25}, 3);
+                gc.fillRoundRect(5, 5, 20, 20, 10, 10);
+                gc.setFill(Color.GRAY);
+                gc.fillOval(8, 8, 5, 5);
+            } else {
+                //gc.fillPolygon(new double[]{15, 5, 25}, new double[]{30, 25, 25}, 3);
+                gc.fillRoundRect(5, 5, 20, 20, 10, 10);
+                gc.setFill(Color.GRAY);
+                gc.fillOval(8, 8, 5, 5);
+            }
+        } else {
+            gc.setFill(color);
+            gc.fillRect(5, 5, 20, 20);
+
+            gc.setStroke(color.darker());
+            gc.setLineWidth(2);
+            if(horizontal) {
+                gc.strokeLine(10, 5, 10, 25);
+                gc.strokeLine(20, 5, 20, 25);
+            } else {
+                gc.strokeLine(5, 10, 25, 10);
+                gc.strokeLine(5, 20, 25, 20);
+            }
+
+            gc.setFill(Color.BLACK);
+            gc.fillOval(13, 13, 4, 4);
+        }
+
+        /*gc.setFill(color.brighter());
+        if(horizontal) {
+            gc.fillRoundRect(15, 5, 10, 10, 5, 5);
+        } else {
+            gc.fillRoundRect(5, 15, 10, 10, 5, 5);
+        }
+
+        gc.setFill(Color.BLACK);
+        gc.fillOval(13, 13, 4, 4);*/
     }
 
     private void debugEnemyBoard() {
