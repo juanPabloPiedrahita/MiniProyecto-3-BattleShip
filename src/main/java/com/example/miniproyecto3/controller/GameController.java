@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -81,13 +83,14 @@ public class GameController {
     }
 
     private void placePlayerShip(int row, int col) {
+        Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
         int size = shipSizeSelector.getValue();
         boolean horizontal = !orientationToggle.isSelected();
         Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
 
         if (ship != null) {
             playerShips.add(ship);
-            placeShipVisual(playerBoard, ship, Color.DARKGRAY);
+            placeShipVisual(playerBoard, ship, boatImage);
             shipSizeSelector.getItems().remove((Integer) size);
 
             if (shipSizeSelector.getItems().isEmpty()) {
@@ -98,34 +101,10 @@ public class GameController {
         }
     }
 
-    private void placeShipVisual(GridPane board, Ship ship, Color color) {
-        //for (int[] coord : ship.getCoordinates()) {
-            //int row = coord[0];
-            //int col = coord[1];
-            //StackPane cell = getStackPaneAt(board, row, col);
-            //if(cell != null) {
-                /*Canvas canvas = new Canvas(30, 30);
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-
-                if(ship.isHorizontal()) {
-                    gc.setFill(color);
-                    gc.fillRect(0, 0, 30 * ship.getSize(), 30);
-                } else {
-                    gc.setFill(color);
-                    gc.fillRect(0, 0, 30, 30 * ship.getSize());
-                }
-
-                cell.getChildren().add(canvas);*/
-                //Rectangle rect = new Rectangle(30, 30);
-                //rect.setFill(color);
-                //cell.getChildren().add(rect);
-            //}
-
-
-        //}
+    private void placeShipVisual(GridPane board, Ship ship, Image boatImage) {
         List<int[]> coords = ship.getCoordinates();
 
-        for(int i = 0; i < coords.size(); i++) {
+        for (int i = 0; i < coords.size(); i++) {
             int[] coord = coords.get(i);
             int row = coord[0];
             int col = coord[1];
@@ -134,15 +113,17 @@ public class GameController {
             boolean isLast = (i == coords.size() - 1);
 
             StackPane cell = getStackPaneAt(board, row, col);
-            if(cell != null) {
+            if (cell != null) {
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
-                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, color);
+                // Llamamos al método para dibujar la imagen del barco
+                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, boatImage);
                 canvas.setMouseTransparent(true);
                 cell.getChildren().add(canvas);
             }
         }
     }
+
 
     private void placeShipVisualHidden(GridPane board, Ship ship) {
         for (int[] coord : ship.getCoordinates()) {
@@ -437,77 +418,57 @@ public class GameController {
         }
     }
 
-    private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, Color color) {
+    private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, Image boatImage) {
         gc.clearRect(0, 0, 30, 30);
 
-        gc.setFill(color);
-        /*double boatWidth = 20;
-        double boatHeight = 20;
+        // Efecto de sombra
+        DropShadow shadow = new DropShadow();
+        shadow.setOffsetX(2);
+        shadow.setOffsetY(2);
+        shadow.setColor(Color.rgb(30, 30, 30, 0.4));
+        gc.applyEffect(shadow);
 
-        if(horizontal) {
-            gc.fillRoundRect(5, 5, boatWidth * 2, boatHeight, 10, 10);
-        } else {
-            gc.fillRoundRect(5, 5, boatWidth, boatHeight * 2, 10, 10);
-        }
-        //gc.fillRoundRect(5, 5, 20, 20, 10, 10);
+        // Asumiendo que la imagen del barco está dividida en tres partes:
+        // 1. Proa (primer segmento)
+        // 2. Medio (varios segmentos)
+        // 3. Popa (último segmento)
 
-        gc.setFill(color.darker());
-        if(horizontal) {
-            gc.fillRoundRect(10, 10, boatWidth * 2, boatHeight - 5, 10, 10);
-        } else {
-            gc.fillRoundRect(10, 10, boatWidth - 5, boatHeight * 2, 10, 10);
-        }*/
+        double boatWidth = boatImage.getWidth();
+        double boatHeight = boatImage.getHeight();
+        double segmentWidth = boatWidth / 3; // Dividimos la imagen en 3 partes iguales
 
-        if(isFirst) {
-            gc.setFill(color.darker());
-            if(horizontal) {
-                gc.fillPolygon(new double[]{25, 5, 5}, new double[]{0, 30, 15}, 3);
+        // Si es horizontal, no hacemos rotación
+        if (horizontal) {
+            if (isFirst) {
+                // Dibuja la proa (primer segmento de la imagen)
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja solo la proa
+            } else if (isLast) {
+                // Dibuja la popa (último segmento de la imagen)
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja solo la popa
             } else {
-                gc.fillPolygon(new double[]{0, 30, 15}, new double[]{5, 5, 25}, 3);
-            }
-        }
-
-        else if(isLast) {
-            gc.setFill(color.darker());
-            if(horizontal) {
-                //gc.fillPolygon(new double[]{30, 25, 25}, new double[]{15, 5, 25}, 3);
-                gc.fillRoundRect(5, 5, 20, 20, 10, 10);
-                gc.setFill(Color.GRAY);
-                gc.fillOval(8, 8, 5, 5);
-            } else {
-                //gc.fillPolygon(new double[]{15, 5, 25}, new double[]{30, 25, 25}, 3);
-                gc.fillRoundRect(5, 5, 20, 20, 10, 10);
-                gc.setFill(Color.GRAY);
-                gc.fillOval(8, 8, 5, 5);
+                // Dibuja el medio (segmento central de la imagen)
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja el medio
             }
         } else {
-            gc.setFill(color);
-            gc.fillRect(5, 5, 20, 20);
+            // Si es vertical, necesitamos rotar la imagen para ajustarla
+            gc.save();  // Guardamos el contexto actual del GraphicsContext
+            gc.rotate(90); // Rotamos la imagen 90 grados
 
-            gc.setStroke(color.darker());
-            gc.setLineWidth(2);
-            if(horizontal) {
-                gc.strokeLine(10, 5, 10, 25);
-                gc.strokeLine(20, 5, 20, 25);
+            if (isFirst) {
+                // Dibuja la proa (primer segmento de la imagen) rotada
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja solo la proa (rotada)
+            } else if (isLast) {
+                // Dibuja la popa (último segmento de la imagen) rotada
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja solo la popa (rotada)
             } else {
-                gc.strokeLine(5, 10, 25, 10);
-                gc.strokeLine(5, 20, 25, 20);
+                // Dibuja el medio (segmento central de la imagen) rotado
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja el medio (rotado)
             }
 
-            gc.setFill(Color.BLACK);
-            gc.fillOval(13, 13, 4, 4);
+            gc.restore(); // Restauramos el contexto al estado original (sin rotación)
         }
-
-        /*gc.setFill(color.brighter());
-        if(horizontal) {
-            gc.fillRoundRect(15, 5, 10, 10, 5, 5);
-        } else {
-            gc.fillRoundRect(5, 15, 10, 10, 5, 5);
-        }
-
-        gc.setFill(Color.BLACK);
-        gc.fillOval(13, 13, 4, 4);*/
     }
+
 
     private void debugEnemyBoard() {
         System.out.println("=== DEBUG: enemyBoardModel ===");
