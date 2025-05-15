@@ -16,6 +16,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.FontWeight;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
+import com.example.miniproyecto3.model.Player;
 
 import java.util.*;
 
@@ -46,6 +47,15 @@ public class GameController {
     private boolean playerTurn = true;
     private boolean gameEnded = false;
 
+    //planeTextFileHandler
+    private PlaneTextFileHandler planeTextFileHandler;
+
+    //player
+    private Player player;
+
+    //variable para saber si le dio a continuar
+    private boolean continueGame;
+
     @FXML
     public void initialize() { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         System.out.println("Creando playerboard");
@@ -58,6 +68,10 @@ public class GameController {
         orientationToggle.setOnAction(e -> toggleOrientation());
         System.out.println("Desactivando monitorMode");
         monitorButton.setDisable(true);
+        planeTextFileHandler = new PlaneTextFileHandler();
+        //archivos planos
+        System.out.println("Creando planeTextFileHandler");
+
     }
 
     private void createBoard(GridPane board, boolean isPlayer) {
@@ -236,6 +250,8 @@ public class GameController {
             cell.getChildren().add(hitLabel);
 
             if(hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido
+                player.setPlayerScore(player.getPlayerScore() + 1);
+                planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
                 highlightSunkShip(hitShip);
             }
             //btn.setDisable(true);
@@ -547,5 +563,21 @@ public class GameController {
         }
     }
 
+    public void continueB(boolean isContinue) {
+        if(isContinue) {
+            //planeTextFileHandler = new PlaneTextFileHandler();
+            String data[] = planeTextFileHandler.read("PlayerData.csv");
+            String user = data[0];
+            int score = Integer.parseInt(data[1]);
+            player = new Player(user, score);
+            System.out.println("Jugador: " + player.getPlayerName() + "," + player.getPlayerScore());
+        }
+        else{
+            String data[] = planeTextFileHandler.read("PlayerData.csv");
+            String user = data[0].trim();
+            player = new Player(user, 0);
+            System.out.println("JugadorNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
+        }
+    }
 }
 

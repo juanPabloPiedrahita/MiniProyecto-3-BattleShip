@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class WelcomeStage extends Stage {
     public WelcomeStage() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/welcome-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/home-view1.fxml"));
         Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
         Scene scene = new Scene(root);
         setResizable(false);

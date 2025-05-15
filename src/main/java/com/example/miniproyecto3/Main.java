@@ -29,7 +29,6 @@ public class Main extends Application {
         primaryStage.show();
         */
         WelcomeStage.getInstance();
-        //GameStage.getInstance();
     }
 
     public static void main(String[] args) {
