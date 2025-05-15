@@ -14,6 +14,7 @@ public class Board {
 
     public Ship placeShip(int row, int col, int size, boolean horizontal, boolean isPlayer) {
         boolean canPlace = true;
+        //este for verifica si se puede colocar o no el barco en el row y col dados
         for (int i = 0; i < size; i++) {
             int r = row + (horizontal ? 0 : i);
             int c = col + (horizontal ? i : 0);
@@ -25,6 +26,7 @@ public class Board {
         }
 
         if (canPlace) {
+            //como ya se verifico que si se puede poner un barco ahi entramos a este for que pone un pedazo de barco en cada celda del board (player o enemy)
             for (int i = 0; i < size; i++) {
                 int r = row + (horizontal ? 0 : i);
                 int c = col + (horizontal ? i : 0);
@@ -34,6 +36,7 @@ public class Board {
                     enemyBoard[r][c] = true;
                 }
             }
+            //se crea un barco y se ingresa en el arrayList respectivo
             Ship ship = new Ship(size, row, col, horizontal);
             if(isPlayer) {
                 playerShips.add(ship);
