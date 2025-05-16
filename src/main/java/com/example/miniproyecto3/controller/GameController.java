@@ -17,6 +17,8 @@ import javafx.scene.text.FontWeight;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.Player;
+import java.io.File;
+
 
 import java.util.*;
 
@@ -58,22 +60,27 @@ public class GameController {
 
     @FXML
     public void initialize() { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
-        System.out.println("Creando playerboard");
-        createBoard(playerBoard, true);
-        System.out.println("Creando enemyboard");
-        createBoard(enemyBoard, false);
-        System.out.println("seleccionando primera opcion en shipSizeSelector");
-        shipSizeSelector.getSelectionModel().selectFirst();
-        System.out.println("Creando evento para orientationToggle");
-        orientationToggle.setOnAction(e -> toggleOrientation());
-        System.out.println("Desactivando monitorMode");
-        monitorButton.setDisable(true);
-        planeTextFileHandler = new PlaneTextFileHandler();
-        //archivos planos
-        System.out.println("Creando planeTextFileHandler");
+        File file = new File("GameState.ser");
+        if(!file.exists()) {
+            System.out.println("Creando playerboard");
+            createBoard(playerBoard, true);
+            System.out.println("Creando enemyboard");
+            createBoard(enemyBoard, false);
+            System.out.println("seleccionando primera opcion en shipSizeSelector");
+            shipSizeSelector.getSelectionModel().selectFirst();
+            System.out.println("Creando evento para orientationToggle");
+            orientationToggle.setOnAction(e -> toggleOrientation());
+            System.out.println("Desactivando monitorMode");
+            monitorButton.setDisable(true);
+            planeTextFileHandler = new PlaneTextFileHandler();
+        }
+        else {
+            loadGameState();
+        }
 
     }
 
+    //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
     private void createBoard(GridPane board, boolean isPlayer) {
         System.out.println("Creando " + isPlayer + " board (gridpane)" );
         board.getChildren().clear();
@@ -104,6 +111,7 @@ public class GameController {
                 });
 
                 board.add(cell, col, row);
+
             }
         }
     }
@@ -116,6 +124,8 @@ public class GameController {
         }
     }
 
+
+    //metodo que pone los barcos del jugador en las coordenas (row,col)
     private void placePlayerShip(int row, int col) {
         Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
         int size = shipSizeSelector.getValue();
@@ -127,6 +137,7 @@ public class GameController {
             playerShips.add(ship);
             placeShipVisual(playerBoard, ship, boatImage);
             shipSizeSelector.getItems().remove((Integer) size);
+            saveGameState();
             //si ya se acabaron todas las opciones para poner barcos elimina el boton de seleccion de barcos y orientacion (los deshabilita) y activa el boton de modo monitor
             if (shipSizeSelector.getItems().isEmpty()) {
                 shipSizeSelector.setDisable(true);
@@ -241,6 +252,7 @@ public class GameController {
         //if (!btn.getText().isEmpty()) return;
 
         Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
+        saveGameState();
         if (hitShip != null) {
             System.out.println("Shot at " + row + ", " + col);
             //btn.setDisable(true);
@@ -248,11 +260,13 @@ public class GameController {
             Label hitLabel = new Label("X");
             hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
             cell.getChildren().add(hitLabel);
+            saveGameState();
 
-            if(hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido
+            if(hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
                 player.setPlayerScore(player.getPlayerScore() + 1);
                 planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
                 highlightSunkShip(hitShip);
+                saveGameState();
             }
             //btn.setDisable(true);
             //btn.setText("X");
@@ -262,12 +276,14 @@ public class GameController {
             Label missLabel = new Label("O");
             missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missLabel);
+            saveGameState();
             //btn.setText("O");
             //btn.setStyle("-fx-background-color: white;");
         }
 
         playerTurn = false; //pasa el turno a la maquina
         checkWinCondition(); //checkea victoria
+        saveGameState();
 
         if(gameEnded) return; //si el juego termino breakea
 
@@ -279,6 +295,7 @@ public class GameController {
                     handleComputerShot();
                     playerTurn = true;
                     checkWinCondition();
+                    saveGameState();
                 });
 
             }
@@ -420,6 +437,7 @@ public class GameController {
             alert.showAndWait();
             playerTurn = false;
         }
+        saveGameState();
     }
 
     //Este metodo maneja el evento generado por darle al boton de "listo" que indica haber terminado de poner los barcos
@@ -429,6 +447,7 @@ public class GameController {
         if (shipSizeSelector.getItems().isEmpty()) {
             finishedPlacing = true;
             placeEnemyShips();
+            saveGameState();
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
@@ -544,12 +563,15 @@ public class GameController {
 
     //metodos para la serializcion: (¡Slava Russia, Z!)
 
+    //este metodo guarda el estado del juego adentro del archivo GameState.ser, debe ser llamado cada vez que el tablero se actualize
     public void saveGameState(){
-        GameState state = new GameState(playerBoardModel, enemyBoardModel, playerShips, enemyShips, "Jugador");
+        GameState state = new GameState(playerBoardModel, enemyBoardModel, playerShips, enemyShips);
         SerializableFileHandler handler = new SerializableFileHandler();
         handler.serialize("GameState.ser", state);
+        System.out.println("Estado del juego guardado con exito en: GameState.ser");
     }
 
+    //este metodo carga el juego desde el estado en el que se dejo cuando el jugador lo cerro
     public void loadGameState( ){
         SerializableFileHandler handler = new SerializableFileHandler();
         GameState state = (GameState) handler.deserialize("GameState.ser");
@@ -559,7 +581,7 @@ public class GameController {
             this.enemyBoardModel = state.getEnemyBoard();
             this.playerShips = state.getPlayerShips();
             this.enemyShips = state.getEnemyShips();
-            // redibujar los tableros aquí (gridPanes)
+            redrawBoards();// redibujar los tableros aquí (gridPanes)
         }
     }
 
@@ -571,6 +593,8 @@ public class GameController {
             int score = Integer.parseInt(data[1]);
             player = new Player(user, score);
             System.out.println("Jugador: " + player.getPlayerName() + "," + player.getPlayerScore());
+
+            //loadGameState();
         }
         else{
             String data[] = planeTextFileHandler.read("PlayerData.csv");
@@ -579,5 +603,69 @@ public class GameController {
             System.out.println("JugadorNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
         }
     }
+
+    //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
+    private void redrawBoards() {
+        Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
+
+        // Limpia los tableros visuales
+        createBoard(playerBoard, true);
+        createBoard(enemyBoard, false);
+
+        // Dibuja los barcos del jugador
+        for (Ship ship : playerShips) {
+            placeShipVisual(playerBoard, ship, boatImage);
+        }
+
+        // Dibuja los barcos del enemigo (ocultos)
+        for (Ship ship : enemyShips) {
+            placeShipVisualHidden(enemyBoard, ship);
+        }
+
+        // Restaura disparos del jugador sobre enemigo
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                if (enemyBoardModel.alreadyShotAt(row, col, true)) {
+                    StackPane cell = getStackPaneAt(enemyBoard, row, col);
+                    if (cell != null) {
+                        if (enemyBoardModel.hasShipAt(row, col, true)) {
+                            Label hitLabel = new Label("X");
+                            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+                            cell.getChildren().add(hitLabel);
+                        } else {
+                            Label missLabel = new Label("O");
+                            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+                            cell.getChildren().add(missLabel);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Restaura disparos de la máquina sobre jugador
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                if (playerBoardModel.alreadyShotAt(row, col, false)) {
+                    StackPane cell = getStackPaneAt(playerBoard, row, col);
+                    if (cell != null) {
+                        if (playerBoardModel.hasShipAt(row, col, true)) {
+                            Label hitLabel = new Label("X");
+                            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+                            cell.getChildren().add(hitLabel);
+                        } else {
+                            Label missLabel = new Label("O");
+                            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+                            cell.getChildren().add(missLabel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
 }
 

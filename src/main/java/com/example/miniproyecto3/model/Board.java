@@ -1,9 +1,10 @@
 package com.example.miniproyecto3.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board {
+public class Board implements Serializable {
     private static final int SIZE = 10;
     private boolean[][] playerBoard = new boolean[SIZE][SIZE]; // Indica si hay un barco en la posición
     private boolean[][] enemyBoard = new boolean[SIZE][SIZE];  // Indica si el enemigo tiene un barco en la posición
