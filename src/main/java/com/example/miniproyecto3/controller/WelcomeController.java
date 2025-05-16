@@ -5,20 +5,52 @@ import java.io.IOException;
 
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
+import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
+import com.example.miniproyecto3.model.Player;
+
 
 public class WelcomeController {
 
+    @FXML
+    private TextField userTxt;
+
+    private PlaneTextFileHandler planeTextFileHandler;
+
+    @FXML
     public void initialize(){
+        planeTextFileHandler = new PlaneTextFileHandler();
 
-
+        //player = new Player(userTxt.getText(),0);
     }
 
+    @FXML
     public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
+        if(!userTxt.getText().isEmpty()) {
+            planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
+            WelcomeStage.deleteInstance();
+            GameStage.getInstance().getController().continueB(false);
+            GameStage.getInstance();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Ingresa un usuario antes de continuar!");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void onHandleContinueButtom(javafx.event.ActionEvent event) throws IOException {
         WelcomeStage.deleteInstance();
+        GameStage.getInstance().getController().continueB(true);
         GameStage.getInstance();
     }
 
+
+    @FXML
     public void onHandleQuitButtom(javafx.event.ActionEvent event) throws IOException {
+
         WelcomeStage.deleteInstance();
     }
 }
