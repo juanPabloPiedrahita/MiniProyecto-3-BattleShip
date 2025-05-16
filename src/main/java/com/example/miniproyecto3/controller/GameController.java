@@ -3,6 +3,8 @@ package com.example.miniproyecto3.controller;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.GameState;
 import com.example.miniproyecto3.model.Ship;
+import com.example.miniproyecto3.view.GameStage;
+import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,6 +22,7 @@ import com.example.miniproyecto3.model.Player;
 import java.io.File;
 
 
+import java.io.IOException;
 import java.util.*;
 
 public class GameController {
@@ -44,7 +47,7 @@ public class GameController {
     private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
-    private StackPane[][] enemyCells = new StackPane[10][10]; //no se esta usando para nada :v (solo en createBoard pero sin ninguna funcionalidad real)
+    private StackPane[][] enemyCells = new StackPane[10][10]; //no se está usando para nada :v (solo en createBoard pero sin ninguna funcionalidad real)
 
     //atributos para llevar monitoreo constante del estado del juego
     private boolean finishedPlacing = false;
@@ -62,10 +65,13 @@ public class GameController {
     private boolean continueGame;
 
     @FXML
-    public void initialize() { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+    public void initialize() throws IOException { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         planeTextFileHandler = new PlaneTextFileHandler();
-        File file = new File("GameState.ser");
-        if(!file.exists()) {
+        continueGame = WelcomeStage.getInstance().getWelController().getContinue();
+        WelcomeStage.deleteInstance();
+        //File file = new File("GameState.ser");
+        if(!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
+            System.out.println("Nuevo juego...");
             System.out.println("Creando playerboard");
             createBoard(playerBoard, true);
             System.out.println("Creando enemyboard");
@@ -76,11 +82,12 @@ public class GameController {
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
             monitorButton.setDisable(true);
-            //planeTextFileHandler = new PlaneTextFileHandler();
         }
-        else {
+        else if(continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
+            System.out.println("Entrando a cargar el juego mas reciente");
             finishedPlacing = true;
             loadGameState();
+            //checkWinCondition();
             readyButton.setDisable(true);
             orientationToggle.setDisable(true);
             shipSizeSelector.setDisable(true);
@@ -119,9 +126,10 @@ public class GameController {
                 });
 
                 board.add(cell, col, row);
-
             }
         }
+        board.setHgap(0);
+        board.setVgap(0);
     }
 
     private void toggleOrientation() {
@@ -439,13 +447,28 @@ public class GameController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
             alert.showAndWait();
             playerTurn = false;
+            if(continueGame)
+            {
+                System.out.println("Eliminando la partida...");
+                File file = new File("GameState.ser");
+                file.delete();
+            }
+            GameStage.deleteInstance();
+
         } else if(allPlayerSunk) {
             gameEnded = true;
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
             alert.showAndWait();
             playerTurn = false;
+            if(continueGame)
+            {
+                System.out.println("Eliminando la partida...");
+                File file = new File("GameState.ser");
+                file.delete();
+            }
+            GameStage.deleteInstance();
         }
-        saveGameState();
+        //saveGameState();
     }
 
     //Este metodo maneja el evento generado por darle al boton de "listo" que indica haber terminado de poner los barcos
@@ -571,7 +594,7 @@ public class GameController {
     }
 
 
-    //metodos para la serializcion: (¡Slava Russia, Z!)
+    //metodos para la serializcion: (¡Slava Rusia, Z!)
 
     //este metodo guarda el estado del juego adentro del archivo GameState.ser, debe ser llamado cada vez que el tablero se actualize
     public void saveGameState(){
@@ -625,11 +648,17 @@ public class GameController {
         // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
             placeShipVisual(playerBoard, ship, boatImage);
+            if(ship.isSunk()){
+                highlightSunkShip(ship);
+            }
         }
 
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
             placeShipVisualHidden(enemyBoard, ship);
+            if(ship.isSunk()){
+                highlightSunkShip(ship);
+            }
         }
 
         // Restaura disparos del jugador sobre enemigo

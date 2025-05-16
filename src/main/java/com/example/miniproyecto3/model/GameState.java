@@ -31,12 +31,4 @@ public class GameState implements Serializable {
     public List<Ship> getEnemyShips() {
         return enemyShips;
     }
-
-    public void setEnemyBoard(Board board) {
-        this.enemyBoard = board;
-    }
-
-    public void setPlayerBoard(Board board) {
-        this.playerBoard = board;
-    }
 }
