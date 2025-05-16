@@ -16,6 +16,9 @@ import java.util.*;
 
 public class GameController {
 
+    @FXML private AnchorPane gameScreen;
+    @FXML private GridPane playerBoardGame;
+    @FXML private AnchorPane preparationScreen;
     @FXML private GridPane playerBoard;
     @FXML private GridPane enemyBoard;
     @FXML private ComboBox<Integer> shipSizeSelector;
@@ -37,9 +40,14 @@ public class GameController {
     public void initialize() {
         createBoard(playerBoard, true);
         createBoard(enemyBoard, false);
+        createBoard(playerBoardGame, true);
         shipSizeSelector.getSelectionModel().selectFirst();
         orientationToggle.setOnAction(e -> toggleOrientation());
         monitorButton.setDisable(true);
+        gameScreen.setVisible(false);
+        gameScreen.setManaged(false);
+        preparationScreen.setVisible(true);
+        preparationScreen.setManaged(true);
     }
 
     private void createBoard(GridPane board, boolean isPlayer) {
@@ -276,7 +284,7 @@ public class GameController {
         for(int[] coord : ship.getCoordinates()) {
             int row = coord[0];
             int col = coord[1];
-            StackPane cell = getStackPaneAt(playerBoard, row, col);
+            StackPane cell = getStackPaneAt(playerBoardGame, row, col);
 
             if(cell != null) {
                 /*Canvas canvas = new Canvas(30, 30);
@@ -318,7 +326,7 @@ public class GameController {
 
         playerBoardModel.registerShot(row, col, false);
 
-        StackPane cell = getStackPaneAt(playerBoard, row, col);
+        StackPane cell = getStackPaneAt(playerBoardGame, row, col);
         if(cell == null) return;
 
         if(playerBoardModel.hasShipAt(row, col, true)) {
@@ -373,6 +381,15 @@ public class GameController {
         if (shipSizeSelector.getItems().isEmpty()) {
             finishedPlacing = true;
             placeEnemyShips();
+            preparationScreen.setVisible(false);
+            preparationScreen.setManaged(false);
+            gameScreen.setVisible(true);
+            gameScreen.setManaged(true);
+
+            Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
+            for(Ship ship : playerShips) {
+                placeShipVisual(playerBoardGame, ship, boatImage);
+            }
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
             alert.showAndWait();
