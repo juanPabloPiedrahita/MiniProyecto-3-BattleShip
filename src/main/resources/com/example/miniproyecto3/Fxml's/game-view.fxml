@@ -22,7 +22,7 @@
         </items>
     </ComboBox>
     <ToggleButton fx:id="orientationToggle" text="Horizontal" />
-    <Button text="Listo" onAction="#handleFinishPlacement"/>
+    <Button fx:id = "readyButton" text="Listo" onAction="#handleFinishPlacement"/>
 
     <Button fx:id="monitorButton" text="Mostrar Tablero Enemigo" onAction="#toggleEnemyBoard"/>
 

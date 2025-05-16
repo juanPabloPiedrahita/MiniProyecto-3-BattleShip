@@ -35,6 +35,9 @@ public class GameController {
     private ToggleButton orientationToggle;
     @FXML
     private Button monitorButton;
+    @FXML
+    private Button readyButton;
+
 
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
@@ -60,6 +63,7 @@ public class GameController {
 
     @FXML
     public void initialize() { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        planeTextFileHandler = new PlaneTextFileHandler();
         File file = new File("GameState.ser");
         if(!file.exists()) {
             System.out.println("Creando playerboard");
@@ -72,10 +76,14 @@ public class GameController {
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
             monitorButton.setDisable(true);
-            planeTextFileHandler = new PlaneTextFileHandler();
+            //planeTextFileHandler = new PlaneTextFileHandler();
         }
         else {
+            finishedPlacing = true;
             loadGameState();
+            readyButton.setDisable(true);
+            orientationToggle.setDisable(true);
+            shipSizeSelector.setDisable(true);
         }
 
     }
@@ -447,6 +455,7 @@ public class GameController {
         if (shipSizeSelector.getItems().isEmpty()) {
             finishedPlacing = true;
             placeEnemyShips();
+            readyButton.setDisable(finishedPlacing);
             saveGameState();
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
@@ -471,6 +480,7 @@ public class GameController {
                     enemyShips.add(ship);
                     placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
+                    saveGameState();
                 }
             }
 
@@ -628,7 +638,8 @@ public class GameController {
                 if (enemyBoardModel.alreadyShotAt(row, col, true)) {
                     StackPane cell = getStackPaneAt(enemyBoard, row, col);
                     if (cell != null) {
-                        if (enemyBoardModel.hasShipAt(row, col, true)) {
+                        if (enemyBoardModel.hasShipAt(row, col, false)) {
+
                             Label hitLabel = new Label("X");
                             hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
                             cell.getChildren().add(hitLabel);
@@ -662,10 +673,5 @@ public class GameController {
             }
         }
     }
-
-
-
-
-
 }
 
