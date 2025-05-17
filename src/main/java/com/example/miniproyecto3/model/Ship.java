@@ -1,9 +1,10 @@
-package com.example.miniproyecto3;
+package com.example.miniproyecto3.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ship {
+public class Ship implements Serializable{
     public int size;
     public int startRow;
     public int startCol;
