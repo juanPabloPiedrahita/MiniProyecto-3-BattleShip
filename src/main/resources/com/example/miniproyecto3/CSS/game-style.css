@@ -1,0 +1,33 @@
+.root {
+    -fx-background-image: url("../Image/fondo1.jpg");
+    -fx-background-size: cover;
+}
+
+.grid-button {
+    -fx-min-width: 0px;
+    -fx-min-height: 0px;
+    -fx-background-color: rgba(255,255,255,0.3);
+    -fx-border-color: #2A63A5;
+    -fx-border-width: 0;
+    -fx-font-size: 0px;
+}
+
+.grid-button.hit {
+    -fx-background-color: red;
+}
+
+.grid-button.miss {
+    -fx-background-color: gray;
+}
+
+.status-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.player-box {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+}

@@ -4,9 +4,11 @@ import com.example.miniproyecto3.controller.WelcomeController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class WelcomeStage extends Stage {
     WelcomeController welController;
@@ -16,6 +18,9 @@ public class WelcomeStage extends Stage {
         Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
         welController = fxmlLoader.getController();
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());
+        Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
+        getIcons().add(icon);
         setResizable(false);
         setTitle("BattleShip");
         setScene(scene);
