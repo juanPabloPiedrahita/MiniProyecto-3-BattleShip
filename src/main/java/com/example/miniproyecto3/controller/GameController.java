@@ -264,7 +264,7 @@ public class GameController {
         return null;
     }
 
-    //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina
+    //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
     private void handlePlayerShot(int row, int col) {
         if(!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
 
@@ -301,24 +301,41 @@ public class GameController {
             //btn.setDisable(true);
             //btn.setText("X");
             //btn.setStyle("-fx-background-color: red;");
-            handlePlayerShot(row, col);
-        } else {
+            //handlePlayerShot(row, col);
+        } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
             //si no fue un acierto entonces pinta una O azul
             Label missLabel = new Label("O");
             missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missLabel);
             saveGameState();
+            playerTurn = false; //pasa el turno a la maquina
+            checkWinCondition(); //checkea victoria
+            //saveGameState();
             //btn.setText("O");
             //btn.setStyle("-fx-background-color: white;");
-        }
+            if(gameEnded) return;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        handleComputerShot();
+                        playerTurn = true;
+                        checkWinCondition();
+                        saveGameState();
+                    });
 
+                }
+            }, 1000);
+        }
+        /*
         playerTurn = false; //pasa el turno a la maquina
         checkWinCondition(); //checkea victoria
         saveGameState();
-
+        */
         if(gameEnded) return; //si el juego termino breakea
 
         //espera 1 segundo y luego llama a handleComputerShot() para que dispare, le devuelve el turno a el jugador y checkea victoria
+        /*
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -330,7 +347,7 @@ public class GameController {
                 });
 
             }
-        }, 1000);
+        }, 1000);*/
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
@@ -432,8 +449,20 @@ public class GameController {
                     highlightPlayerSunkShip(hitShipAtPosition);
                 }
             }
-        //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
-        } else {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        handleComputerShot();
+                        //playerTurn = true;
+                        //checkWinCondition();
+                        //saveGameState();
+                    });
+
+                }
+            }, 1000); //El metodo se llama asi mismo hasta que falle (no le di a un barco)
+        }
+        else { //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
             Label missMachineLabel = new Label("O");
             missMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missMachineLabel);
