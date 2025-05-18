@@ -69,8 +69,13 @@ public class GameController {
     //variable para saber si le dio a continuar
     private boolean continueGame;
 
+    //esto ayudara a la IA a tener memoria a la hora de disparar
+    private List<int[]> pendingTargets;
+
+
     @FXML
     public void initialize() throws IOException { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        pendingTargets = new ArrayList<>();
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
@@ -420,6 +425,72 @@ public class GameController {
 
     //metodo que maneja los disparos de la maquina
     private void handleComputerShot() {
+
+        //version del metodo que implementa una "IA":
+        /*Random rand = new Random();
+        int row = -1, col = -1;
+
+        // Elegir siguiente objetivo
+        if (!pendingTargets.isEmpty()) {
+            int[] target = pendingTargets.remove(0);
+            row = target[0];
+            col = target[1];
+        } else {
+            do {
+                row = rand.nextInt(10);
+                col = rand.nextInt(10);
+            } while (playerBoardModel.alreadyShotAt(row, col, false));
+        }
+
+        playerBoardModel.registerShot(row, col, false);
+
+        StackPane cell = getStackPaneAt(playerBoard, row, col);
+        if (cell == null) return;
+
+        if (playerBoardModel.hasShipAt(row, col, true)) {
+            Ship hitShip = getShipAt(playerShips, row, col);
+            if (hitShip != null) {
+                hitShip.registerHit(row, col);
+
+                Label hitLabel = new Label("X");
+                hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+                cell.getChildren().add(hitLabel);
+
+                System.out.println("IA acertó en: " + row + ", " + col);
+
+                if (hitShip.isSunk()) {
+                    highlightPlayerSunkShip(hitShip);
+                    pendingTargets.clear(); // Si hunde, descarta los objetivos pendientes
+                } else {
+                    addAdjacentTargets(row, col); // Sigue disparando alrededor
+                }
+
+                // Continuar disparando en 1s
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        javafx.application.Platform.runLater(() -> {
+                            handleComputerShot();
+                        });
+                    }
+                }, 1000);
+
+            }
+
+        } else {
+            Label missLabel = new Label("O");
+            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+            cell.getChildren().add(missLabel);
+
+            System.out.println("IA falló en: " + row + ", " + col);
+
+            // Fin del turno
+            playerTurn = true;
+            checkWinCondition();
+            saveGameState();
+        }*/
+
+        //Version del metodo sin IA, solo disparos al azar:
         //Elegi un numero random para la columna y fila en el que nunca se ah disparado
         Random rand = new Random();
         int row, col;
@@ -755,6 +826,18 @@ public class GameController {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void addAdjacentTargets(int row, int col) {
+        int[][] directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+        for (int[] d : directions) {
+            int newRow = row + d[0];
+            int newCol = col + d[1];
+            if (newRow >= 0 && newRow < 10 && newCol >= 0 && newCol < 10 &&
+                    !playerBoardModel.alreadyShotAt(newRow, newCol, false)) {
+                pendingTargets.add(new int[]{newRow, newCol});
             }
         }
     }
