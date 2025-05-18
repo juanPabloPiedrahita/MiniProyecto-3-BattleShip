@@ -29,6 +29,7 @@ public class Main extends Application {
         primaryStage.show();
         */
         WelcomeStage.getInstance();
+
     }
 
     public static void main(String[] args) {

@@ -41,7 +41,10 @@ public class GameController {
     @FXML
     private Button readyButton;
     @FXML
-    private VBox vBoxCont;
+    private VBox placementControls;
+    @FXML
+    private VBox enemyBoardContainer;
+
 
 
     //Objetos para llevar la logica interna del juego
@@ -71,7 +74,7 @@ public class GameController {
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
-        vBoxCont.setSpacing(10);
+        //vBoxCont.setSpacing(10);
         //File file = new File("GameState.ser");
         if(!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
             System.out.println("Nuevo juego...");
@@ -85,6 +88,10 @@ public class GameController {
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
             monitorButton.setDisable(true);
+            placementControls.setVisible(true);
+            placementControls.setManaged(true);
+            enemyBoardContainer.setVisible(false);
+            enemyBoardContainer.setManaged(false);
         }
         else if(continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
             System.out.println("Entrando a cargar el juego mas reciente");
@@ -94,6 +101,10 @@ public class GameController {
             readyButton.setDisable(true);
             orientationToggle.setDisable(true);
             shipSizeSelector.setDisable(true);
+            placementControls.setVisible(false);
+            placementControls.setManaged(false);
+            enemyBoardContainer.setVisible(true);
+            enemyBoardContainer.setManaged(true);
         }
 
     }
@@ -484,6 +495,10 @@ public class GameController {
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
             saveGameState();
+            placementControls.setVisible(false);
+            placementControls.setManaged(false);
+            enemyBoardContainer.setVisible(true);
+            enemyBoardContainer.setManaged(true);
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
