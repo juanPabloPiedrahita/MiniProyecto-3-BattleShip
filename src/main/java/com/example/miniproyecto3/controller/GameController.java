@@ -40,6 +40,8 @@ public class GameController {
     private Button monitorButton;
     @FXML
     private Button readyButton;
+    @FXML
+    private VBox vBoxCont;
 
 
     //Objetos para llevar la logica interna del juego
@@ -69,6 +71,7 @@ public class GameController {
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
+        vBoxCont.setSpacing(10);
         //File file = new File("GameState.ser");
         if(!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
             System.out.println("Nuevo juego...");
@@ -287,6 +290,7 @@ public class GameController {
             //btn.setDisable(true);
             //btn.setText("X");
             //btn.setStyle("-fx-background-color: red;");
+            handlePlayerShot(row, col);
         } else {
             //si no fue un acierto entonces pinta una O azul
             Label missLabel = new Label("O");
@@ -503,7 +507,7 @@ public class GameController {
                     enemyShips.add(ship);
                     placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
-                    saveGameState();
+                    //saveGameState();
                 }
             }
 
@@ -635,6 +639,14 @@ public class GameController {
             player = new Player(user, 0);
             System.out.println("JugadorNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
         }
+    }
+
+    public void continueB(boolean isContinue, boolean equals){
+        String data[] = planeTextFileHandler.read("PlayerData.csv");
+        String user = data[0].trim();
+        int score = Integer.parseInt(data[1]);
+        player = new Player(user, score);
+        System.out.println("JugadorCasiNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
     }
 
     //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
