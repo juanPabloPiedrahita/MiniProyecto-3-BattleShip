@@ -3,6 +3,8 @@ package com.example.miniproyecto3.controller;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.GameState;
 import com.example.miniproyecto3.model.Ship;
+import com.example.miniproyecto3.view.GameStage;
+import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,6 +22,7 @@ import com.example.miniproyecto3.model.Player;
 import java.io.File;
 
 
+import java.io.IOException;
 import java.util.*;
 
 public class GameController {
@@ -37,6 +40,11 @@ public class GameController {
     private Button monitorButton;
     @FXML
     private Button readyButton;
+    @FXML
+    private VBox placementControls;
+    @FXML
+    private VBox enemyBoardContainer;
+
 
 
     //Objetos para llevar la logica interna del juego
@@ -44,7 +52,7 @@ public class GameController {
     private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
-    private StackPane[][] enemyCells = new StackPane[10][10]; //no se esta usando para nada :v (solo en createBoard pero sin ninguna funcionalidad real)
+    private StackPane[][] enemyCells = new StackPane[10][10]; //no se está usando para nada :v (solo en createBoard pero sin ninguna funcionalidad real)
 
     //atributos para llevar monitoreo constante del estado del juego
     private boolean finishedPlacing = false;
@@ -61,11 +69,30 @@ public class GameController {
     //variable para saber si le dio a continuar
     private boolean continueGame;
 
+    //esto ayudara a la IA a tener memoria a la hora de disparar
+    private List<int[]> pendingTargets;
+
+    //para jugar con las imágenes bien.
+    private Image defaultBoatImage;
+    private Image carrierBoatImage;  // para portaaviones.
+    //private Image battleshipImage;
+    //private Image cruiserImage;
+    //private Image submarineImage;
+    //private Image destroyerImage;
+
+
     @FXML
-    public void initialize() { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+    public void initialize() throws IOException { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        pendingTargets = new ArrayList<>();
         planeTextFileHandler = new PlaneTextFileHandler();
-        File file = new File("GameState.ser");
-        if(!file.exists()) {
+        continueGame = WelcomeStage.getInstance().getWelController().getContinue();
+        WelcomeStage.deleteInstance();
+        defaultBoatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
+        carrierBoatImage = new Image(getClass().getResource("/prueba2.png").toExternalForm());
+        //vBoxCont.setSpacing(10);
+        //File file = new File("GameState.ser");
+        if(!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
+            System.out.println("Nuevo juego...");
             System.out.println("Creando playerboard");
             createBoard(playerBoard, true);
             System.out.println("Creando enemyboard");
@@ -76,14 +103,23 @@ public class GameController {
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
             monitorButton.setDisable(true);
-            //planeTextFileHandler = new PlaneTextFileHandler();
+            placementControls.setVisible(true);
+            placementControls.setManaged(true);
+            enemyBoardContainer.setVisible(false);
+            enemyBoardContainer.setManaged(false);
         }
-        else {
+        else if(continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
+            System.out.println("Entrando a cargar el juego mas reciente");
             finishedPlacing = true;
             loadGameState();
+            //checkWinCondition();
             readyButton.setDisable(true);
             orientationToggle.setDisable(true);
             shipSizeSelector.setDisable(true);
+            placementControls.setVisible(false);
+            placementControls.setManaged(false);
+            enemyBoardContainer.setVisible(true);
+            enemyBoardContainer.setManaged(true);
         }
 
     }
@@ -119,9 +155,10 @@ public class GameController {
                 });
 
                 board.add(cell, col, row);
-
             }
         }
+        board.setHgap(0);
+        board.setVgap(0);
     }
 
     private void toggleOrientation() {
@@ -135,10 +172,12 @@ public class GameController {
 
     //metodo que pone los barcos del jugador en las coordenas (row,col)
     private void placePlayerShip(int row, int col) {
-        Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
+        //Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
         int size = shipSizeSelector.getValue();
         boolean horizontal = !orientationToggle.isSelected();
+        Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
         Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
+
 
         if (ship != null) {
             //si el barco se creo con exito lo añade al arrayList de barcos del jugador, lo dibuja y elimina ese barco de la lista.
@@ -174,7 +213,7 @@ public class GameController {
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 // Llamamos al método para dibujar la imagen del barco
-                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, boatImage);
+                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, ship.getSize(), boatImage);
                 canvas.setMouseTransparent(true);
                 cell.getChildren().add(canvas);
             }
@@ -183,53 +222,28 @@ public class GameController {
 
 
     private void placeShipVisualHidden(GridPane board, Ship ship) {
-        //recorre cada par de coordenas del barco y obtiene la celda stackPane de aquel par de coordenadas
-        for (int[] coord : ship.getCoordinates()) {
+        Image boatImage = (ship.getSize() == 4) ? carrierBoatImage : defaultBoatImage;
+
+        List<int[]> coords = ship.getCoordinates();
+
+        for (int i = 0; i < coords.size(); i++) {
+            int[] coord = coords.get(i);
             int row = coord[0];
             int col = coord[1];
+
+            boolean isFirst = (i == 0);
+            boolean isLast = (i == coords.size() - 1);
+
             StackPane cell = getStackPaneAt(board, row, col);
-            //si obtuvo la celda; crea un rectangulo (30px X 30px), lo rellena de verde, lo vuelve o no visible dependiendo de si el usuario activa el monitorMode y evita que se interponga entre el mouse en el stage.
-            if(cell != null) {
-                Rectangle rect = new Rectangle(30, 30);
-                rect.setFill(Color.LIGHTGREEN);
-                rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
-                rect.setMouseTransparent(true);
-            //rect.toBack();
-            //rect.setVisible(false);
-                cell.getChildren().add(rect);
-                /*Canvas canvas = new Canvas(30, 30);
+            if (cell != null) {
+                Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
-
-                if(ship.isHorizontal()) {
-                    gc.setFill(Color.LIGHTGREEN);
-                    gc.fillRect(0, 0, 30 * ship.getSize(), 30);
-                } else {
-                    gc.setFill(Color.LIGHTGREEN);
-                    gc.fillRect(0, 0, 30, 30 * ship.getSize());
-                }
-
-                canvas.setVisible(monitorMode);
+                drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, ship.getSize(), boatImage);
                 canvas.setMouseTransparent(true);
+                canvas.setVisible(monitorMode); // Visible solo si el monitorMode está activo
+                canvas.setUserData("enemy"); // Etiqueta el canvas como barco enemigo
                 cell.getChildren().add(canvas);
-
-                Label marker = new Label("");
-                marker.setFont(javafx.scene.text.Font.font("Arial", FontWeight.BOLD, 15));
-                //assert cell != null;
-                cell.getChildren().add(marker);*/
-
-
             }
-
-            /*Rectangle rect = new Rectangle(30, 30);
-            rect.setFill(Color.LIGHTGREEN);
-            rect.setVisible(monitorMode); // Se muestra solo si está en modo monitor
-            rect.setMouseTransparent(true);
-            //rect.toBack();
-            //rect.setVisible(false);
-            cell.getChildren().add(rect);*/
-
-
-            //enemyBoard.add(cell, col, row);
         }
     }
     //metodo que devuelve la celda (StackPane) de un GridPane y coordenas dado.
@@ -242,7 +256,7 @@ public class GameController {
         return null;
     }
 
-    //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina
+    //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
     private void handlePlayerShot(int row, int col) {
         if(!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
 
@@ -279,23 +293,41 @@ public class GameController {
             //btn.setDisable(true);
             //btn.setText("X");
             //btn.setStyle("-fx-background-color: red;");
-        } else {
+            //handlePlayerShot(row, col);
+        } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
             //si no fue un acierto entonces pinta una O azul
             Label missLabel = new Label("O");
             missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missLabel);
             saveGameState();
+            playerTurn = false; //pasa el turno a la maquina
+            checkWinCondition(); //checkea victoria
+            //saveGameState();
             //btn.setText("O");
             //btn.setStyle("-fx-background-color: white;");
-        }
+            if(gameEnded) return;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        handleComputerShot();
+                        playerTurn = true;
+                        checkWinCondition();
+                        saveGameState();
+                    });
 
+                }
+            }, 1000);
+        }
+        /*
         playerTurn = false; //pasa el turno a la maquina
         checkWinCondition(); //checkea victoria
         saveGameState();
-
-        if(gameEnded) return; //si el juego termino breakea
+        */
+        //if(gameEnded) return; //si el juego termino breakea
 
         //espera 1 segundo y luego llama a handleComputerShot() para que dispare, le devuelve el turno a el jugador y checkea victoria
+        /*
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -307,7 +339,7 @@ public class GameController {
                 });
 
             }
-        }, 1000);
+        }, 1000);*/
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
@@ -380,6 +412,72 @@ public class GameController {
 
     //metodo que maneja los disparos de la maquina
     private void handleComputerShot() {
+
+        //version del metodo que implementa una "IA":
+        /*Random rand = new Random();
+        int row = -1, col = -1;
+
+        // Elegir siguiente objetivo
+        if (!pendingTargets.isEmpty()) {
+            int[] target = pendingTargets.remove(0);
+            row = target[0];
+            col = target[1];
+        } else {
+            do {
+                row = rand.nextInt(10);
+                col = rand.nextInt(10);
+            } while (playerBoardModel.alreadyShotAt(row, col, false));
+        }
+
+        playerBoardModel.registerShot(row, col, false);
+
+        StackPane cell = getStackPaneAt(playerBoard, row, col);
+        if (cell == null) return;
+
+        if (playerBoardModel.hasShipAt(row, col, true)) {
+            Ship hitShip = getShipAt(playerShips, row, col);
+            if (hitShip != null) {
+                hitShip.registerHit(row, col);
+
+                Label hitLabel = new Label("X");
+                hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
+                cell.getChildren().add(hitLabel);
+
+                System.out.println("IA acertó en: " + row + ", " + col);
+
+                if (hitShip.isSunk()) {
+                    highlightPlayerSunkShip(hitShip);
+                    pendingTargets.clear(); // Si hunde, descarta los objetivos pendientes
+                } else {
+                    addAdjacentTargets(row, col); // Sigue disparando alrededor
+                }
+
+                // Continuar disparando en 1s
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        javafx.application.Platform.runLater(() -> {
+                            handleComputerShot();
+                        });
+                    }
+                }, 1000);
+
+            }
+
+        } else {
+            Label missLabel = new Label("O");
+            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
+            cell.getChildren().add(missLabel);
+
+            System.out.println("IA falló en: " + row + ", " + col);
+
+            // Fin del turno
+            playerTurn = true;
+            checkWinCondition();
+            saveGameState();
+        }*/
+
+        //Version del metodo sin IA, solo disparos al azar:
         //Elegi un numero random para la columna y fila en el que nunca se ah disparado
         Random rand = new Random();
         int row, col;
@@ -409,8 +507,20 @@ public class GameController {
                     highlightPlayerSunkShip(hitShipAtPosition);
                 }
             }
-        //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
-        } else {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        handleComputerShot();
+                        //playerTurn = true;
+                        //checkWinCondition();
+                        //saveGameState();
+                    });
+
+                }
+            }, 1000); //El metodo se llama asi mismo hasta que falle (no le di a un barco)
+        }
+        else { //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
             Label missMachineLabel = new Label("O");
             missMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missMachineLabel);
@@ -439,13 +549,28 @@ public class GameController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
             alert.showAndWait();
             playerTurn = false;
+            if(continueGame)
+            {
+                System.out.println("Eliminando la partida...");
+                File file = new File("GameState.ser");
+                file.delete();
+            }
+            GameStage.deleteInstance();
+
         } else if(allPlayerSunk) {
             gameEnded = true;
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
             alert.showAndWait();
             playerTurn = false;
+            if(continueGame)
+            {
+                System.out.println("Eliminando la partida...");
+                File file = new File("GameState.ser");
+                file.delete();
+            }
+            GameStage.deleteInstance();
         }
-        saveGameState();
+        //saveGameState();
     }
 
     //Este metodo maneja el evento generado por darle al boton de "listo" que indica haber terminado de poner los barcos
@@ -457,6 +582,10 @@ public class GameController {
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
             saveGameState();
+            placementControls.setVisible(false);
+            placementControls.setManaged(false);
+            enemyBoardContainer.setVisible(true);
+            enemyBoardContainer.setManaged(true);
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
@@ -480,7 +609,7 @@ public class GameController {
                     enemyShips.add(ship);
                     placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
-                    saveGameState();
+                    //saveGameState();
                 }
             }
 
@@ -496,16 +625,22 @@ public class GameController {
             if (node instanceof StackPane) {
                 StackPane cell = (StackPane) node;
                 for (javafx.scene.Node child : cell.getChildren()) {
-                    if (child instanceof Rectangle rect && rect.getFill().equals(Color.LIGHTGREEN)) {
-                        rect.setVisible(monitorMode);
+                    if (child instanceof Canvas canvas && "enemy".equals(canvas.getUserData())) {
+                        canvas.setVisible(monitorMode);
                     }
                 }
             }
         }
+
+        if(monitorMode) {
+            monitorButton.setText("Ocultar embarcaciones enemigas");
+        } else {
+            monitorButton.setText("Mostrar embarcaciones enemigas");
+        }
     }
 
     //metodo que dibuja los barcos dependiendo de su orientacion y tamaño (no usa canvas)
-    private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, Image boatImage) {
+    private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, int shipLength, Image boatImage) {
         gc.clearRect(0, 0, 30, 30);
 
         // Efecto de sombra
@@ -524,32 +659,37 @@ public class GameController {
         double boatHeight = boatImage.getHeight();
         double segmentWidth = boatWidth / 3; // Dividimos la imagen en 3 partes iguales
 
+        // Sólo aplicar margen visual si es el portaaviones el que se está dibujando (longitud 4).
+        double inset = (shipLength == 4) ? 2.0 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
+        double destSize = 30 - 2 * inset;
+
         // Si es horizontal, no hacemos rotación
         if (horizontal) {
             if (isFirst) {
                 // Dibuja la proa (primer segmento de la imagen)
-                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja solo la proa
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja solo la proa
             } else if (isLast) {
                 // Dibuja la popa (último segmento de la imagen)
-                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja solo la popa
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja solo la popa
             } else {
                 // Dibuja el medio (segmento central de la imagen)
-                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, 0, 0, 30, 30); // Dibuja el medio
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja el medio
             }
         } else {
             // Si es vertical, necesitamos rotar la imagen para ajustarla
             gc.save();  // Guardamos el contexto actual del GraphicsContext
+            //gc.translate(30, 0); // Acorde a Chat, es para centrar la celda antes de rotar.
             gc.rotate(90); // Rotamos la imagen 90 grados
 
             if (isFirst) {
                 // Dibuja la proa (primer segmento de la imagen) rotada
-                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja solo la proa (rotada)
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja solo la proa (rotada)
             } else if (isLast) {
                 // Dibuja la popa (último segmento de la imagen) rotada
-                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja solo la popa (rotada)
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja solo la popa (rotada)
             } else {
                 // Dibuja el medio (segmento central de la imagen) rotado
-                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, 0, -30, 30, 30); // Dibuja el medio (rotado)
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja el medio (rotado)
             }
 
             gc.restore(); // Restauramos el contexto al estado original (sin rotación)
@@ -571,7 +711,7 @@ public class GameController {
     }
 
 
-    //metodos para la serializcion: (¡Slava Russia, Z!)
+    //metodos para la serializcion: (¡Slava Rusia, Z!)
 
     //este metodo guarda el estado del juego adentro del archivo GameState.ser, debe ser llamado cada vez que el tablero se actualize
     public void saveGameState(){
@@ -614,6 +754,14 @@ public class GameController {
         }
     }
 
+    public void continueB(boolean isContinue, boolean equals){
+        String data[] = planeTextFileHandler.read("PlayerData.csv");
+        String user = data[0].trim();
+        int score = Integer.parseInt(data[1]);
+        player = new Player(user, score);
+        System.out.println("JugadorCasiNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
+    }
+
     //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
     private void redrawBoards() {
         Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
@@ -625,11 +773,17 @@ public class GameController {
         // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
             placeShipVisual(playerBoard, ship, boatImage);
+            if(ship.isSunk()){
+                highlightSunkShip(ship);
+            }
         }
 
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
             placeShipVisualHidden(enemyBoard, ship);
+            if(ship.isSunk()){
+                highlightSunkShip(ship);
+            }
         }
 
         // Restaura disparos del jugador sobre enemigo
@@ -670,6 +824,18 @@ public class GameController {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void addAdjacentTargets(int row, int col) {
+        int[][] directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+        for (int[] d : directions) {
+            int newRow = row + d[0];
+            int newCol = col + d[1];
+            if (newRow >= 0 && newRow < 10 && newCol >= 0 && newCol < 10 &&
+                    !playerBoardModel.alreadyShotAt(newRow, newCol, false)) {
+                pendingTargets.add(new int[]{newRow, newCol});
             }
         }
     }

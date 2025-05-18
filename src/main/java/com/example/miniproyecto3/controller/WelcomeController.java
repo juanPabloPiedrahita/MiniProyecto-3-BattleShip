@@ -1,7 +1,9 @@
 package com.example.miniproyecto3.controller;
 
 //import java.io.IO;
+import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
@@ -19,6 +21,8 @@ public class WelcomeController {
 
     private PlaneTextFileHandler planeTextFileHandler;
 
+    public boolean onContinue;
+
     @FXML
     public void initialize(){
         planeTextFileHandler = new PlaneTextFileHandler();
@@ -28,11 +32,21 @@ public class WelcomeController {
 
     @FXML
     public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
+        String data[] = planeTextFileHandler.read("PlayerData.csv");
+        String user = data[0];
         if(!userTxt.getText().isEmpty()) {
-            planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
-            WelcomeStage.deleteInstance();
-            GameStage.getInstance().getController().continueB(false);
-            GameStage.getInstance();
+            if(Objects.equals(user, userTxt.getText())) {
+                GameStage.getInstance().getController().continueB(false,true);
+                GameStage.getInstance();
+                onContinue = false;
+            }
+            else {
+                planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
+                //WelcomeStage.deleteInstance();
+                GameStage.getInstance().getController().continueB(false);
+                GameStage.getInstance();
+                onContinue = false;
+            }
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "Ingresa un usuario antes de continuar!");
@@ -42,9 +56,17 @@ public class WelcomeController {
 
     @FXML
     public void onHandleContinueButtom(javafx.event.ActionEvent event) throws IOException {
-        WelcomeStage.deleteInstance();
-        GameStage.getInstance().getController().continueB(true);
-        GameStage.getInstance();
+        File file = new File("GameState.ser");
+        if(file.exists()) {
+            //WelcomeStage.deleteInstance();
+            onContinue = true;
+            GameStage.getInstance().getController().continueB(true);
+            GameStage.getInstance();
+        }
+        else{
+            Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");
+            alert.showAndWait();
+        }
     }
 
 
@@ -52,5 +74,9 @@ public class WelcomeController {
     public void onHandleQuitButtom(javafx.event.ActionEvent event) throws IOException {
 
         WelcomeStage.deleteInstance();
+    }
+
+    public boolean getContinue() {
+        return onContinue;
     }
 }

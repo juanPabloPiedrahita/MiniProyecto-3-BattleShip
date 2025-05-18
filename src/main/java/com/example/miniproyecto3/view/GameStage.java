@@ -1,6 +1,7 @@
 package com.example.miniproyecto3.view;
 
 import com.example.miniproyecto3.controller.GameController;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,6 +20,11 @@ public class GameStage extends Stage {
         Scene scene = new Scene(root);
         setTitle("Batalla Naval");
         setScene(scene);
+        setOnCloseRequest(event -> {
+            deleteInstance();
+            Platform.exit();
+            System.exit(0);
+        });
         show();
     }
 
