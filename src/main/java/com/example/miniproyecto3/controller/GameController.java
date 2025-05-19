@@ -418,7 +418,7 @@ public class GameController {
         int row = -1, col = -1;
 
         // Elegir siguiente objetivo
-        if (!pendingTargets.isEmpty()) {
+        if(!pendingTargets.isEmpty()) {
             int[] target = pendingTargets.remove(0);
             row = target[0];
             col = target[1];
@@ -443,7 +443,7 @@ public class GameController {
                 hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
                 cell.getChildren().add(hitLabel);
 
-                System.out.println("IA acertó en: " + row + ", " + col);
+                System.out.println("IA acertó aquí: " + row + ", " + col);
 
                 if (hitShip.isSunk()) {
                     highlightPlayerSunkShip(hitShip);
@@ -469,7 +469,7 @@ public class GameController {
             missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missLabel);
 
-            System.out.println("IA falló en: " + row + ", " + col);
+            System.out.println("IA falló aquí: " + row + ", " + col);
 
             // Fin del turno
             playerTurn = true;
