@@ -34,7 +34,6 @@ public class WelcomeController {
     public void initialize(){
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/media/MenuMainTheme.mp3");
         musicPlayer.play();
-        //Image backgroundImage = new Image("C:\\Users\\Juanpa\\IdeaProjects\\miniproyecto-3\\src\\main\\resources\\com\\example\\miniproyecto3\\Image\\fondo2.jpg");
         /*BackgroundImage fondo = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
