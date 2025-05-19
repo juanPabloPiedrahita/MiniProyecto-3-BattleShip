@@ -14,6 +14,7 @@ import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.Player;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import com.example.miniproyecto3.model.MusicPlayer;
 
 
 public class WelcomeController {
@@ -27,9 +28,13 @@ public class WelcomeController {
 
     public boolean onContinue;
 
+    MusicPlayer musicPlayer;
+
     @FXML
     public void initialize(){
-        Image backgroundImage = new Image("C:\\Users\\Juanpa\\IdeaProjects\\miniproyecto-3\\src\\main\\resources\\com\\example\\miniproyecto3\\Image\\fondo2.jpg");
+        musicPlayer = new MusicPlayer("/com/example/miniproyecto3/media/MenuMainTheme.mp3");
+        musicPlayer.play();
+        //Image backgroundImage = new Image("C:\\Users\\Juanpa\\IdeaProjects\\miniproyecto-3\\src\\main\\resources\\com\\example\\miniproyecto3\\Image\\fondo2.jpg");
         /*BackgroundImage fondo = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
@@ -54,6 +59,7 @@ public class WelcomeController {
                 GameStage.getInstance().getController().continueB(false,true);
                 GameStage.getInstance();
                 onContinue = false;
+                musicPlayer.stop();
             }
             else {
                 planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
@@ -61,6 +67,7 @@ public class WelcomeController {
                 GameStage.getInstance().getController().continueB(false);
                 GameStage.getInstance();
                 onContinue = false;
+                musicPlayer.stop();
             }
         }
         else{
@@ -77,6 +84,7 @@ public class WelcomeController {
             onContinue = true;
             GameStage.getInstance().getController().continueB(true);
             GameStage.getInstance();
+            musicPlayer.stop();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");

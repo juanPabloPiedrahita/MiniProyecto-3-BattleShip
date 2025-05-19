@@ -15,9 +15,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.FontWeight;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
+import com.example.miniproyecto3.model.MusicPlayer;
 import com.example.miniproyecto3.model.Player;
 import java.io.File;
 
@@ -81,15 +81,19 @@ public class GameController {
     //private Image submarineImage;
     //private Image destroyerImage;
 
+    //Objeto para reproducir musica
+    MusicPlayer musicPlayer;
 
     @FXML
-    public void initialize() throws IOException { //Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+    public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
+        musicPlayer.play();
         pendingTargets = new ArrayList<>();
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
-        defaultBoatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
-        carrierBoatImage = new Image(getClass().getResource("/prueba2.png").toExternalForm());
+        defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
+        carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
         //vBoxCont.setSpacing(10);
         //File file = new File("GameState.ser");
         if(!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
@@ -271,19 +275,12 @@ public class GameController {
                 return;
             }
         }
-        //Button btn = (Button) cell.getChildren().get(0);
-
-        //if (!btn.getText().isEmpty()) return;
 
         Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
         //saveGameState();
         if (hitShip != null) {
             System.out.println("Shot at " + row + ", " + col);
-            //btn.setDisable(true);
-            //cell.getChildren().remove(btn);
-            Label hitLabel = new Label("X");
-            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
-            cell.getChildren().add(hitLabel);
+            markCellWithSymbol("X","red",cell);
             saveGameState();
 
             if(hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
@@ -293,21 +290,12 @@ public class GameController {
                 saveGameState();
             }
             checkWinCondition();
-            //btn.setDisable(true);
-            //btn.setText("X");
-            //btn.setStyle("-fx-background-color: red;");
-            //handlePlayerShot(row, col);
         } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
             //si no fue un acierto entonces pinta una O azul
-            Label missLabel = new Label("O");
-            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
-            cell.getChildren().add(missLabel);
+           markCellWithSymbol("O","blue",cell);
             saveGameState();
             playerTurn = false; //pasa el turno a la maquina
             checkWinCondition(); //checkea victoria
-            //saveGameState();
-            //btn.setText("O");
-            //btn.setStyle("-fx-background-color: white;");
             if(gameEnded) return;
             new Timer().schedule(new TimerTask() {
                 @Override
@@ -318,31 +306,9 @@ public class GameController {
                         checkWinCondition();
                         saveGameState();
                     });
-
                 }
             }, 1000);
         }
-        /*
-        playerTurn = false; //pasa el turno a la maquina
-        checkWinCondition(); //checkea victoria
-        saveGameState();
-        */
-        //if(gameEnded) return; //si el juego termino breakea
-
-        //espera 1 segundo y luego llama a handleComputerShot() para que dispare, le devuelve el turno a el jugador y checkea victoria
-        /*
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                javafx.application.Platform.runLater(() -> {
-                    handleComputerShot();
-                    playerTurn = true;
-                    checkWinCondition();
-                    saveGameState();
-                });
-
-            }
-        }, 1000);*/
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
@@ -442,9 +408,7 @@ public class GameController {
             if (hitShip != null) {
                 hitShip.registerHit(row, col);
 
-                Label hitLabel = new Label("X");
-                hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
-                cell.getChildren().add(hitLabel);
+                markCellWithSymbol("X","red",cell);
 
                 System.out.println("IA acertó en: " + row + ", " + col);
 
@@ -468,10 +432,7 @@ public class GameController {
             }
 
         } else {
-            Label missLabel = new Label("O");
-            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
-            cell.getChildren().add(missLabel);
-
+            markCellWithSymbol("O","blue",cell);
             System.out.println("IA falló en: " + row + ", " + col);
 
             // Fin del turno
@@ -502,9 +463,7 @@ public class GameController {
             if(hitShipAtPosition != null) {
                 System.out.println("Shot at (by the machine): " + row + ", " + col);
                 hitShipAtPosition.registerHit(row, col); //registra el acierto en el barco
-                Label hitMachineLabel = new Label("X");
-                hitMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
-                cell.getChildren().add(hitMachineLabel);
+                markCellWithSymbol("X","red",cell);
                 //si lo hunde entonces lo pinta como hundido en la tabla del jugadr
                 if(hitShipAtPosition.isSunk()) {
                     highlightPlayerSunkShip(hitShipAtPosition);
@@ -524,9 +483,7 @@ public class GameController {
             }, 1000); //El metodo se llama asi mismo hasta que falle (no le di a un barco)
         }
         else { //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
-            Label missMachineLabel = new Label("O");
-            missMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
-            cell.getChildren().add(missMachineLabel);
+             markCellWithSymbol("O","blue",cell);
         }*/
     }
 
@@ -583,6 +540,7 @@ public class GameController {
     private void handleFinishPlacement() {
         //si ya colocaste todos tus barcos empieza la fase de batalla; indica que finishedplacing = true y llama a placeEnemyShips() para que la maquina coloque sus barcos
         if (shipSizeSelector.getItems().isEmpty()) {
+            musicPlayer.stop();
             finishedPlacing = true;
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
@@ -591,6 +549,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
+            musicPlayer.play();
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
@@ -701,7 +661,6 @@ public class GameController {
         }
     }
 
-
     private void debugEnemyBoard() {
         System.out.println("=== DEBUG: enemyBoardModel ===");
         boolean[][] enemyGrid = enemyBoardModel.getEnemyBoard();
@@ -769,7 +728,7 @@ public class GameController {
 
     //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
     private void redrawBoards() {
-        Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
+        Image boatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
 
         // Limpia los tableros visuales
         createBoard(playerBoard, true);
@@ -799,13 +758,9 @@ public class GameController {
                     if (cell != null) {
                         if (enemyBoardModel.hasShipAt(row, col, false)) {
 
-                            Label hitLabel = new Label("X");
-                            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
-                            cell.getChildren().add(hitLabel);
+                            markCellWithSymbol("X","red",cell);
                         } else {
-                            Label missLabel = new Label("O");
-                            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
-                            cell.getChildren().add(missLabel);
+                            markCellWithSymbol("O","blue",cell);
                         }
                     }
                 }
@@ -819,13 +774,9 @@ public class GameController {
                     StackPane cell = getStackPaneAt(playerBoard, row, col);
                     if (cell != null) {
                         if (playerBoardModel.hasShipAt(row, col, true)) {
-                            Label hitLabel = new Label("X");
-                            hitLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: red; -fx-font-weight: bold;");
-                            cell.getChildren().add(hitLabel);
+                            markCellWithSymbol("X","red",cell);
                         } else {
-                            Label missLabel = new Label("O");
-                            missLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
-                            cell.getChildren().add(missLabel);
+                            markCellWithSymbol("O","blue",cell);
                         }
                     }
                 }
@@ -843,6 +794,12 @@ public class GameController {
                 pendingTargets.add(new int[]{newRow, newCol});
             }
         }
+    }
+
+    private void markCellWithSymbol(String simbol, String color, StackPane cell){
+        Label label = new Label(simbol);
+        label.setStyle("-fx-font-size: 20px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
+        cell.getChildren().add(label);
     }
 }
 
