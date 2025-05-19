@@ -13,7 +13,7 @@ public class MusicPlayer {
             Media media = new Media(getClass().getResource(resourcePath).toExternalForm());
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Repetir infinitamente
-            mediaPlayer.setVolume(0.2); // Volumen inicial (0.0 - 1.0)
+            mediaPlayer.setVolume(0.05); // Volumen inicial (0.0 - 1.0)
         } catch (Exception e) {
             System.err.println("No se pudo cargar el archivo de audio: " + e.getMessage());
         }

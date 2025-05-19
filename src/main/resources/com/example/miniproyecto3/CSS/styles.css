@@ -1,4 +1,6 @@
 .root {
+    -fx-background-image: url("../Image/Fondo3.jpg");
+    -fx-background-size: 730, 650, 650;
     -fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
     -fx-font-family: 'Segoe UI', sans-serif;
 }
@@ -20,14 +22,16 @@
 
 .text-field {
     -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-border-color: #00bfff;
-    -fx-border-width: 1;
+    -fx-border-color: #0c4e80;
+    -fx-border-width: 2;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: #a9a9a9;
+    -fx-text-fill: black;
+    -fx-prompt-text-fill: white;
     -fx-font-size: 13px;
     -fx-padding: 6 10;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.4), 4, 0.0, 2, 2);
+    -fx-cursor: hand;
 }
 
 .image-view {
