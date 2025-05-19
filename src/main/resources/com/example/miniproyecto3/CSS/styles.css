@@ -1,0 +1,40 @@
+.root {
+    -fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+.button {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 25;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.4), 4, 0.0, 2, 2);
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #3c73a8;
+}
+
+.text-field {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-border-color: #00bfff;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #a9a9a9;
+    -fx-font-size: 13px;
+    -fx-padding: 6 10;
+}
+
+.image-view {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 20, 0.5, 0, 0);
+}
+
+.label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}

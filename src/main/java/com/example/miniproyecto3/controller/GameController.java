@@ -44,7 +44,8 @@ public class GameController {
     private VBox placementControls;
     @FXML
     private VBox enemyBoardContainer;
-
+    @FXML
+    private HBox container;
 
 
     //Objetos para llevar la logica interna del juego
@@ -137,6 +138,7 @@ public class GameController {
                 btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
                 btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
                 cell.getChildren().add(btn);
+                cell.getStyleClass().add("grid-button");
 
                 if(!isPlayer) {
                     enemyCells[row][col] = cell;
@@ -274,7 +276,7 @@ public class GameController {
         //if (!btn.getText().isEmpty()) return;
 
         Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
-        saveGameState();
+        //saveGameState();
         if (hitShip != null) {
             System.out.println("Shot at " + row + ", " + col);
             //btn.setDisable(true);
@@ -290,6 +292,7 @@ public class GameController {
                 highlightSunkShip(hitShip);
                 saveGameState();
             }
+            checkWinCondition();
             //btn.setDisable(true);
             //btn.setText("X");
             //btn.setStyle("-fx-background-color: red;");
@@ -414,7 +417,7 @@ public class GameController {
     private void handleComputerShot() {
 
         //version del metodo que implementa una "IA":
-        /*Random rand = new Random();
+        Random rand = new Random();
         int row = -1, col = -1;
 
         // Elegir siguiente objetivo
@@ -475,11 +478,11 @@ public class GameController {
             playerTurn = true;
             checkWinCondition();
             saveGameState();
-        }*/
+        }
 
         //Version del metodo sin IA, solo disparos al azar:
         //Elegi un numero random para la columna y fila en el que nunca se ah disparado
-        Random rand = new Random();
+        /*Random rand = new Random();
         int row, col;
 
         do{
@@ -490,7 +493,7 @@ public class GameController {
 
 
         playerBoardModel.registerShot(row, col, false); //registra el tiro en la tabla del jugador
-
+        System.out.println("Disparo de la maquina en la celda: " + row + ", " + col);
         StackPane cell = getStackPaneAt(playerBoard, row, col); //obtiene la celda del jugador donde se disparo
         if(cell == null) return;
 
@@ -524,7 +527,7 @@ public class GameController {
             Label missMachineLabel = new Label("O");
             missMachineLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: blue; -fx-font-weight: bold;");
             cell.getChildren().add(missMachineLabel);
-        }
+        }*/
     }
 
     //metodo que devuelve el barco que esta en esa lista de barcos "ships" si no esta no devuelve nada
@@ -549,26 +552,28 @@ public class GameController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
             alert.showAndWait();
             playerTurn = false;
+            GameStage.deleteInstance();
             if(continueGame)
             {
                 System.out.println("Eliminando la partida...");
                 File file = new File("GameState.ser");
                 file.delete();
             }
-            GameStage.deleteInstance();
+            //GameStage.deleteInstance();
 
         } else if(allPlayerSunk) {
             gameEnded = true;
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
             alert.showAndWait();
             playerTurn = false;
+            GameStage.deleteInstance();
             if(continueGame)
             {
                 System.out.println("Eliminando la partida...");
                 File file = new File("GameState.ser");
                 file.delete();
             }
-            GameStage.deleteInstance();
+            //GameStage.deleteInstance();
         }
         //saveGameState();
     }

@@ -12,10 +12,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.Player;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 
 
 public class WelcomeController {
 
+    @FXML
+    private BorderPane borderPane;
     @FXML
     private TextField userTxt;
 
@@ -25,6 +29,17 @@ public class WelcomeController {
 
     @FXML
     public void initialize(){
+        Image backgroundImage = new Image("C:\\Users\\Juanpa\\IdeaProjects\\miniproyecto-3\\src\\main\\resources\\com\\example\\miniproyecto3\\Image\\fondo2.jpg");
+        /*BackgroundImage fondo = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(
+                        100, 100, true, true, true, false
+                )
+        );
+        borderPane.setBackground(new Background(fondo));*/
         planeTextFileHandler = new PlaneTextFileHandler();
 
         //player = new Player(userTxt.getText(),0);
