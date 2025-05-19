@@ -6,6 +6,7 @@ import com.example.miniproyecto3.model.Ship;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -20,6 +21,8 @@ import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.Player;
 import java.io.File;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.RowConstraints;
 
 
 import java.io.IOException;
@@ -108,6 +111,8 @@ public class GameController {
             placementControls.setManaged(true);
             enemyBoardContainer.setVisible(false);
             enemyBoardContainer.setManaged(false);
+            monitorButton.setVisible(false);
+            monitorButton.setManaged(false);
         }
         else if(continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
             System.out.println("Entrando a cargar el juego mas reciente");
@@ -121,6 +126,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
+            monitorButton.setVisible(true);
+            monitorButton.setManaged(true);
         }
 
     }
@@ -129,6 +136,31 @@ public class GameController {
     private void createBoard(GridPane board, boolean isPlayer) {
         System.out.println("Creando " + isPlayer + " board (gridpane)" );
         board.getChildren().clear();
+        board.getColumnConstraints().clear();
+        board.getRowConstraints().clear();
+        for(int i = 0; i <= 10; i++) {
+            ColumnConstraints columnConstraints = new ColumnConstraints(30);
+            RowConstraints rowConstraints = new RowConstraints(30);
+            board.getColumnConstraints().add(columnConstraints);
+            board.getRowConstraints().add(rowConstraints);
+        }
+
+        for(int col = 1; col <= 10; col++) {
+            Label label = new Label(String.valueOf((char) ('A' + col - 1)));
+            label.setMinSize(30, 30);
+            label.setAlignment(Pos.CENTER);
+            label.setStyle("-fx-font-weight: bold; -fx-background-color: #e0e0e0; -fx-font-size: 14px; -fx-border-color: #b0b0b0;");
+            board.add(label, col, 0);
+        }
+
+        for(int row = 1; row <= 10; row++) {
+            Label label = new Label(String.valueOf(row));
+            label.setMinSize(30, 30);
+            label.setAlignment(Pos.CENTER);
+            label.setStyle("-fx-font-weight: bold; -fx-background-color: #e0e0e0; -fx-font-size: 14px; -fx-border-color: #b0b0b0;");
+            board.add(label, 0, row);
+        }
+
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
                 System.out.println("Creando  + isPlayer +  board (gridpane). Coords: )" + row + "," + col);
@@ -156,7 +188,7 @@ public class GameController {
                     }
                 });
 
-                board.add(cell, col, row);
+                board.add(cell, col + 1, row + 1);
             }
         }
         board.setHgap(0);
@@ -250,8 +282,13 @@ public class GameController {
     }
     //metodo que devuelve la celda (StackPane) de un GridPane y coordenas dado.
     private StackPane getStackPaneAt(GridPane board, int row, int col) {
+        int visualRow = row + 1;
+        int visualCol = col + 1;
+
         for (javafx.scene.Node node : board.getChildren()) {
-            if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
+            Integer nodeRow = GridPane.getRowIndex(node);
+            Integer nodeCol = GridPane.getColumnIndex(node);
+            if (nodeRow != null && nodeCol != null && nodeRow == visualRow && nodeCol == visualCol) {
                 return (StackPane) node;
             }
         }
@@ -591,6 +628,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
+            monitorButton.setVisible(true);
+            monitorButton.setManaged(true);
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);

@@ -29,7 +29,7 @@ public class WelcomeController {
 
     @FXML
     public void initialize(){
-        Image backgroundImage = new Image("C:\\Users\\Juanpa\\IdeaProjects\\miniproyecto-3\\src\\main\\resources\\com\\example\\miniproyecto3\\Image\\fondo2.jpg");
+        Image backgroundImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/fondo2.jpg").toExternalForm());
         /*BackgroundImage fondo = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
