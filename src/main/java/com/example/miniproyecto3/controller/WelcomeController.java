@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
@@ -100,5 +101,10 @@ public class WelcomeController {
 
     public boolean getContinue() {
         return onContinue;
+    }
+
+    public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {
+
+
     }
 }

@@ -31,7 +31,6 @@ public class Main extends Application {
         WelcomeStage.getInstance();
 
     }
-
     public static void main(String[] args) {
         launch(args);
     }

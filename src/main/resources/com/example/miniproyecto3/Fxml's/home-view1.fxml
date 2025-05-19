@@ -12,6 +12,7 @@
                 <Button onAction="#onHandlePlayButtom" prefHeight="38.0" prefWidth="114.0" styleClass="button" text="Play" />
                 <Button onAction="#onHandleContinueButtom" styleClass="button" text="Continuar" />
                 <Button onAction="#onHandleQuitButtom" styleClass="button" text="Quit game" />
+                <Button onAction="#onHandleCreditsButtom" styleClass="button" text="Credits" />
             </children>
         </VBox>
     </left>

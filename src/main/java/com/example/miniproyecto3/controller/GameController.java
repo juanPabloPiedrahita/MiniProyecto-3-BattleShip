@@ -294,7 +294,7 @@ public class GameController {
             if (hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
                 player.setPlayerScore(player.getPlayerScore() + 1);
                 planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
-                highlightSunkShip(hitShip);
+                highlightSunkShip(hitShip,enemyBoard);
                 saveGameState();
             }
             checkWinCondition();
@@ -320,45 +320,11 @@ public class GameController {
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
-    private void highlightSunkShip(Ship ship) {
+    private void highlightSunkShip(Ship ship,GridPane board) {
         for (int[] coord : ship.getCoordinates()) {
             int row = coord[0];
             int col = coord[1];
-            StackPane cell = getStackPaneAt(enemyBoard, row, col);
-
-            if (cell != null) {
-                /*Canvas canvas = new Canvas(30, 30);
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-
-                gc.setFill(Color.LIGHTPINK);
-                gc.setGlobalAlpha(0.6);
-                gc.fillRect(0, 0, 30, 30);
-                gc.setGlobalAlpha(1);
-
-                canvas.setMouseTransparent(true);
-                cell.getChildren().add(canvas);*/
-                Rectangle burnMark = new Rectangle(30, 30);
-                burnMark.setFill(Color.LIGHTPINK);
-                burnMark.setOpacity(0.6);
-                burnMark.setMouseTransparent(true);
-                cell.getChildren().add(burnMark);
-                //cell.setStyle("-fx-background-color: red;");
-                //cell.setMouseTransparent(true);
-                //cell.toBack();
-                //cell.setVisible(false);
-                //cell.setDisable(true);
-                //cell.setOpacity(0.5);
-                //cell.setMouseTransparent(true);
-            }
-        }
-    }
-
-    //metood que dibuja el hundimiento de un barco del jugador
-    private void highlightPlayerSunkShip(Ship ship) {
-        for (int[] coord : ship.getCoordinates()) {
-            int row = coord[0];
-            int col = coord[1];
-            StackPane cell = getStackPaneAt(playerBoard, row, col);
+            StackPane cell = getStackPaneAt(board, row, col);
 
             if (cell != null) {
                 /*Canvas canvas = new Canvas(30, 30);
@@ -421,7 +387,7 @@ public class GameController {
                 System.out.println("IA acertó aquí: " + row + ", " + col);
 
                 if (hitShip.isSunk()) {
-                    highlightPlayerSunkShip(hitShip);
+                    highlightSunkShip(hitShip,playerBoard);
                     pendingTargets.clear(); // Si hunde, descarta los objetivos pendientes
                 } else {
                     addAdjacentTargets(row, col); // Sigue disparando alrededor
@@ -755,14 +721,14 @@ public class GameController {
         for (Ship ship : playerShips) {
             drawShip(playerBoard,ship,boatImage,true);
             if (ship.isSunk()) {
-                highlightSunkShip(ship);
+                highlightSunkShip(ship,playerBoard);
             }
         }
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
             drawShip(enemyBoard,ship,ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage,false);
             if (ship.isSunk()) {
-                highlightSunkShip(ship);
+                highlightSunkShip(ship,enemyBoard);
             }
         }
         // Restaura disparos del jugador sobre enemigo
