@@ -18,7 +18,7 @@
                 <!-- VBox izquierda: Tablero del jugador -->
           <VBox alignment="CENTER" spacing="10" prefHeight="200.0">
               <Label text="Tu tablero:" />
-              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" vgap="5" />
+              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="1" vgap="1" />
           </VBox>
       
                 <!-- VBox derecha: Controles de preparación y tablero enemigo (intercambiables) -->
@@ -46,11 +46,11 @@
                     <!-- Tablero enemigo (inicialmente oculto) -->
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" spacing="10" visible="false" prefHeight="200.0">
                   <Label text="Tablero enemigo:" />
-                  <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="5" vgap="5" />
+                  <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
               </VBox>
 
               <Button fx:id="monitorButton" alignment="BOTTOM_CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" />
-      
+
           </VBox>
       
             </HBox>

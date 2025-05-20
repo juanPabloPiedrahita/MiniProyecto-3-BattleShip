@@ -50,7 +50,6 @@ public class GameController {
     @FXML
     private HBox container;
 
-
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
     private Board enemyBoardModel = new Board();
@@ -84,6 +83,10 @@ public class GameController {
     //private Image submarineImage;
     //private Image destroyerImage;
 
+    private Image explosion;
+    private Image miss;
+    private Image smoke;
+
     //Objeto para reproducir musica
     MusicPlayer musicPlayer;
 
@@ -95,10 +98,11 @@ public class GameController {
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
+        smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
+        miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
+        explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
         defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
         carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
-        //vBoxCont.setSpacing(10);
-        //File file = new File("GameState.ser");
         if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
             System.out.println("Nuevo juego...");
             System.out.println("Creando playerboard");
@@ -171,7 +175,7 @@ public class GameController {
                 Button btn = new Button();
                 btn.setMinSize(30, 30);
                 btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-                btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
+                btn.setStyle("-fx-background-color: #00FFFF; -fx-border-color: black;");
                 cell.getChildren().add(btn);
                 cell.getStyleClass().add("grid-button");
 
@@ -283,24 +287,45 @@ public class GameController {
                 return;
             }
         }
-
+        Canvas canvas = new Canvas(30, 30);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
         Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
         //saveGameState();
         if (hitShip != null) {
-            System.out.println("Shot at " + row + ", " + col);
-            markCellWithSymbol("X", "red", cell);
+            //System.out.println("Shot at " + row + ", " + col);
+            //markCellWithSymbol("X", "red", cell);
+            //Canvas canvas = new Canvas(30, 30);
+            //GraphicsContext gc = canvas.getGraphicsContext2D();
+            //gc.clearRect(0, 0, 30, 30);
+            //gc.drawImage(explosion,0,0,30,30);
+            drawShot(gc,true,false);
+            canvas.setMouseTransparent(true);
             saveGameState();
-
+            //cell.getChildren().add(canvas);
             if (hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
                 player.setPlayerScore(player.getPlayerScore() + 1);
                 planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
-                highlightSunkShip(hitShip,enemyBoard);
+
+                //highlightSunkShip(hitShip,enemyBoard);
+                for (int[] coord : hitShip.getCoordinates()) {
+                    int row1 = coord[0];
+                    int col1 = coord[1];
+
+                    StackPane cell1 = getStackPaneAt(enemyBoard,row1,col1);
+                    if (cell1 != null) {
+                        drawShot(gc,false,true);
+                        canvas.setMouseTransparent(true);
+                        cell1.getChildren().add(canvas);
+                    }
+                }
                 saveGameState();
             }
             checkWinCondition();
         } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
             //si no fue un acierto entonces pinta una O azul
-            markCellWithSymbol("O", "blue", cell);
+
+            drawShot(gc,false,false);
+            //markCellWithSymbol("O", "blue", cell);
             saveGameState();
             playerTurn = false; //pasa el turno a la maquina
             checkWinCondition(); //checkea victoria
@@ -317,6 +342,7 @@ public class GameController {
                 }
             }, 1000);
         }
+        cell.getChildren().add(canvas);
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
@@ -337,6 +363,7 @@ public class GameController {
 
                 canvas.setMouseTransparent(true);
                 cell.getChildren().add(canvas);*/
+
                 Rectangle burnMark = new Rectangle(30, 30);
                 burnMark.setFill(Color.LIGHTPINK);
                 burnMark.setOpacity(0.6);
@@ -579,7 +606,7 @@ public class GameController {
 
     //metodo que dibuja los barcos dependiendo de su orientacion y tamaño (no usa canvas)
     private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, int shipLength, Image boatImage) {
-        gc.clearRect(0, 0, 30, 30);
+        gc.clearRect(0, 0, 30, 30); //borra cualquier contenido previo en ese rectangulo de 30px  x 30 px
 
         // Efecto de sombra
         DropShadow shadow = new DropShadow();
@@ -598,7 +625,7 @@ public class GameController {
         double segmentWidth = boatWidth / 3; // Dividimos la imagen en 3 partes iguales
 
         // Sólo aplicar margen visual si es el portaaviones el que se está dibujando (longitud 4).
-        double inset = (shipLength == 4) ? 2.0 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
+        double inset = (shipLength == 4) ? 0.5 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
         double destSize = 30 - 2 * inset;
 
         // Si es horizontal, no hacemos rotación
@@ -753,6 +780,13 @@ public class GameController {
         Label label = new Label(simbol);
         label.setStyle("-fx-font-size: 20px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
         cell.getChildren().add(label);
+    }
+
+    private void drawShot(GraphicsContext gc, boolean isHit, boolean isSunk) {
+        gc.clearRect(0, 0, 30, 30);
+        Image imgToDraw = isSunk ? explosion : (isHit ? smoke : miss);
+        gc.drawImage(imgToDraw, 0, 0, 30, 30);
+        gc.restore();
     }
 }
 
