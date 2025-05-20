@@ -35,8 +35,10 @@ public class GameController {
     private GridPane playerBoard;
     @FXML
     private GridPane enemyBoard;
+    //@FXML
+    //private ComboBox<Integer> shipSizeSelector;
     @FXML
-    private ComboBox<Integer> shipSizeSelector;
+    private HBox shipSelectorContainer;
     @FXML
     private ToggleButton orientationToggle;
     @FXML
@@ -87,6 +89,11 @@ public class GameController {
     //Objeto para reproducir musica
     MusicPlayer musicPlayer;
 
+    //Para mejora visual.
+    private Canvas selectedShipCanvas = null;
+    private int selectedShipSize = 0;
+    private Map<Canvas, Integer> canvasToShipSizeMap = new HashMap<>();
+
     @FXML
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
@@ -106,7 +113,7 @@ public class GameController {
             System.out.println("Creando enemyboard");
             createBoard(enemyBoard, false);
             System.out.println("seleccionando primera opcion en shipSizeSelector");
-            shipSizeSelector.getSelectionModel().selectFirst();
+            //shipSizeSelector.getSelectionModel().selectFirst();
             System.out.println("Creando evento para orientationToggle");
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
@@ -117,6 +124,7 @@ public class GameController {
             enemyBoardContainer.setManaged(false);
             monitorButton.setVisible(false);
             monitorButton.setManaged(false);
+            initializeShipSelectorCanvases();
         } else if (continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
             System.out.println("Entrando a cargar el juego mas reciente");
             finishedPlacing = true;
@@ -124,7 +132,7 @@ public class GameController {
             //checkWinCondition();
             readyButton.setDisable(true);
             orientationToggle.setDisable(true);
-            shipSizeSelector.setDisable(true);
+            //shipSizeSelector.setDisable(true);
             placementControls.setVisible(false);
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
@@ -138,9 +146,9 @@ public class GameController {
     //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
     private void createBoard(GridPane board, boolean isPlayer) {
         System.out.println("Creando " + isPlayer + " board (gridpane)");
-        board.getChildren().clear();
-        board.getColumnConstraints().clear();
-        board.getRowConstraints().clear();
+        //board.getChildren().clear();
+        //board.getColumnConstraints().clear();
+        //board.getRowConstraints().clear();
         for (int i = 0; i <= 10; i++) {
             ColumnConstraints columnConstraints = new ColumnConstraints(30);
             RowConstraints rowConstraints = new RowConstraints(30);
@@ -168,9 +176,13 @@ public class GameController {
             for (int col = 0; col < 10; col++) {
                 System.out.println("Creando  + isPlayer +  board (gridpane). Coords: )" + row + "," + col);
                 StackPane cell = new StackPane();
+                cell.setPrefSize(30, 30);
+                cell.setMinSize(30, 30);
+                cell.setMaxSize(30, 30);
                 Button btn = new Button();
+                btn.setPrefSize(30, 30);
                 btn.setMinSize(30, 30);
-                btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+                btn.setMaxSize(30, 30);
                 btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
                 cell.getChildren().add(btn);
                 cell.getStyleClass().add("grid-button");
@@ -196,6 +208,7 @@ public class GameController {
         }
         board.setHgap(0);
         board.setVgap(0);
+        board.setSnapToPixel(true);
     }
 
     private void toggleOrientation() {
@@ -204,32 +217,136 @@ public class GameController {
         } else {
             orientationToggle.setText("Horizontal");
         }
+
+        if (selectedShipCanvas != null) {
+            GraphicsContext gc = selectedShipCanvas.getGraphicsContext2D();
+            boolean horizontal = !orientationToggle.isSelected();
+            drawShipOnCanvas(gc, horizontal, selectedShipSize);
+        }
     }
+
+
+    private void initializeShipSelectorCanvases() {
+        shipSelectorContainer.getChildren().clear();
+        canvasToShipSizeMap.clear();
+
+        int[] shipSizes = {2, 3, 4, 5}; // Puedes modificar según tus barcos
+
+        for (int size : shipSizes) {
+            Canvas shipCanvas = new Canvas(30 * size, 30);
+            GraphicsContext gc = shipCanvas.getGraphicsContext2D();
+            drawShipOnCanvas(gc, true, size); // Dibuja horizontal por defecto
+
+            shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, size));
+
+            canvasToShipSizeMap.put(shipCanvas, size);
+            shipSelectorContainer.getChildren().add(shipCanvas);
+        }
+
+        // Inicialmente sin selección
+        selectedShipCanvas = null;
+        selectedShipSize = 0;
+    }
+
+
+    private void drawShipOnCanvas(GraphicsContext gc, boolean horizontal, int size) {
+        Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
+
+        gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+
+        for (int i = 0; i < size; i++) {
+            boolean isFirst = (i == 0);
+            boolean isLast = (i == size - 1);
+
+            double x = horizontal ? i * 30 : 0;
+            double y = horizontal ? 0 : i * 30;
+
+            gc.save();
+
+            if (!horizontal) {
+                // Para vertical, trasladamos y rotamos
+                gc.translate(x + 30, y);
+                gc.rotate(90);
+                x = 0;
+                y = 0;
+            }
+
+            // Dibujar el segmento del barco usando drawBoatShape adaptado para dibujar en posición (x,y)
+            drawBoatShapeSegment(gc, isFirst, isLast, size, boatImage, x, y);
+
+            gc.restore();
+        }
+    }
+
+    private void drawBoatShapeSegment(GraphicsContext gc, boolean isFirst, boolean isLast, int shipLength, Image boatImage, double x, double y) {
+        double boatWidth = boatImage.getWidth();
+        double boatHeight = boatImage.getHeight();
+        double segmentWidth = boatWidth / 3;
+
+        double inset = (shipLength == 4) ? 2.0 : 0.0;
+        double destSize = 30 - 2 * inset;
+
+        if (isFirst) {
+            gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, x + inset, y + inset, destSize, destSize);
+        } else if (isLast) {
+            gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, x + inset, y + inset, destSize, destSize);
+        } else {
+            gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, x + inset, y + inset, destSize, destSize);
+        }
+    }
+
+    private void selectShipCanvas(Canvas shipCanvas, int size) {
+        if (selectedShipCanvas != null) {
+            selectedShipCanvas.setOpacity(1.0); // Deselecciona el anterior
+        }
+        selectedShipCanvas = shipCanvas;
+        selectedShipSize = size;
+        shipCanvas.setOpacity(0.6); // Visualmente seleccionado
+
+        // Redibujar el canvas según orientación actual
+        boolean horizontal = !orientationToggle.isSelected();
+        GraphicsContext gc = shipCanvas.getGraphicsContext2D();
+        drawShipOnCanvas(gc, horizontal, size);
+    }
+
+
 
 
     //metodo que pone los barcos del jugador en las coordenas (row,col)
     private void placePlayerShip(int row, int col) {
-        //Image boatImage = new Image(getClass().getResource("/prueba.png").toExternalForm());
-        int size = shipSizeSelector.getValue();
+        if (selectedShipCanvas == null) {
+            System.out.println("No hay barco seleccionado para colocar.");
+            return;
+        }
+
+        int size = selectedShipSize;
         boolean horizontal = !orientationToggle.isSelected();
-        Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
+
         Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
-
-
         if (ship != null) {
-            //si el barco se creo con exito lo añade al arrayList de barcos del jugador, lo dibuja y elimina ese barco de la lista.
             playerShips.add(ship);
-            drawShip(playerBoard,ship,boatImage,true);
-            shipSizeSelector.getItems().remove((Integer) size);
+
+            Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
+            drawShip(playerBoard, ship, boatImage, true);
+
+            // Remueve el canvas de selección para que no pueda usarse otra vez
+            shipSelectorContainer.getChildren().remove(selectedShipCanvas);
+            canvasToShipSizeMap.remove(selectedShipCanvas);
+
+            selectedShipCanvas = null;
+            selectedShipSize = 0;
+
             saveGameState();
-            //si ya se acabaron todas las opciones para poner barcos elimina el boton de seleccion de barcos y orientacion (los deshabilita) y activa el boton de modo monitor
-            if (shipSizeSelector.getItems().isEmpty()) {
-                shipSizeSelector.setDisable(true);
+
+            if (shipSelectorContainer.getChildren().isEmpty()) {
                 orientationToggle.setDisable(true);
                 monitorButton.setDisable(false);
             }
+        } else {
+            System.out.println("No se pudo colocar el barco en esa posición.");
         }
     }
+
 
     private void drawShip(GridPane board, Ship ship, Image boatImage, boolean playerShip) {
         List<int[]> coords = ship.getCoordinates();
@@ -244,12 +361,15 @@ public class GameController {
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, ship.getSize(), boatImage);
+                //canvas.setEffect(new DropShadow(2, 2, 2, Color.rgb(30, 30, 30, 0.4)));
                 canvas.setMouseTransparent(true);
+                canvas.setManaged(false);
                 if(!playerShip) {
                     canvas.setVisible(monitorMode); // Visible solo si el monitorMode está activo
                     canvas.setUserData("enemy"); // Etiqueta el canvas como barco enemigo
                     //cell.getChildren().add(canvas);
                 }
+                StackPane.setAlignment(canvas,  Pos.CENTER);
                 cell.getChildren().add(canvas);
             }
         }
@@ -487,6 +607,7 @@ public class GameController {
                 File file = new File("GameState.ser");
                 file.delete();
             }
+            continueGame = false;
             //GameStage.deleteInstance();
 
         } else if (allPlayerSunk) {
@@ -500,6 +621,7 @@ public class GameController {
                 File file = new File("GameState.ser");
                 file.delete();
             }
+            continueGame = false;
             //GameStage.deleteInstance();
         }
         //saveGameState();
@@ -509,7 +631,7 @@ public class GameController {
     @FXML
     private void handleFinishPlacement() {
         //si ya colocaste todos tus barcos empieza la fase de batalla; indica que finishedplacing = true y llama a placeEnemyShips() para que la maquina coloque sus barcos
-        if (shipSizeSelector.getItems().isEmpty()) {
+        if (shipSelectorContainer.getChildren().isEmpty()) {
             musicPlayer.stop();
             finishedPlacing = true;
             placeEnemyShips();
@@ -582,11 +704,11 @@ public class GameController {
         gc.clearRect(0, 0, 30, 30);
 
         // Efecto de sombra
-        DropShadow shadow = new DropShadow();
-        shadow.setOffsetX(2);
-        shadow.setOffsetY(2);
-        shadow.setColor(Color.rgb(30, 30, 30, 0.4));
-        gc.applyEffect(shadow);
+        //DropShadow shadow = new DropShadow();
+        //shadow.setOffsetX(2);
+        //shadow.setOffsetY(2);
+        //shadow.setColor(Color.rgb(30, 30, 30, 0.4));
+        //gc.applyEffect(shadow);
 
         // Asumiendo que la imagen del barco está dividida en tres partes:
         // 1. Proa (primer segmento)
