@@ -13,38 +13,31 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="800.0" stylesheets="@../CSS/game-style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
-      <HBox fx:id="container" alignment="CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox fx:id="container" accessibleRole="NODE" alignment="CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       
                 <!-- VBox izquierda: Tablero del jugador -->
-          <VBox alignment="CENTER" spacing="10" prefHeight="200.0">
+          <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
               <Label text="Tu tablero:" />
-              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="1" vgap="1" />
+              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" vgap="5" prefWidth="300" prefHeight="300" maxWidth="300" maxHeight="300" />
           </VBox>
       
                 <!-- VBox derecha: Controles de preparación y tablero enemigo (intercambiables) -->
-          <VBox fx:id="rightPane" alignment="CENTER" spacing="10">
+          <VBox fx:id="rightPane" alignment="CENTER" spacing="10" minHeight="300" prefHeight="300" minWidth="350" prefWidth="350">
       
                     <!-- Controles de colocación -->
               <VBox fx:id="placementControls" alignment="CENTER" spacing="10">
                   <Label text="Configurar barco:" />
       
-                        <ComboBox fx:id="shipSizeSelector" promptText="Tamaño del barco">
-                      <items>
-                          <FXCollections fx:factory="observableArrayList">
-                              <Integer fx:value="2" />
-                              <Integer fx:value="3" />
-                              <Integer fx:value="4" />
-                              <Integer fx:value="5" />
-                          </FXCollections>
-                      </items>
-                  </ComboBox>
+                        <HBox fx:id="shipSelectorContainer" spacing="10" alignment="CENTER">
+
+                        </HBox>
       
                         <ToggleButton fx:id="orientationToggle" text="Horizontal" />
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
       
                     <!-- Tablero enemigo (inicialmente oculto) -->
-              <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" spacing="10" visible="false" prefHeight="200.0">
+              <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
                   <Label text="Tablero enemigo:" />
                   <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
               </VBox>
