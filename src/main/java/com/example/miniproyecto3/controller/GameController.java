@@ -79,8 +79,8 @@ public class GameController {
     private List<int[]> pendingTargets;
 
     //para jugar con las imágenes bien.
-    private Image defaultBoatImage;
-    private Image carrierBoatImage;  // para portaaviones.
+    //private Image defaultBoatImage;
+    //private Image carrierBoatImage;  // para portaaviones.
     //private Image battleshipImage;
     //private Image cruiserImage;
     //private Image submarineImage;
@@ -98,6 +98,16 @@ public class GameController {
     private int selectedShipSize = 0;
     private Map<Canvas, Integer> canvasToShipSizeMap = new HashMap<>();
 
+    //Para configurar la flota como pide el enunciado.
+    private final Map<Integer, Integer> fleetComposition = Map.of(
+            1, 4,  //4 fragatas de 1 casilla
+            2, 3,     //3 destructores de 2 casillas
+            3, 2,    //2 submarinos de 3 casillas
+            4, 1        //1 portaaviones de 4 casillas
+    );
+    private Map<Integer, Image> shipImages; //Para almacenar las imágenes de los barcos.
+    private Map<Integer, Integer> placedShipsCount = new HashMap<>();
+
     @FXML
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
@@ -109,8 +119,13 @@ public class GameController {
         smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
         miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
         explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
-        defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
-        carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
+        //defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
+        //carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
+        shipImages = new HashMap<>();
+        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
+        shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
+        shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
+        shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
         if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
             System.out.println("Nuevo juego...");
             System.out.println("Creando playerboard");
@@ -235,27 +250,41 @@ public class GameController {
         shipSelectorContainer.getChildren().clear();
         canvasToShipSizeMap.clear();
 
-        int[] shipSizes = {2, 3, 4, 5}; // Puedes modificar según tus barcos
+        for (Map.Entry<Integer, Integer> entry : fleetComposition.entrySet()) {
+            int size = entry.getKey();
+            int quantity = entry.getValue();
 
-        for (int size : shipSizes) {
-            Canvas shipCanvas = new Canvas(30 * size, 30);
-            GraphicsContext gc = shipCanvas.getGraphicsContext2D();
-            drawShipOnCanvas(gc, true, size); // Dibuja horizontal por defecto
+            for (int i = 0; i < quantity; i++) {
+                Canvas shipCanvas = new Canvas(30 * size, 30);
+                GraphicsContext gc = shipCanvas.getGraphicsContext2D();
 
-            shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, size));
+                Image shipImage = shipImages.get(size);
+                if (shipImage != null) {
+                    gc.drawImage(shipImage, 0, 0, 30 * size, 30);
+                }
 
-            canvasToShipSizeMap.put(shipCanvas, size);
-            shipSelectorContainer.getChildren().add(shipCanvas);
+                int finalSize = size; // necesario para el lambda
+                shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, finalSize));
+
+                canvasToShipSizeMap.put(shipCanvas, size);
+                shipSelectorContainer.getChildren().add(shipCanvas);
+            }
         }
 
-        // Inicialmente sin selección
         selectedShipCanvas = null;
         selectedShipSize = 0;
     }
 
 
+
+
     private void drawShipOnCanvas(GraphicsContext gc, boolean horizontal, int size) {
-        Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
+        Image boatImage = shipImages.get(size);
+
+        if (boatImage == null) {
+            System.out.println("No se encontró imagen para tamaño " + size);
+            return;
+        }
 
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 
@@ -269,21 +298,24 @@ public class GameController {
             gc.save();
 
             if (!horizontal) {
-                // Para vertical, trasladamos y rotamos
                 gc.translate(x + 30, y);
                 gc.rotate(90);
                 x = 0;
                 y = 0;
             }
 
-            // Dibujar el segmento del barco usando drawBoatShape adaptado para dibujar en posición (x,y)
             drawBoatShapeSegment(gc, isFirst, isLast, size, boatImage, x, y);
 
             gc.restore();
         }
     }
 
+
     private void drawBoatShapeSegment(GraphicsContext gc, boolean isFirst, boolean isLast, int shipLength, Image boatImage, double x, double y) {
+        if(shipLength == 1) {
+            gc.drawImage(boatImage, x, y);
+            return;
+        }
         double boatWidth = boatImage.getWidth();
         double boatHeight = boatImage.getHeight();
         double segmentWidth = boatWidth / 3;
@@ -300,6 +332,7 @@ public class GameController {
         }
     }
 
+
     private void selectShipCanvas(Canvas shipCanvas, int size) {
         if (selectedShipCanvas != null) {
             selectedShipCanvas.setOpacity(1.0); // Deselecciona el anterior
@@ -315,7 +348,6 @@ public class GameController {
     }
 
 
-    //metodo que pone los barcos del jugador en las coordenas (row,col)
     private void placePlayerShip(int row, int col) {
         if (selectedShipCanvas == null) {
             System.out.println("No hay barco seleccionado para colocar.");
@@ -323,35 +355,72 @@ public class GameController {
         }
 
         int size = selectedShipSize;
+
+        // Verificar si ya se alcanzó el límite de barcos para ese tamaño
+        int placed = placedShipsCount.getOrDefault(size, 0);
+        int maxAllowed = fleetComposition.getOrDefault(size, 0);
+        if (placed >= maxAllowed) {
+            System.out.println("Ya colocaste todos los barcos de tamaño " + size);
+            return;
+        }
+
         boolean horizontal = !orientationToggle.isSelected();
 
         Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
         if (ship != null) {
             playerShips.add(ship);
 
-            Image boatImage = (size == 4) ? carrierBoatImage : defaultBoatImage;
-            drawShip(playerBoard, ship, boatImage, true);
+            Image boatImage = shipImages.get(size);  // Usa la imagen correspondiente
+            drawShip(playerBoard, ship, true);
 
-            // Remueve el canvas de selección para que no pueda usarse otra vez
-            shipSelectorContainer.getChildren().remove(selectedShipCanvas);
-            canvasToShipSizeMap.remove(selectedShipCanvas);
+            // Actualizar contador
+            placedShipsCount.put(size, placed + 1);
 
-            selectedShipCanvas = null;
-            selectedShipSize = 0;
+            // Si se llegó al límite para ese tamaño, eliminar todos sus canvases
+            if (placed + 1 >= maxAllowed) {
+                List<Canvas> toRemove = new ArrayList<>();
+                for (Canvas c : canvasToShipSizeMap.keySet()) {
+                    if (canvasToShipSizeMap.get(c) == size) {
+                        toRemove.add(c);
+                    }
+                }
+                for (Canvas c : toRemove) {
+                    shipSelectorContainer.getChildren().remove(c);
+                    canvasToShipSizeMap.remove(c);
+                    if (selectedShipCanvas == c) {
+                        selectedShipCanvas = null;
+                        selectedShipSize = 0;
+                    }
+                }
+            } else {
+                // Si no se agotó la cantidad, sólo eliminar el canvas seleccionado para que no se repita la selección múltiple.
+                shipSelectorContainer.getChildren().remove(selectedShipCanvas);
+                canvasToShipSizeMap.remove(selectedShipCanvas);
+                selectedShipCanvas = null;
+                selectedShipSize = 0;
+            }
 
             saveGameState();
 
+            // Si no quedan más canvases para seleccionar, bloquear la orientación y habilitar monitor
             if (shipSelectorContainer.getChildren().isEmpty()) {
                 orientationToggle.setDisable(true);
                 monitorButton.setDisable(false);
             }
+
         } else {
             System.out.println("No se pudo colocar el barco en esa posición.");
         }
     }
 
+    private void drawShip(GridPane board, Ship ship, boolean playerShip) {
+        Image boatImage = shipImages.get(ship.getSize());
 
-    private void drawShip(GridPane board, Ship ship, Image boatImage, boolean playerShip) {
+        if (boatImage == null) {
+            System.out.println("No se encontró imagen para tamaño " + ship.getSize());
+            return;
+        }
+
         List<int[]> coords = ship.getCoordinates();
         for (int i = 0; i < coords.size(); i++) {
             int[] coord = coords.get(i);
@@ -364,19 +433,18 @@ public class GameController {
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawBoatShape(gc, ship.isHorizontal(), isFirst, isLast, ship.getSize(), boatImage);
-                //canvas.setEffect(new DropShadow(2, 2, 2, Color.rgb(30, 30, 30, 0.4)));
                 canvas.setMouseTransparent(true);
                 canvas.setManaged(false);
                 if (!playerShip) {
-                    canvas.setVisible(monitorMode); // Visible solo si el monitorMode está activo
-                    canvas.setUserData("enemy"); // Etiqueta el canvas como barco enemigo
-                    //cell.getChildren().add(canvas);
+                    canvas.setVisible(monitorMode);
+                    canvas.setUserData("enemy");
                 }
                 StackPane.setAlignment(canvas, Pos.CENTER);
                 cell.getChildren().add(canvas);
             }
         }
     }
+
 
     //metodo que devuelve la celda (StackPane) de un GridPane y coordenas dado.
     private StackPane getStackPaneAt(GridPane board, int row, int col) {
@@ -680,29 +748,39 @@ public class GameController {
         }
     }
 
-    //Pone los barcos enemigos de modo aleatorio; los ingresa en la enemyBoardModel y en la enemyShips.
     private void placeEnemyShips() {
         Random rand = new Random();
-        List<Integer> shipSizes = Arrays.asList(2, 3, 4, 5);
+        List<Integer> shipSizes = Arrays.asList(1, 2, 3, 4);
+
+        // Ajusta la cantidad de barcos según la flota real (4 fragatas, 3 destructores, etc.)
+        Map<Integer, Integer> fleetCount = Map.of(
+                1, 4,  // 4 fragatas de tamaño 1
+                2, 3,  // 3 destructores de tamaño 2
+                3, 2,  // 2 submarinos de tamaño 3
+                4, 1   // 1 portaaviones de tamaño 4
+        );
 
         for (int size : shipSizes) {
-            boolean placed = false;
-            while (!placed) {
-                int row = rand.nextInt(10);
-                int col = rand.nextInt(10);
-                boolean horizontal = rand.nextBoolean();
-                Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
-                if (ship != null) {
-                    enemyShips.add(ship);
-                    drawShip(enemyBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, false);
-                    //placeShipVisualHidden(enemyBoard, ship);
-                    placed = true;
+            int count = fleetCount.getOrDefault(size, 1);
+            for (int i = 0; i < count; i++) {
+                boolean placed = false;
+                while (!placed) {
+                    int row = rand.nextInt(10);
+                    int col = rand.nextInt(10);
+                    boolean horizontal = rand.nextBoolean();
+                    Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
+                    if (ship != null) {
+                        enemyShips.add(ship);
+                        Image boatImage = shipImages.get(ship.getSize());
+                        drawShip(enemyBoard, ship, false);
+                        placed = true;
+                    }
                 }
             }
-
         }
         debugEnemyBoard();
     }
+
 
     //Muestra o desactiva la vista de los barcos enemigos en la tabla de la maquina
     @FXML
@@ -730,6 +808,18 @@ public class GameController {
     private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, int shipLength, Image boatImage) {
         gc.clearRect(0, 0, 30, 30); //borra cualquier contenido previo en ese rectangulo de 30px  x 30 px
 
+        if(shipLength == 1) {
+            double imgWidth = boatImage.getWidth();
+            double imgHeight = boatImage.getHeight();
+            double scale = 30 / imgHeight;
+            double drawWidth = imgWidth * scale;
+            double drawHeight = 30;
+            double offsetX = (30 - drawWidth) / 2;
+
+
+            gc.drawImage(boatImage, offsetX, 0, drawWidth, drawHeight);
+            return;
+        }
         // Efecto de sombra
         //DropShadow shadow = new DropShadow();
         //shadow.setOffsetX(2);
@@ -880,31 +970,35 @@ public class GameController {
     }
 
 
-    //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
     private void redrawBoards() {
-        Image boatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
         // Limpia los tableros visuales
         createBoard(playerBoard, true);
         createBoard(enemyBoard, false);
+
         // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
-            drawShip(playerBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, true);
+            Image boatImage = shipImages.get(ship.getSize());
+            drawShip(playerBoard, ship, true);
             if (ship.isSunk()) {
-                drawSunkShips(ship,playerBoard);
+                drawSunkShips(ship, playerBoard);
             }
         }
+
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
-            drawShip(enemyBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, false);
+            Image boatImage = shipImages.get(ship.getSize());
+            drawShip(enemyBoard, ship, false);
             if (ship.isSunk()) {
-                drawSunkShips(ship,enemyBoard);
+                drawSunkShips(ship, enemyBoard);
             }
         }
+
         // Restaura disparos del jugador sobre enemigo
         restoreShots(enemyBoardModel, enemyBoard, true);
         // Restaura disparos de la máquina sobre jugador
         restoreShots(playerBoardModel, playerBoard, false);
     }
+
 
     private void addAdjacentTargets(int row, int col) {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
