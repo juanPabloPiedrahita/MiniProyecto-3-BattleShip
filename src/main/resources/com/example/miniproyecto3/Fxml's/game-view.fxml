@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.Integer?>
-<?import javafx.collections.FXCollections?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="800.0" stylesheets="@../CSS/game-style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
+<AnchorPane prefHeight="400.0" prefWidth="800.0" stylesheets="@../CSS/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
-      <HBox fx:id="container" alignment="CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox fx:id="container" alignment="CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       
                 <!-- VBox izquierda: Tablero del jugador -->
-          <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
-              <Label text="Tu tablero:" />
-              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" vgap="5" prefWidth="300" prefHeight="300" maxWidth="300" maxHeight="300" />
+          <VBox fx:id="playerBoardContainer" alignment="CENTER" prefHeight="200.0" spacing="10">
+              <Label fx:id="label1" styleClass="enemy-turn-label" text="Tu tablero:" />
+              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" maxHeight="300" maxWidth="300" prefHeight="300" prefWidth="300" styleClass="grid-pane" vgap="5" />
           </VBox>
       
                 <!-- VBox derecha: Controles de preparación y tablero enemigo (intercambiables) -->
-          <VBox fx:id="rightPane" alignment="CENTER" spacing="10" minHeight="300" prefHeight="300" minWidth="350" prefWidth="350">
+          <VBox fx:id="rightPane" alignment="CENTER" minHeight="300" minWidth="350" prefHeight="300" prefWidth="350" spacing="10">
       
                     <!-- Controles de colocación -->
-              <VBox fx:id="placementControls" alignment="CENTER" spacing="10">
-                  <Label text="Configurar barco:" />
+              <VBox fx:id="placementControls" alignment="CENTER" spacing="10" styleClass="player-box">
+                  <Label styleClass="enemy-turn-label" text="Configurar barco:" />
       
-                        <VBox fx:id="shipSelectorContainer" spacing="10" alignment="CENTER">
+                        <VBox fx:id="shipSelectorContainer" alignment="CENTER" spacing="10">
 
                         </VBox>
       
-                        <ToggleButton fx:id="orientationToggle" text="Horizontal" />
+                        <ToggleButton fx:id="orientationToggle" styleClass="button" text="Horizontal" />
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
       

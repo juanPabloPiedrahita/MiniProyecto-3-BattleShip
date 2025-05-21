@@ -52,6 +52,10 @@ public class GameController {
     private VBox enemyBoardContainer;
     @FXML
     private HBox container;
+    @FXML
+    private VBox playerBoardContainer;
+    @FXML
+    private Label label1;
 
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
@@ -110,6 +114,11 @@ public class GameController {
 
     @FXML
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        enemyBoard.getStyleClass().add("grid-pane");
+        playerBoard.getStyleClass().add("grid-pane");
+        playerBoardContainer.getStyleClass().add("player-box");
+        enemyBoardContainer.getStyleClass().add("player-box");
+        label1.getStyleClass().add("enemy-turn-label");
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
         musicPlayer.play();
         pendingTargets = new ArrayList<>();
@@ -204,9 +213,9 @@ public class GameController {
                 btn.setMinSize(30, 30);
                 btn.setMaxSize(30, 30);
                 btn.setStyle("-fx-background-color: lightblue; -fx-border-color: black;");
+                btn.getStyleClass().add("grid-button");
                 cell.getChildren().add(btn);
                 cell.getStyleClass().add("grid-button");
-
                 if (!isPlayer) {
                     enemyCells[row][col] = cell;
                 }
@@ -520,41 +529,6 @@ public class GameController {
             }, 1000);
         }
         //cell.getChildren().add(canvas);
-    }
-
-    //metodo que dibuja el hundimiento de un barco enemigo
-    private void highlightSunkShip(Ship ship, GridPane board) {
-        for (int[] coord : ship.getCoordinates()) {
-            int row = coord[0];
-            int col = coord[1];
-            StackPane cell = getStackPaneAt(board, row, col);
-
-            if (cell != null) {
-                /*Canvas canvas = new Canvas(30, 30);
-                GraphicsContext gc = canvas.getGraphicsContext2D();
-
-                gc.setFill(Color.LIGHTPINK);
-                gc.setGlobalAlpha(0.6);
-                gc.fillRect(0, 0, 30, 30);
-                gc.setGlobalAlpha(1);
-
-                canvas.setMouseTransparent(true);
-                cell.getChildren().add(canvas);*/
-
-                Rectangle burnMark = new Rectangle(30, 30);
-                burnMark.setFill(Color.LIGHTPINK);
-                burnMark.setOpacity(0.6);
-                burnMark.setMouseTransparent(true);
-                cell.getChildren().add(burnMark);
-                //cell.setStyle("-fx-background-color: red;");
-                //cell.setMouseTransparent(true);
-                //cell.toBack();
-                //cell.setVisible(false);
-                //cell.setDisable(true);
-                //cell.setOpacity(0.5);
-                //cell.setMouseTransparent(true);
-            }
-        }
     }
 
     //metodo que maneja los disparos de la maquina
@@ -906,7 +880,7 @@ public class GameController {
             this.enemyBoardModel = state.getEnemyBoard();
             this.playerShips = state.getPlayerShips();
             this.enemyShips = state.getEnemyShips();
-            redrawBoards();// redibujar los tableros aquí (gridPanes)
+            redrawBoards();// redibuja los tableros aquí (gridPanes)
         }
     }
 
