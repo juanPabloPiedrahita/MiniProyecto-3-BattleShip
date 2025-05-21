@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.Node;
 import javafx.scene.shape.Rectangle;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
@@ -38,7 +39,7 @@ public class GameController {
     //@FXML
     //private ComboBox<Integer> shipSizeSelector;
     @FXML
-    private HBox shipSelectorContainer;
+    private VBox shipSelectorContainer;
     @FXML
     private ToggleButton orientationToggle;
     @FXML
@@ -51,7 +52,6 @@ public class GameController {
     private VBox enemyBoardContainer;
     @FXML
     private HBox container;
-
 
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
@@ -86,6 +86,10 @@ public class GameController {
     //private Image submarineImage;
     //private Image destroyerImage;
 
+    private Image explosion;
+    private Image miss;
+    private Image smoke;
+
     //Objeto para reproducir musica
     MusicPlayer musicPlayer;
 
@@ -102,10 +106,11 @@ public class GameController {
         planeTextFileHandler = new PlaneTextFileHandler();
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
+        smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
+        miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
+        explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
         defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
         carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
-        //vBoxCont.setSpacing(10);
-        //File file = new File("GameState.ser");
         if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
             System.out.println("Nuevo juego...");
             System.out.println("Creando playerboard");
@@ -283,7 +288,7 @@ public class GameController {
         double boatHeight = boatImage.getHeight();
         double segmentWidth = boatWidth / 3;
 
-        double inset = (shipLength == 4) ? 2.0 : 0.0;
+        double inset = (shipLength == 4) ? 0.2 : 0.0;
         double destSize = 30 - 2 * inset;
 
         if (isFirst) {
@@ -308,8 +313,6 @@ public class GameController {
         GraphicsContext gc = shipCanvas.getGraphicsContext2D();
         drawShipOnCanvas(gc, horizontal, size);
     }
-
-
 
 
     //metodo que pone los barcos del jugador en las coordenas (row,col)
@@ -364,12 +367,12 @@ public class GameController {
                 //canvas.setEffect(new DropShadow(2, 2, 2, Color.rgb(30, 30, 30, 0.4)));
                 canvas.setMouseTransparent(true);
                 canvas.setManaged(false);
-                if(!playerShip) {
+                if (!playerShip) {
                     canvas.setVisible(monitorMode); // Visible solo si el monitorMode está activo
                     canvas.setUserData("enemy"); // Etiqueta el canvas como barco enemigo
                     //cell.getChildren().add(canvas);
                 }
-                StackPane.setAlignment(canvas,  Pos.CENTER);
+                StackPane.setAlignment(canvas, Pos.CENTER);
                 cell.getChildren().add(canvas);
             }
         }
@@ -398,29 +401,40 @@ public class GameController {
         //assert cell != null;
         if (cell == null) return;
 
-        for (javafx.scene.Node child : cell.getChildren()) { //para cada node en la celda
-            if (child instanceof Label label && (label.getText().equals("X") || label.getText().equals("O"))) { //si ya han disparado ahi no hace nada
-                return;
-            }
+        if(enemyBoardModel.alreadyShotAt(row,col,true))
+        {
+            return;
         }
 
+        Canvas canvas = new Canvas(30, 30);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
         Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
         //saveGameState();
         if (hitShip != null) {
-            System.out.println("Shot at " + row + ", " + col);
-            markCellWithSymbol("X", "red", cell);
-            saveGameState();
 
+            canvas.setUserData("impacto");
+            drawShot(gc, true, false);
+            canvas.setMouseTransparent(true);
+            canvas.setManaged(false);
+            cell.getChildren().add(canvas);
+            saveGameState();
             if (hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
                 player.setPlayerScore(player.getPlayerScore() + 1);
                 planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
-                highlightSunkShip(hitShip,enemyBoard);
+                drawSunkShips(hitShip,enemyBoard);
+                //highlightSunkShip(hitShip,enemyBoard);
                 saveGameState();
             }
             checkWinCondition();
         } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
             //si no fue un acierto entonces pinta una O azul
-            markCellWithSymbol("O", "blue", cell);
+
+            canvas.setMouseTransparent(true);
+            canvas.setManaged(false);
+            canvas.setUserData("fallo");
+            drawShot(gc, false, false);
+            cell.getChildren().add(canvas);
+            //markCellWithSymbol("O", "blue", cell);
             saveGameState();
             playerTurn = false; //pasa el turno a la maquina
             checkWinCondition(); //checkea victoria
@@ -437,10 +451,11 @@ public class GameController {
                 }
             }, 1000);
         }
+        //cell.getChildren().add(canvas);
     }
 
     //metodo que dibuja el hundimiento de un barco enemigo
-    private void highlightSunkShip(Ship ship,GridPane board) {
+    private void highlightSunkShip(Ship ship, GridPane board) {
         for (int[] coord : ship.getCoordinates()) {
             int row = coord[0];
             int col = coord[1];
@@ -457,6 +472,7 @@ public class GameController {
 
                 canvas.setMouseTransparent(true);
                 cell.getChildren().add(canvas);*/
+
                 Rectangle burnMark = new Rectangle(30, 30);
                 burnMark.setFill(Color.LIGHTPINK);
                 burnMark.setOpacity(0.6);
@@ -497,17 +513,24 @@ public class GameController {
         StackPane cell = getStackPaneAt(playerBoard, row, col);
         if (cell == null) return;
 
+        Canvas canvas = new Canvas(30, 30);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
         if (playerBoardModel.hasShipAt(row, col, true)) {
             Ship hitShip = getShipAt(playerShips, row, col);
             if (hitShip != null) {
                 hitShip.registerHit(row, col);
 
-                markCellWithSymbol("X", "red", cell);
+                canvas.setMouseTransparent(true);
+                canvas.setManaged(false);
+                canvas.setUserData("impacto");
+                drawShot(gc, true, false);
+                cell.getChildren().add(canvas);
 
                 System.out.println("IA acertó aquí: " + row + ", " + col);
 
                 if (hitShip.isSunk()) {
-                    highlightSunkShip(hitShip,playerBoard);
+                    drawSunkShips(hitShip,playerBoard);
                     pendingTargets.clear(); // Si hunde, descarta los objetivos pendientes
                 } else {
                     addAdjacentTargets(row, col); // Sigue disparando alrededor
@@ -525,7 +548,11 @@ public class GameController {
 
             }
         } else {
-            markCellWithSymbol("O", "blue", cell);
+            canvas.setMouseTransparent(true);
+            canvas.setManaged(false);
+            canvas.setUserData("fallo");
+            drawShot(gc, false, false);
+            cell.getChildren().add(canvas);
             System.out.println("IA falló en: " + row + ", " + col);
             // Fin del turno
             playerTurn = true;
@@ -667,7 +694,7 @@ public class GameController {
                 Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
                 if (ship != null) {
                     enemyShips.add(ship);
-                    drawShip(enemyBoard,ship,ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, false);
+                    drawShip(enemyBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, false);
                     //placeShipVisualHidden(enemyBoard, ship);
                     placed = true;
                 }
@@ -701,7 +728,7 @@ public class GameController {
 
     //metodo que dibuja los barcos dependiendo de su orientacion y tamaño (no usa canvas)
     private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, int shipLength, Image boatImage) {
-        gc.clearRect(0, 0, 30, 30);
+        gc.clearRect(0, 0, 30, 30); //borra cualquier contenido previo en ese rectangulo de 30px  x 30 px
 
         // Efecto de sombra
         //DropShadow shadow = new DropShadow();
@@ -720,7 +747,7 @@ public class GameController {
         double segmentWidth = boatWidth / 3; // Dividimos la imagen en 3 partes iguales
 
         // Sólo aplicar margen visual si es el portaaviones el que se está dibujando (longitud 4).
-        double inset = (shipLength == 4) ? 2.0 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
+        double inset = (shipLength == 4) ? 0.2 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
         double destSize = 30 - 2 * inset;
 
         // Si es horizontal, no hacemos rotación
@@ -819,19 +846,39 @@ public class GameController {
         System.out.println("JugadorCasiNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
     }
 
+    //Este metodo re dibuja los disparos sobre los gridPane
     private void restoreShots(Board boardModel, GridPane board, boolean isPlayerBoard) {
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                if (boardModel.alreadyShotAt(row, col, isPlayerBoard)) {
-                    StackPane cell = getStackPaneAt(board, row, col);
-                    if (cell != null) {
-                        boolean hit = boardModel.hasShipAt(row, col, !isPlayerBoard);
-                        markCellWithSymbol(hit ? "X" : "O", hit ? "red" : "blue", cell);
+                if (!boardModel.alreadyShotAt(row, col, isPlayerBoard)) continue; //si no se ha disparado sobre esta celda pasa a la siguiente iteracion (continue)
+
+                StackPane cell = getStackPaneAt(board, row, col);
+                if (cell == null) continue; //si la celda esta nula continua con la siguiente iteracion (continue)
+
+                boolean skip = false; //esta nos ayuda a saber si ya esta dibujad sobre aquel celda
+                for (Node node : cell.getChildren()) { //recorre cada node de la celda
+                    if ("hundido".equals(node.getUserData())) { //si en uno de los nodos hay un hundido entonces pone a skip = true y brekea el for
+                        skip = true; //si haya un nodo "hundido" breakea el for de nodos y pone skip = true
+                        break;
                     }
                 }
+                if (skip) continue; //si skip es igual a true, osea si hayo un nodo adentro de la celdas que se llame hundido entonces salta la iteracion actual y pasa a la siguente
+
+                // Dibujar el disparo
+                Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                canvas.setMouseTransparent(true);
+                canvas.setManaged(false);
+
+                boolean hit = boardModel.hasShipAt(row, col, !isPlayerBoard);
+                drawShot(gc, hit, false);
+
+                canvas.setUserData(hit ? "impacto" : "fallo");
+                cell.getChildren().add(canvas);
             }
         }
     }
+
 
     //este metodo redibujara los tableros, tanto para el jugador como la maquina (cuando el jugador le da continuar)
     private void redrawBoards() {
@@ -841,16 +888,16 @@ public class GameController {
         createBoard(enemyBoard, false);
         // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
-            drawShip(playerBoard,ship,boatImage,true);
+            drawShip(playerBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, true);
             if (ship.isSunk()) {
-                highlightSunkShip(ship,playerBoard);
+                drawSunkShips(ship,playerBoard);
             }
         }
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
-            drawShip(enemyBoard,ship,ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage,false);
+            drawShip(enemyBoard, ship, ship.getSize() == 4 ? carrierBoatImage : defaultBoatImage, false);
             if (ship.isSunk()) {
-                highlightSunkShip(ship,enemyBoard);
+                drawSunkShips(ship,enemyBoard);
             }
         }
         // Restaura disparos del jugador sobre enemigo
@@ -859,7 +906,7 @@ public class GameController {
         restoreShots(playerBoardModel, playerBoard, false);
     }
 
-    private void addAdjacentTargets ( int row, int col){
+    private void addAdjacentTargets(int row, int col) {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] d : directions) {
             int newRow = row + d[0];
@@ -871,10 +918,35 @@ public class GameController {
         }
     }
 
-    private void markCellWithSymbol (String simbol, String color, StackPane cell){
-        Label label = new Label(simbol);
-        label.setStyle("-fx-font-size: 20px; -fx-text-fill: " + color + "; -fx-font-weight: bold;");
-        cell.getChildren().add(label);
+    //este metodo dibuja la imagen en el canvas de la celda dependiendo de si esta hundido, golpeado o no le dio a nada
+    private void drawShot(GraphicsContext gc, boolean isHit, boolean isSunk) {
+        gc.clearRect(0, 0, 30, 30);
+        Image imgToDraw = isSunk ? explosion : (isHit ? smoke : miss);
+        gc.drawImage(imgToDraw, 0, 0, 30, 30);
+        gc.restore();
+    }
+
+    //metodo para dibujar un barco como hundido
+    private void drawSunkShips(Ship ship, GridPane board) {
+        List<int[]> coords = ship.getCoordinates();
+        for (int i = 0; i < coords.size(); i++) {
+            int[] coord = coords.get(i);
+            int row = coord[0];
+            int col = coord[1];
+            boolean isFirst = (i == 0);
+            boolean isLast = (i == coords.size() - 1);
+            StackPane cell = getStackPaneAt(board, row, col);
+            if (cell != null) {
+                cell.getChildren().removeIf(node -> node.getUserData() != null && node.getUserData().equals("impacto")); //elimina el node que antes representaba el impacto sobre el barco, esto para evitar la sobreposicion de imagenes :v
+                Canvas canvas = new Canvas(30, 30);
+                GraphicsContext gc = canvas.getGraphicsContext2D();
+                drawShot(gc, false, true);
+                canvas.setMouseTransparent(true);
+                canvas.setManaged(false);
+                canvas.setUserData("hundido");
+                StackPane.setAlignment(canvas, Pos.CENTER);
+                cell.getChildren().add(canvas);
+            }
+        }
     }
 }
-
