@@ -18,19 +18,26 @@
                 <!-- VBox izquierda: Tablero del jugador -->
           <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
               <Label text="Tu tablero:" />
-              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" vgap="5" prefWidth="300" prefHeight="300" maxWidth="300" maxHeight="300" />
+              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" vgap="5" />
           </VBox>
       
                 <!-- VBox derecha: Controles de preparación y tablero enemigo (intercambiables) -->
-          <VBox fx:id="rightPane" alignment="CENTER" spacing="10" minHeight="300" prefHeight="300" minWidth="350" prefWidth="350">
+          <VBox fx:id="rightPane" alignment="CENTER" spacing="10">
       
                     <!-- Controles de colocación -->
               <VBox fx:id="placementControls" alignment="CENTER" spacing="10">
                   <Label text="Configurar barco:" />
       
-                        <HBox fx:id="shipSelectorContainer" spacing="10" alignment="CENTER">
-
-                        </HBox>
+                        <ComboBox fx:id="shipSizeSelector" promptText="Tamaño del barco">
+                      <items>
+                          <FXCollections fx:factory="observableArrayList">
+                              <Integer fx:value="2" />
+                              <Integer fx:value="3" />
+                              <Integer fx:value="4" />
+                              <Integer fx:value="5" />
+                          </FXCollections>
+                      </items>
+                  </ComboBox>
       
                         <ToggleButton fx:id="orientationToggle" text="Horizontal" />
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
@@ -40,9 +47,10 @@
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
                   <Label text="Tablero enemigo:" />
                   <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="5" vgap="5" />
+                  <Button fx:id="monitorButton" alignment="BOTTOM_CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" />
               </VBox>
 
-              <Button fx:id="monitorButton" alignment="BOTTOM_CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" />
+
       
           </VBox>
       
