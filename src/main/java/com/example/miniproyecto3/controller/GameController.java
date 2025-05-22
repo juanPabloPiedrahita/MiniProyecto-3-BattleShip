@@ -116,8 +116,8 @@ public class GameController {
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         enemyBoard.getStyleClass().add("grid-pane");
         playerBoard.getStyleClass().add("grid-pane");
-        playerBoardContainer.getStyleClass().add("player-box");
-        enemyBoardContainer.getStyleClass().add("player-box");
+        //playerBoardContainer.getStyleClass().add("player-box");
+        //enemyBoardContainer.getStyleClass().add("player-box");
         label1.getStyleClass().add("enemy-turn-label");
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
         musicPlayer.play();

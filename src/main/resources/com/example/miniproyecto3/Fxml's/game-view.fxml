@@ -30,7 +30,7 @@
       
                     <!-- Tablero enemigo (inicialmente oculto) -->
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
-                  <Label text="Tablero enemigo:" />
+                  <Label styleClass="enemy-turn-label" text="Tablero enemigo:" />
                   <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
               </VBox>
 
