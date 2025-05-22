@@ -6,6 +6,7 @@ import com.example.miniproyecto3.model.Ship;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -263,6 +264,10 @@ public class GameController {
             int size = entry.getKey();
             int quantity = entry.getValue();
 
+            HBox shipRow = new HBox(5);  //Espaciado para barcos del mismo tipo.
+            shipRow.setAlignment(Pos.CENTER_LEFT);
+            shipRow.setPadding(new Insets(5));  //Margen alrededor de la fila.
+
             for (int i = 0; i < quantity; i++) {
                 Canvas shipCanvas = new Canvas(30 * size, 30);
                 GraphicsContext gc = shipCanvas.getGraphicsContext2D();
@@ -276,8 +281,9 @@ public class GameController {
                 shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, finalSize));
 
                 canvasToShipSizeMap.put(shipCanvas, size);
-                shipSelectorContainer.getChildren().add(shipCanvas);
+                shipRow.getChildren().add(shipCanvas);
             }
+            shipSelectorContainer.getChildren().add(shipRow);
         }
 
         selectedShipCanvas = null;
