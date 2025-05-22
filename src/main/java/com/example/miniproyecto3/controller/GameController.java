@@ -131,7 +131,7 @@ public class GameController {
         //defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
         //carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
         shipImages = new HashMap<>();
-        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
+        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba3.png").toExternalForm()));
         shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
         shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
         shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
@@ -288,6 +288,8 @@ public class GameController {
 
 
     private void drawShipOnCanvas(GraphicsContext gc, boolean horizontal, int size) {
+        gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+
         Image boatImage = shipImages.get(size);
 
         if (boatImage == null) {
@@ -295,7 +297,19 @@ public class GameController {
             return;
         }
 
-        gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+        if(size == 1) {
+            double imgWidth = boatImage.getWidth();
+            double imgHeight = boatImage.getHeight();
+            double canvasSize = 30;
+            double scale = Math.min(canvasSize / imgWidth, canvasSize / imgHeight);
+            double drawWidth = imgWidth * scale;
+            double drawHeight = imgHeight * scale;
+            double offsetX = (canvasSize - drawWidth) / 2;
+            double offsetY = (canvasSize - drawHeight) / 2;
+
+            gc.drawImage(boatImage, offsetX, offsetY, drawWidth, drawHeight);
+            return;
+        }
 
         for (int i = 0; i < size; i++) {
             boolean isFirst = (i == 0);
@@ -785,13 +799,13 @@ public class GameController {
         if(shipLength == 1) {
             double imgWidth = boatImage.getWidth();
             double imgHeight = boatImage.getHeight();
-            double scale = 30 / imgHeight;
+            double scale = Math.min(30 / imgWidth, 30 / imgHeight);
             double drawWidth = imgWidth * scale;
             double drawHeight = 30;
             double offsetX = (30 - drawWidth) / 2;
+            double offsetY = (30 - drawHeight) / 2;
 
-
-            gc.drawImage(boatImage, offsetX, 0, drawWidth, drawHeight);
+            gc.drawImage(boatImage, offsetX, offsetY, drawWidth, drawHeight);
             return;
         }
         // Efecto de sombra
