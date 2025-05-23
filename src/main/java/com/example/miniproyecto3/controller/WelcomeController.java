@@ -11,11 +11,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
-import com.example.miniproyecto3.model.Player;
+import javafx.scene.layout.*;
+import com.example.miniproyecto3.model.MusicPlayer;
 
 
 public class WelcomeController {
 
+    @FXML
+    private BorderPane borderPane;
     @FXML
     private TextField userTxt;
 
@@ -23,8 +26,22 @@ public class WelcomeController {
 
     public boolean onContinue;
 
+    MusicPlayer musicPlayer;
+
     @FXML
     public void initialize(){
+        musicPlayer = new MusicPlayer("/com/example/miniproyecto3/media/MenuMainTheme.mp3");
+        musicPlayer.play();
+        /*BackgroundImage fondo = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(
+                        100, 100, true, true, true, false
+                )
+        );
+        borderPane.setBackground(new Background(fondo));*/
         planeTextFileHandler = new PlaneTextFileHandler();
 
         //player = new Player(userTxt.getText(),0);
@@ -39,6 +56,7 @@ public class WelcomeController {
                 GameStage.getInstance().getController().continueB(false,true);
                 GameStage.getInstance();
                 onContinue = false;
+                musicPlayer.stop();
             }
             else {
                 planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
@@ -46,6 +64,7 @@ public class WelcomeController {
                 GameStage.getInstance().getController().continueB(false);
                 GameStage.getInstance();
                 onContinue = false;
+                musicPlayer.stop();
             }
         }
         else{
@@ -62,6 +81,7 @@ public class WelcomeController {
             onContinue = true;
             GameStage.getInstance().getController().continueB(true);
             GameStage.getInstance();
+            musicPlayer.stop();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");
@@ -78,5 +98,10 @@ public class WelcomeController {
 
     public boolean getContinue() {
         return onContinue;
+    }
+
+    public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {
+
+
     }
 }

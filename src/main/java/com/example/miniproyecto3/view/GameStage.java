@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -25,6 +26,10 @@ public class GameStage extends Stage {
             Platform.exit();
             System.exit(0);
         });
+        /*double screenWidth = Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getBounds().getHeight();
+        setWidth(screenWidth * 1);
+        setHeight(screenHeight * 1);*/
         show();
     }
 

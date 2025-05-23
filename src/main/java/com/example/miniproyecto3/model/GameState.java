@@ -16,6 +16,14 @@ public class GameState implements Serializable {
         this.enemyShips = enemyShips;
     }
 
+    //construtor sobrecargado para la preparacion del juego
+    public GameState(Board playerBoard, List<Ship> playerShips) {
+        this.playerBoard = playerBoard;
+        this.playerShips = playerShips;
+        enemyBoard = null;
+        enemyShips = null;
+    }
+
     public Board getPlayerBoard() {
         return playerBoard;
     }
