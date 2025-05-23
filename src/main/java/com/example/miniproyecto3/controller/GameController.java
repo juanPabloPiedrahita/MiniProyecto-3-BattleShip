@@ -10,13 +10,10 @@ import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.Node;
-import javafx.scene.shape.Rectangle;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.MusicPlayer;
@@ -24,6 +21,7 @@ import com.example.miniproyecto3.model.Player;
 import java.io.File;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
+import com.example.miniproyecto3.model.Players.AI;
 
 
 import java.io.IOException;
@@ -111,6 +109,8 @@ public class GameController {
     );
     private Map<Integer, Image> shipImages; //Para almacenar las imágenes de los barcos.
     private Map<Integer, Integer> placedShipsCount = new HashMap<>();
+
+    private AI enemy = new AI(0,"Enemy");
 
     @FXML
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
@@ -470,7 +470,7 @@ public class GameController {
 
 
     //metodo que devuelve la celda (StackPane) de un GridPane y coordenas dado.
-    private StackPane getStackPaneAt(GridPane board, int row, int col) {
+    public StackPane getStackPaneAt(GridPane board, int row, int col) {
         int visualRow = row + 1;
         int visualCol = col + 1;
 
@@ -534,10 +534,11 @@ public class GameController {
                 @Override
                 public void run() {
                     javafx.application.Platform.runLater(() -> {
-                        handleComputerShot();
+                        triggerComputerMove();
+                        /*handleComputerShot();
                         playerTurn = true;
                         checkWinCondition();
-                        saveGameState();
+                        saveGameState();*/
                     });
                 }
             }, 1000);
@@ -545,125 +546,22 @@ public class GameController {
         //cell.getChildren().add(canvas);
     }
 
-    //metodo que maneja los disparos de la maquina
-    private void handleComputerShot() {
+    //aqui se llama a la IA para que dispare, luego lo modificamos para que el jugador elija la dificultad
+    private void triggerComputerMove() {
+        playerTurn = false;
+        Runnable onTurnEnd = this::endComputerTurn;
+        enemy.makeRandomMove(playerBoardModel,enemyBoardModel,playerBoard,playerShips,onTurnEnd,this); //dificultad facil (tira random)
+        //enemy.makeMove(playerBoardModel,enemyBoardModel,playerBoard,onTurnEnd,playerShips,this); //dificultad dificil (tira con "IA")
+    }
 
-        //version del metodo que implementa una "IA":
-        Random rand = new Random();
-        int row = -1, col = -1;
-
-        // Elegir siguiente objetivo
-        if (!pendingTargets.isEmpty()) {
-            int[] target = pendingTargets.remove(0);
-            row = target[0];
-            col = target[1];
-        } else {
-            do {
-                row = rand.nextInt(10);
-                col = rand.nextInt(10);
-            } while (playerBoardModel.alreadyShotAt(row, col, false));
-        }
-
-        playerBoardModel.registerShot(row, col, false);
-
-        StackPane cell = getStackPaneAt(playerBoard, row, col);
-        if (cell == null) return;
-
-        Canvas canvas = new Canvas(30, 30);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        if (playerBoardModel.hasShipAt(row, col, true)) {
-            Ship hitShip = getShipAt(playerShips, row, col);
-            if (hitShip != null) {
-                hitShip.registerHit(row, col);
-
-                canvas.setMouseTransparent(true);
-                canvas.setManaged(false);
-                canvas.setUserData("impacto");
-                drawShot(gc, true, false);
-                cell.getChildren().add(canvas);
-
-                System.out.println("IA acertó aquí: " + row + ", " + col);
-
-                if (hitShip.isSunk()) {
-                    drawSunkShips(hitShip,playerBoard);
-                    pendingTargets.clear(); // Si hunde, descarta los objetivos pendientes
-                } else {
-                    addAdjacentTargets(row, col); // Sigue disparando alrededor
-                }
-
-                // Continuar disparando en 1s
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        javafx.application.Platform.runLater(() -> {
-                            handleComputerShot();
-                        });
-                    }
-                }, 1000);
-
-            }
-        } else {
-            canvas.setMouseTransparent(true);
-            canvas.setManaged(false);
-            canvas.setUserData("fallo");
-            drawShot(gc, false, false);
-            cell.getChildren().add(canvas);
-            System.out.println("IA falló en: " + row + ", " + col);
-            // Fin del turno
-            playerTurn = true;
-            checkWinCondition();
-            saveGameState();
-        }
-
-        //Version del metodo sin IA, solo disparos al azar:
-        //Elegi un numero random para la columna y fila en el que nunca se ah disparado
-        /*Random rand = new Random();
-        int row, col;
-
-        do{
-            row = rand.nextInt(10);
-            col = rand.nextInt(10);
-        } while (playerBoardModel.alreadyShotAt(row, col, false));
-
-
-
-        playerBoardModel.registerShot(row, col, false); //registra el tiro en la tabla del jugador
-        System.out.println("Disparo de la maquina en la celda: " + row + ", " + col);
-        StackPane cell = getStackPaneAt(playerBoard, row, col); //obtiene la celda del jugador donde se disparo
-        if(cell == null) return;
-
-        if(playerBoardModel.hasShipAt(row, col, true)) { //si la celda tiene un barco entonces devuelve el barco, si no devuelve null
-            Ship hitShipAtPosition = getShipAt(playerShips, row, col); //devuelve el barco al que se le disparo
-            if(hitShipAtPosition != null) {
-                System.out.println("Shot at (by the machine): " + row + ", " + col);
-                hitShipAtPosition.registerHit(row, col); //registra el acierto en el barco
-                markCellWithSymbol("X","red",cell);
-                //si lo hunde entonces lo pinta como hundido en la tabla del jugadr
-                if(hitShipAtPosition.isSunk()) {
-                    highlightPlayerSunkShip(hitShipAtPosition);
-                }
-            }
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    javafx.application.Platform.runLater(() -> {
-                        handleComputerShot();
-                        //playerTurn = true;
-                        //checkWinCondition();
-                        //saveGameState();
-                    });
-
-                }
-            }, 1000); //El metodo se llama asi mismo hasta que falle (no le di a un barco)
-        }
-        else { //si no le acerto a ningun barco entonces lo pinta como falla en el tablero del jugador
-             markCellWithSymbol("O","blue",cell);
-        }*/
+    private void endComputerTurn() {
+        playerTurn = true;
+        checkWinCondition();
+        saveGameState();
     }
 
     //metodo que devuelve el barco que esta en esa lista de barcos "ships" si no esta no devuelve nada
-    private Ship getShipAt(List<Ship> ships, int row, int col) {
+    public Ship getShipAt(List<Ship> ships, int row, int col) {
         for (Ship ship : ships) {
             if (ship.occupies(row, col)) {
                 return ship;
@@ -1001,7 +899,7 @@ public class GameController {
     }
 
     //este metodo dibuja la imagen en el canvas de la celda dependiendo de si esta hundido, golpeado o no le dio a nada
-    private void drawShot(GraphicsContext gc, boolean isHit, boolean isSunk) {
+    public void drawShot(GraphicsContext gc, boolean isHit, boolean isSunk) {
         gc.clearRect(0, 0, 30, 30);
         Image imgToDraw = isSunk ? explosion : (isHit ? smoke : miss);
         gc.drawImage(imgToDraw, 0, 0, 30, 30);
@@ -1009,7 +907,7 @@ public class GameController {
     }
 
     //metodo para dibujar un barco como hundido
-    private void drawSunkShips(Ship ship, GridPane board) {
+    public void drawSunkShips(Ship ship, GridPane board) {
         List<int[]> coords = ship.getCoordinates();
         for (int i = 0; i < coords.size(); i++) {
             int[] coord = coords.get(i);
