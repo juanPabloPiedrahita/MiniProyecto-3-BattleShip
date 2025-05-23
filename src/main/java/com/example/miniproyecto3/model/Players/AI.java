@@ -24,7 +24,7 @@ public class AI implements IPlayer {
     }
 
     @Override
-    public void makeMove(Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
+    public void makeMove(int row1, int col1, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
         // 1) Selección de coordenada
         int row, col;
         if (!pendingTargets.isEmpty()) {
@@ -67,11 +67,13 @@ public class AI implements IPlayer {
                 // vuelve a disparar:
                 //Platform.runLater(() -> makeMove(ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
             }
+            gameController.saveGameState();
+            gameController.checkWinCondition();
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     javafx.application.Platform.runLater(() -> {
-                        Platform.runLater(() -> makeMove(ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
+                        Platform.runLater(() -> makeMove(row1, col1, ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
 
                     });
                 }

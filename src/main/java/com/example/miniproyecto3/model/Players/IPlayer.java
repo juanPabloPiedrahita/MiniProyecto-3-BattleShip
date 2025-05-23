@@ -18,7 +18,7 @@ public interface IPlayer {
      * @param onTurnEnd  Un runnable que se ejecuta al terminar el turno (por fallo)
      */
 
-    void makeMove(Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController);
+    void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController);
 
     String getName();
 

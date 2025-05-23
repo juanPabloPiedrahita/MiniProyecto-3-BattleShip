@@ -17,7 +17,7 @@ import javafx.scene.Node;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.MusicPlayer;
-import com.example.miniproyecto3.model.Player;
+import com.example.miniproyecto3.model.Players.Player;
 import java.io.File;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
@@ -487,77 +487,36 @@ public class GameController {
     //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
     private void handlePlayerShot(int row, int col) {
         if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
+        Runnable onTurnPlayerEnd = this::endPlayerTurn;
+        player.makeMove(row,col,enemyBoardModel,playerBoardModel,enemyBoard,onTurnPlayerEnd,enemyShips,this);
 
-        StackPane cell = getStackPaneAt(enemyBoard, row, col); //obtiene la celda (StackPane) de la cuadricula del enemigo en las coords dadas
-        //assert cell != null;
-        if (cell == null) return;
-
-        if(enemyBoardModel.alreadyShotAt(row,col,true))
-        {
-            return;
-        }
-
-        Canvas canvas = new Canvas(30, 30);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        Ship hitShip = enemyBoardModel.shoot(row, col, true); //Si fue un acierto retorna el barco afectado si no entocnes retorna null
-        //saveGameState();
-        if (hitShip != null) {
-
-            canvas.setUserData("impacto");
-            drawShot(gc, true, false);
-            canvas.setMouseTransparent(true);
-            canvas.setManaged(false);
-            cell.getChildren().add(canvas);
-            saveGameState();
-            if (hitShip.isSunk()) { //si fue hundido entonces llama highlightSunkShip para pintarlo como hundido y tambien actualiza el puntaje del jugador
-                player.setPlayerScore(player.getPlayerScore() + 1);
-                planeTextFileHandler.write("PlayerData.csv", player.getPlayerName() + "," + player.getPlayerScore());
-                drawSunkShips(hitShip,enemyBoard);
-                //highlightSunkShip(hitShip,enemyBoard);
-                saveGameState();
-            }
-            checkWinCondition();
-        } else { //si falla pinta un O azul y llama al metodo hadleComputShot() para que la pc dispare
-            //si no fue un acierto entonces pinta una O azul
-
-            canvas.setMouseTransparent(true);
-            canvas.setManaged(false);
-            canvas.setUserData("fallo");
-            drawShot(gc, false, false);
-            cell.getChildren().add(canvas);
-            //markCellWithSymbol("O", "blue", cell);
-            saveGameState();
-            playerTurn = false; //pasa el turno a la maquina
-            checkWinCondition(); //checkea victoria
-            if (gameEnded) return;
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    javafx.application.Platform.runLater(() -> {
-                        triggerComputerMove();
-                        /*handleComputerShot();
-                        playerTurn = true;
-                        checkWinCondition();
-                        saveGameState();*/
-                    });
-                }
-            }, 1000);
-        }
-        //cell.getChildren().add(canvas);
     }
 
     //aqui se llama a la IA para que dispare, luego lo modificamos para que el jugador elija la dificultad
     private void triggerComputerMove() {
         playerTurn = false;
         Runnable onTurnEnd = this::endComputerTurn;
-        enemy.makeRandomMove(playerBoardModel,enemyBoardModel,playerBoard,playerShips,onTurnEnd,this); //dificultad facil (tira random)
-        //enemy.makeMove(playerBoardModel,enemyBoardModel,playerBoard,onTurnEnd,playerShips,this); //dificultad dificil (tira con "IA")
+        //enemy.makeRandomMove(playerBoardModel,enemyBoardModel,playerBoard,playerShips,onTurnEnd,this); //dificultad facil (tira random)
+        enemy.makeMove(0,0,playerBoardModel,enemyBoardModel,playerBoard,onTurnEnd,playerShips,this); //dificultad dificil (tira con "IA")
     }
 
     private void endComputerTurn() {
         playerTurn = true;
         checkWinCondition();
         saveGameState();
+    }
+
+    private void endPlayerTurn(){
+        playerTurn = false;
+        checkWinCondition();
+        saveGameState();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                javafx.application.Platform.runLater(() -> {
+                    triggerComputerMove();
+                });
+            }}, 1000);
     }
 
     //metodo que devuelve el barco que esta en esa lista de barcos "ships" si no esta no devuelve nada
@@ -571,7 +530,7 @@ public class GameController {
     }
 
     //Metodo que verifica si alguno de los dos jugadores (player o maquina) ah ganado (hundido todos los barcos de su rival)
-    private void checkWinCondition() {
+    public void checkWinCondition() {
         if (gameEnded) return;
 
         boolean allEnemySunk = enemyShips.stream().allMatch(Ship::isSunk);
@@ -583,13 +542,10 @@ public class GameController {
             alert.showAndWait();
             playerTurn = false;
             GameStage.deleteInstance();
-            if (continueGame) {
-                System.out.println("Eliminando la partida...");
-                File file = new File("GameState.ser");
-                file.delete();
-            }
+            System.out.println("Eliminando la partida...");
+            File file = new File("GameState.ser");
+            file.delete();
             continueGame = false;
-            //GameStage.deleteInstance();
 
         } else if (allPlayerSunk) {
             gameEnded = true;
@@ -597,15 +553,11 @@ public class GameController {
             alert.showAndWait();
             playerTurn = false;
             GameStage.deleteInstance();
-            if (continueGame) {
-                System.out.println("Eliminando la partida...");
-                File file = new File("GameState.ser");
-                file.delete();
-            }
+            System.out.println("Eliminando la partida...");
+            File file = new File("GameState.ser");
+            file.delete();
             continueGame = false;
-            //GameStage.deleteInstance();
         }
-        //saveGameState();
     }
 
     //Este metodo maneja el evento generado por darle al boton de "listo" que indica haber terminado de poner los barcos
