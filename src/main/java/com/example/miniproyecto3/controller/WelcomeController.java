@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.example.miniproyecto3.model.Players.Player;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
@@ -27,6 +28,8 @@ public class WelcomeController {
     public boolean onContinue;
 
     MusicPlayer musicPlayer;
+
+    Player player;
 
     @FXML
     public void initialize(){
@@ -51,17 +54,18 @@ public class WelcomeController {
     public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
+        int score = Integer.parseInt(data[1]);
         if(!userTxt.getText().isEmpty()) {
             if(Objects.equals(user, userTxt.getText())) {
-                GameStage.getInstance().getController().continueB(false,true);
+                player = new Player(user, score);
                 GameStage.getInstance();
                 onContinue = false;
                 musicPlayer.stop();
             }
             else {
+                player = new Player(userTxt.getText().trim(), 0);
                 planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
                 //WelcomeStage.deleteInstance();
-                GameStage.getInstance().getController().continueB(false);
                 GameStage.getInstance();
                 onContinue = false;
                 musicPlayer.stop();
@@ -76,10 +80,13 @@ public class WelcomeController {
     @FXML
     public void onHandleContinueButtom(javafx.event.ActionEvent event) throws IOException {
         File file = new File("GameState.ser");
+        String data[] = planeTextFileHandler.read("PlayerData.csv");
+        String user = data[0];
+        int score = Integer.parseInt(data[1]);
         if(file.exists()) {
             //WelcomeStage.deleteInstance();
+            player = new Player(user,score);
             onContinue = true;
-            GameStage.getInstance().getController().continueB(true);
             GameStage.getInstance();
             musicPlayer.stop();
         }
@@ -98,6 +105,10 @@ public class WelcomeController {
 
     public boolean getContinue() {
         return onContinue;
+    }
+
+    public Player getPlayer(){
+        return player;
     }
 
     public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {

@@ -125,6 +125,8 @@ public class GameController {
         musicPlayer.play();
         pendingTargets = new ArrayList<>();
         planeTextFileHandler = new PlaneTextFileHandler();
+        player = WelcomeStage.getInstance().getWelController().getPlayer();
+        System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
         continueGame = WelcomeStage.getInstance().getWelController().getContinue();
         WelcomeStage.deleteInstance();
         smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
@@ -519,6 +521,7 @@ public class GameController {
         if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
         Runnable onTurnPlayerEnd = this::endPlayerTurn;
         player.makeMove(row,col,enemyBoardModel,playerBoardModel,enemyBoard,onTurnPlayerEnd,enemyShips,this);
+        planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
 
     }
 
@@ -783,32 +786,6 @@ public class GameController {
             this.enemyShips = state.getEnemyShips();
             redrawBoards();// redibuja los tableros aquí (gridPanes)
         }
-    }
-
-    public void continueB(boolean isContinue) {
-        if (isContinue) {
-            //planeTextFileHandler = new PlaneTextFileHandler();
-            String data[] = planeTextFileHandler.read("PlayerData.csv");
-            String user = data[0];
-            int score = Integer.parseInt(data[1]);
-            player = new Player(user, score);
-            System.out.println("Jugador: " + player.getPlayerName() + "," + player.getPlayerScore());
-
-            //loadGameState();
-        } else {
-            String data[] = planeTextFileHandler.read("PlayerData.csv");
-            String user = data[0].trim();
-            player = new Player(user, 0);
-            System.out.println("JugadorNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
-        }
-    }
-
-    public void continueB(boolean isContinue, boolean equals) {
-        String data[] = planeTextFileHandler.read("PlayerData.csv");
-        String user = data[0].trim();
-        int score = Integer.parseInt(data[1]);
-        player = new Player(user, score);
-        System.out.println("JugadorCasiNuevo: " + player.getPlayerName() + "," + player.getPlayerScore());
     }
 
     //Este metodo re dibuja los disparos sobre los gridPane
