@@ -24,7 +24,7 @@
 
                         </VBox>
       
-                        <ToggleButton fx:id="orientationToggle" styleClass="button" text="Horizontal" />
+                        <ToggleButton fx:id="orientationToggle" styleClass="button" text="Vertical" />
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
       

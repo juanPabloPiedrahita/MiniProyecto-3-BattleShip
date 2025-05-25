@@ -110,6 +110,7 @@ public class GameController {
     );
     private Map<Integer, Image> shipImages; //Para almacenar las imágenes de los barcos.
     private Map<Integer, Integer> placedShipsCount = new HashMap<>();
+    private Map<Integer, HBox> shipRowMap = new HashMap<>();
 
     private AI enemy = new AI(0,"Enemy");
 
@@ -132,7 +133,7 @@ public class GameController {
         //defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
         //carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
         shipImages = new HashMap<>();
-        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba3.png").toExternalForm()));
+        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba8.png").toExternalForm()));
         shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
         shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
         shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
@@ -243,14 +244,22 @@ public class GameController {
 
     private void toggleOrientation() {
         if (orientationToggle.isSelected()) {
-            orientationToggle.setText("Vertical");
-        } else {
             orientationToggle.setText("Horizontal");
+        } else {
+            orientationToggle.setText("Vertical");
         }
 
         if (selectedShipCanvas != null) {
-            GraphicsContext gc = selectedShipCanvas.getGraphicsContext2D();
             boolean horizontal = !orientationToggle.isSelected();
+
+            // Ajustar el tamaño del canvas según la orientación
+            double width = horizontal ? selectedShipSize * 30 : 30;
+            double height = horizontal ? 30 : selectedShipSize * 30;
+            selectedShipCanvas.setWidth(width);
+            selectedShipCanvas.setHeight(height);
+
+            // Redibujar el barco con la nueva orientación
+            GraphicsContext gc = selectedShipCanvas.getGraphicsContext2D();
             drawShipOnCanvas(gc, horizontal, selectedShipSize);
         }
     }
@@ -259,10 +268,13 @@ public class GameController {
     private void initializeShipSelectorCanvases() {
         shipSelectorContainer.getChildren().clear();
         canvasToShipSizeMap.clear();
+        shipRowMap.clear();
 
-        for (Map.Entry<Integer, Integer> entry : fleetComposition.entrySet()) {
-            int size = entry.getKey();
-            int quantity = entry.getValue();
+        List<Integer> sortedSizes = new ArrayList<>(fleetComposition.keySet());
+        Collections.sort(sortedSizes);  // Fragatas (1)  ->  Portaaviones (4).
+
+        for (int size : sortedSizes) {
+            int quantity = fleetComposition.get(size);
 
             HBox shipRow = new HBox(5);  //Espaciado para barcos del mismo tipo.
             shipRow.setAlignment(Pos.CENTER_LEFT);
@@ -283,6 +295,7 @@ public class GameController {
                 canvasToShipSizeMap.put(shipCanvas, size);
                 shipRow.getChildren().add(shipCanvas);
             }
+            shipRowMap.put(size, shipRow);  // Para acceder a cada HBox de barcos.
             shipSelectorContainer.getChildren().add(shipRow);
         }
 
@@ -312,8 +325,16 @@ public class GameController {
             double drawHeight = imgHeight * scale;
             double offsetX = (canvasSize - drawWidth) / 2;
             double offsetY = (canvasSize - drawHeight) / 2;
+            gc.save();
+
+            if(!horizontal) {
+                gc.translate(canvasSize / 2, canvasSize / 2);
+                gc.rotate(-90);
+                gc.translate(-canvasSize / 2, -canvasSize / 2);
+            }
 
             gc.drawImage(boatImage, offsetX, offsetY, drawWidth, drawHeight);
+            gc.restore();
             return;
         }
 
@@ -362,18 +383,30 @@ public class GameController {
     }
 
 
-    private void selectShipCanvas(Canvas shipCanvas, int size) {
+    private void selectShipCanvas(Canvas oldCanvas, int size) {
         if (selectedShipCanvas != null) {
             selectedShipCanvas.setOpacity(1.0); // Deselecciona el anterior
         }
-        selectedShipCanvas = shipCanvas;
-        selectedShipSize = size;
-        shipCanvas.setOpacity(0.6); // Visualmente seleccionado
-
-        // Redibujar el canvas según orientación actual
         boolean horizontal = !orientationToggle.isSelected();
-        GraphicsContext gc = shipCanvas.getGraphicsContext2D();
+        double canvasWidth = horizontal ? size * 30 : 30;
+        double canvasHeight = horizontal ? 30 : size * 30;
+
+        // Crea un nuevo Canvas
+        Canvas newCanvas = new Canvas(canvasWidth, canvasHeight);
+        GraphicsContext gc = newCanvas.getGraphicsContext2D();
         drawShipOnCanvas(gc, horizontal, size);
+        newCanvas.setOpacity(0.6); // visualmente seleccionado
+
+        // Reemplaza en el HBox el viejo canvas por el nuevo
+        if (oldCanvas.getParent() instanceof Pane parent) {
+            int index = parent.getChildrenUnmodifiable().indexOf(oldCanvas);
+            if (index != -1) {
+                parent.getChildren().set(index, newCanvas);
+            }
+        }
+
+        selectedShipCanvas = newCanvas;
+        selectedShipSize = size;
     }
 
 
@@ -399,44 +432,35 @@ public class GameController {
         if (ship != null) {
             playerShips.add(ship);
 
-            Image boatImage = shipImages.get(size);  // Usa la imagen correspondiente
             drawShip(playerBoard, ship, true);
 
             // Actualizar contador
             placedShipsCount.put(size, placed + 1);
 
-            // Si se llegó al límite para ese tamaño, eliminar todos sus canvases
-            if (placed + 1 >= maxAllowed) {
-                List<Canvas> toRemove = new ArrayList<>();
-                for (Canvas c : canvasToShipSizeMap.keySet()) {
-                    if (canvasToShipSizeMap.get(c) == size) {
-                        toRemove.add(c);
-                    }
+            // Eliminar el HBox correspondiente (igual que la figura sola).
+            HBox shipRow = shipRowMap.get(size);
+            if (shipRow != null) {
+                shipRow.getChildren().remove(selectedShipCanvas);
+                if (shipRow.getChildren().isEmpty()) {
+                    shipSelectorContainer.getChildren().remove(shipRow);
+                    shipRowMap.remove(size);
                 }
-                for (Canvas c : toRemove) {
-                    shipSelectorContainer.getChildren().remove(c);
-                    canvasToShipSizeMap.remove(c);
-                    if (selectedShipCanvas == c) {
-                        selectedShipCanvas = null;
-                        selectedShipSize = 0;
-                    }
-                }
-            } else {
-                // Si no se agotó la cantidad, sólo eliminar el canvas seleccionado para que no se repita la selección múltiple.
-                shipSelectorContainer.getChildren().remove(selectedShipCanvas);
-                canvasToShipSizeMap.remove(selectedShipCanvas);
-                selectedShipCanvas = null;
-                selectedShipSize = 0;
             }
+
+            canvasToShipSizeMap.remove(selectedShipCanvas);
+            selectedShipCanvas = null;
+            selectedShipSize = 0;
 
             saveGameState();
 
-            // Si no quedan más canvases para seleccionar, bloquear la orientación y habilitar monitor
-            if (shipSelectorContainer.getChildren().isEmpty()) {
+            // Si no quedan más barcos por colocar, desactivar controles
+            boolean hasRemainingShips = shipSelectorContainer.getChildren().stream()
+                    .anyMatch(node -> node instanceof HBox && !((HBox) node).getChildren().isEmpty());
+
+            if (!hasRemainingShips) {
                 orientationToggle.setDisable(true);
                 monitorButton.setDisable(false);
             }
-
         } else {
             System.out.println("No se pudo colocar el barco en esa posición.");
         }
@@ -615,7 +639,6 @@ public class GameController {
                     Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
                     if (ship != null) {
                         enemyShips.add(ship);
-                        Image boatImage = shipImages.get(ship.getSize());
                         drawShip(enemyBoard, ship, false);
                         placed = true;
                     }
@@ -653,15 +676,23 @@ public class GameController {
         gc.clearRect(0, 0, 30, 30); //borra cualquier contenido previo en ese rectangulo de 30px  x 30 px
 
         if(shipLength == 1) {
-            double imgWidth = boatImage.getWidth();
-            double imgHeight = boatImage.getHeight();
-            double scale = Math.min(30 / imgWidth, 30 / imgHeight);
-            double drawWidth = imgWidth * scale;
-            double drawHeight = 30;
-            double offsetX = (30 - drawWidth) / 2;
-            double offsetY = (30 - drawHeight) / 2;
+            gc.save();
 
-            gc.drawImage(boatImage, offsetX, offsetY, drawWidth, drawHeight);
+            double cellSize = 30;
+            double scaleFactor = 0.9;
+            double drawSize = cellSize * scaleFactor;
+            double offset = (cellSize - drawSize) / 2;
+
+            if(!horizontal) {
+                gc.translate(0, cellSize);
+                gc.rotate(-90);
+
+                gc.drawImage(boatImage, offset, offset, drawSize, drawSize);
+            } else {
+                gc.drawImage(boatImage, offset, offset, drawSize, drawSize);
+            }
+
+            gc.restore();
             return;
         }
         // Efecto de sombra
