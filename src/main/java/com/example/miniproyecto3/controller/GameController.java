@@ -55,6 +55,10 @@ public class GameController {
     private VBox playerBoardContainer;
     @FXML
     private Label label1;
+    @FXML
+    private Label difficultyLabel;
+    @FXML
+    private ComboBox<String> difficultySelector;
 
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
@@ -80,6 +84,7 @@ public class GameController {
 
     //esto ayudara a la IA a tener memoria a la hora de disparar
     private List<int[]> pendingTargets;
+    private String selectedDifficulty;  // Para almacenar la dificultad seleccionada.
 
     //para jugar con las imágenes bien.
     //private Image defaultBoatImage;
@@ -461,7 +466,24 @@ public class GameController {
 
             if (!hasRemainingShips) {
                 orientationToggle.setDisable(true);
+                orientationToggle.setVisible(false);
+                orientationToggle.setManaged(false);
                 monitorButton.setDisable(false);
+                difficultyLabel.setVisible(true);
+                difficultyLabel.setManaged(true);
+                difficultySelector.setVisible(true);
+                difficultySelector.setManaged(true);
+
+                difficultySelector.getItems().addAll("Fácil", "Normal");
+                //difficultySelector.getSelectionModel().selectFirst();
+                difficultySelector.setOnAction(event -> {
+                    String difficulty = difficultySelector.getValue();
+                    difficultySelector.setDisable(true);
+                    selectedDifficulty = difficulty;
+                    System.out.println("Dificultad seleccionada: " + selectedDifficulty);
+                    difficultyLabel.setVisible(false);
+                    difficultyLabel.setManaged(false);
+                });
             }
         } else {
             System.out.println("No se pudo colocar el barco en esa posición.");

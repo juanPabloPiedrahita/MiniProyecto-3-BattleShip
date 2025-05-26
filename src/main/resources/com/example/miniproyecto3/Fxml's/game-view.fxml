@@ -28,6 +28,8 @@
                         </VBox>
 
                         <ToggleButton fx:id="orientationToggle" styleClass="button" text="Vertical" />
+                  <Label fx:id="difficultyLabel" text="Selecciona la dificultad del oponente:" visible="false" managed="false" styleClass="enemy-turn-label" />
+                  <ComboBox fx:id="difficultySelector" visible="false" managed="false" styleClass="button" />
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
 
