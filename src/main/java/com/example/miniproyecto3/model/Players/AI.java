@@ -6,21 +6,24 @@ import com.example.miniproyecto3.model.Ship;
 import javafx.application.Platform;
 import javafx.scene.layout.*;
 
+import java.io.Serializable;
 import java.util.*;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-public class AI implements IPlayer {
+public class AI extends IPlayerAdapter implements Serializable{
 
     private final List<int[]> pendingTargets = new ArrayList<>();
     private final Random rand = new Random();
     private int score;
     private String name;
+    private String dificulty;
 
-    public AI(int score,String name) {
+    public AI(int score,String name,String dificulty) {
         this.score = score;
         this.name = name;
+        this.dificulty = dificulty;
     }
 
     @Override
@@ -152,5 +155,13 @@ public class AI implements IPlayer {
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public int getDificulty(){
+        return(dificulty.equals("Fácil") ? 1 : 2);
+    }
+
+    public void setDificulty(String dificulty){
+        this.dificulty = dificulty;
     }
 }

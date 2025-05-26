@@ -59,6 +59,9 @@ public class GameController {
     private Label difficultyLabel;
     @FXML
     private ComboBox<String> difficultySelector;
+    @FXML
+    private Label configLabel;
+
 
     //Objetos para llevar la logica interna del juego
     private Board playerBoardModel = new Board();
@@ -117,7 +120,7 @@ public class GameController {
     private Map<Integer, Integer> placedShipsCount = new HashMap<>();
     private Map<Integer, HBox> shipRowMap = new HashMap<>();
 
-    private AI enemy = new AI(0,"Enemy");
+    private AI enemy = new AI(0,"Enemy", "Fácil");
 
     @FXML
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
@@ -465,6 +468,7 @@ public class GameController {
                     .anyMatch(node -> node instanceof HBox && !((HBox) node).getChildren().isEmpty());
 
             if (!hasRemainingShips) {
+                configLabel.setVisible(false);
                 orientationToggle.setDisable(true);
                 orientationToggle.setVisible(false);
                 orientationToggle.setManaged(false);
@@ -478,11 +482,13 @@ public class GameController {
                 //difficultySelector.getSelectionModel().selectFirst();
                 difficultySelector.setOnAction(event -> {
                     String difficulty = difficultySelector.getValue();
-                    difficultySelector.setDisable(true);
+                    //difficultySelector.setDisable(false);
                     selectedDifficulty = difficulty;
+                    enemy.setDificulty(selectedDifficulty);
                     System.out.println("Dificultad seleccionada: " + selectedDifficulty);
-                    difficultyLabel.setVisible(false);
-                    difficultyLabel.setManaged(false);
+                    //difficultyLabel.setVisible(true);
+                    //difficultyLabel.setManaged(false);
+
                 });
             }
         } else {
@@ -544,15 +550,17 @@ public class GameController {
         Runnable onTurnPlayerEnd = this::endPlayerTurn;
         player.makeMove(row,col,enemyBoardModel,playerBoardModel,enemyBoard,onTurnPlayerEnd,enemyShips,this);
         planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
-
     }
 
     //aqui se llama a la IA para que dispare, luego lo modificamos para que el jugador elija la dificultad
     private void triggerComputerMove() {
         playerTurn = false;
         Runnable onTurnEnd = this::endComputerTurn;
-        //enemy.makeRandomMove(playerBoardModel,enemyBoardModel,playerBoard,playerShips,onTurnEnd,this); //dificultad facil (tira random)
-        enemy.makeMove(0,0,playerBoardModel,enemyBoardModel,playerBoard,onTurnEnd,playerShips,this); //dificultad dificil (tira con "IA")
+        if (enemy.getDificulty() == 1) {
+            enemy.makeRandomMove(playerBoardModel, enemyBoardModel, playerBoard, playerShips, onTurnEnd, this);
+        } else {
+            enemy.makeMove(0, 0, playerBoardModel, enemyBoardModel, playerBoard, onTurnEnd, playerShips, this);
+        }
     }
 
     private void endComputerTurn() {
@@ -843,7 +851,6 @@ public class GameController {
         }
     }
 
-
     private void redrawBoards() {
         // Limpia los tableros visuales
         createBoard(playerBoard, true);
@@ -871,19 +878,6 @@ public class GameController {
         restoreShots(enemyBoardModel, enemyBoard, true);
         // Restaura disparos de la máquina sobre jugador
         restoreShots(playerBoardModel, playerBoard, false);
-    }
-
-
-    private void addAdjacentTargets(int row, int col) {
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for (int[] d : directions) {
-            int newRow = row + d[0];
-            int newCol = col + d[1];
-            if (newRow >= 0 && newRow < 10 && newCol >= 0 && newCol < 10 &&
-                    !playerBoardModel.alreadyShotAt(newRow, newCol, false)) {
-                pendingTargets.add(new int[]{newRow, newCol});
-            }
-        }
     }
 
     //este metodo dibuja la imagen en el canvas de la celda dependiendo de si esta hundido, golpeado o no le dio a nada

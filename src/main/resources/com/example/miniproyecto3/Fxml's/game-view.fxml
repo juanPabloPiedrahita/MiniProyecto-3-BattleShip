@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
 <AnchorPane prefHeight="400.0" prefWidth="800.0" stylesheets="@../CSS/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
       <HBox fx:id="container" alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -21,7 +22,7 @@
 
                     <!-- Controles de colocación -->
               <VBox fx:id="placementControls" alignment="CENTER" spacing="10" styleClass="player-box">
-                  <Label styleClass="enemy-turn-label" text="Configurar barco:" />
+                  <Label fx:id="configLabel" styleClass="enemy-turn-label" text="Configurar barco:" />
 
                         <VBox fx:id="shipSelectorContainer" alignment="CENTER" spacing="10">
 
@@ -29,7 +30,11 @@
 
                         <ToggleButton fx:id="orientationToggle" styleClass="button" text="Vertical" />
                   <Label fx:id="difficultyLabel" text="Selecciona la dificultad del oponente:" visible="false" managed="false" styleClass="enemy-turn-label" />
-                  <ComboBox fx:id="difficultySelector" visible="false" managed="false" styleClass="button" />
+                  <ComboBox fx:id="difficultySelector" visible="false" managed="false" styleClass="combo-box">
+                      <VBox.margin>
+                          <Insets top="10" bottom="40" />
+                      </VBox.margin>
+                  </ComboBox>
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
 
