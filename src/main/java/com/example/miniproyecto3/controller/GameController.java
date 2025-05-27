@@ -482,12 +482,12 @@ public class GameController {
                 //difficultySelector.getSelectionModel().selectFirst();
                 difficultySelector.setOnAction(event -> {
                     String difficulty = difficultySelector.getValue();
-                    //difficultySelector.setDisable(false);
+                    difficultySelector.setDisable(true);
                     selectedDifficulty = difficulty;
                     enemy.setDificulty(selectedDifficulty);
                     System.out.println("Dificultad seleccionada: " + selectedDifficulty);
-                    //difficultyLabel.setVisible(true);
-                    //difficultyLabel.setManaged(false);
+                    difficultyLabel.setVisible(false);
+                    difficultyLabel.setManaged(false);
 
                 });
             }
