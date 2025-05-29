@@ -35,8 +35,6 @@ public class GameController {
     private GridPane playerBoard;
     @FXML
     private GridPane enemyBoard;
-    //@FXML
-    //private ComboBox<Integer> shipSizeSelector;
     @FXML
     private VBox shipSelectorContainer;
     @FXML
@@ -68,7 +66,6 @@ public class GameController {
     private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
-    private StackPane[][] enemyCells = new StackPane[10][10]; //no se está usando para nada :v (solo en createBoard pero sin ninguna funcionalidad real)
 
     //atributos para llevar monitoreo constante del estado del juego
     private boolean finishedPlacing = false;
@@ -228,10 +225,6 @@ public class GameController {
                 btn.getStyleClass().add("grid-button");
                 cell.getChildren().add(btn);
                 cell.getStyleClass().add("grid-button");
-                if (!isPlayer) {
-                    enemyCells[row][col] = cell;
-                }
-
                 int finalRow = row;
                 int finalCol = col;
                 btn.setOnMouseClicked(e -> {
