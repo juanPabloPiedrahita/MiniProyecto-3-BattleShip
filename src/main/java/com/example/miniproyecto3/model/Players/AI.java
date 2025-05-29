@@ -14,7 +14,7 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class AI extends IPlayerAdapter implements Serializable{
 
-    private List<List<Integer>> pendingTargets = new ArrayList<>();
+    private List<Ship.Coordinate> pendingTargets = new ArrayList<>();
     private final Random rand = new Random();
     private int score;
     private String name;
@@ -34,9 +34,9 @@ public class AI extends IPlayerAdapter implements Serializable{
         int row, col;
 
         if (!pendingTargets.isEmpty()) {
-            List<Integer> t = pendingTargets.remove(0);
-            row = t.get(0);
-            col = t.get(1);
+            Ship.Coordinate coordinate = pendingTargets.remove(0);
+            row = coordinate.getRow();
+            col = coordinate.getCol();
         } else {
             do {
                 row = rand.nextInt(10);
@@ -84,22 +84,23 @@ public class AI extends IPlayerAdapter implements Serializable{
     }
 
     private void addAdjacentTargets(int row, int col, Board ownBoard) {
-        List<List<Integer>> directions = List.of(
-                List.of(-1, 0),
-                List.of(1, 0),
-                List.of(0, -1),
-                List.of(0, 1)
+        List<Ship.Coordinate> directions = List.of(
+          new Ship.Coordinate(-1, 0),
+          new Ship.Coordinate(1, 0),
+          new Ship.Coordinate(0, -1),
+          new Ship.Coordinate(0, 1)
         );
 
-        for (List<Integer> dir : directions) {
-            int r = row + dir.get(0);
-            int c = col + dir.get(1);
+        for(Ship.Coordinate dir : directions){
+            int r = row + dir.getRow();
+            int c = col + dir.getCol();
 
-            if (r >= 0 && r < 10 && c >= 0 && c < 10 && !ownBoard.alreadyShotAt(r, c, false)) {
-                pendingTargets.add(List.of(r, c));
+            if(r >= 0 && r < 10 && c >= 0 && c < 10 && !ownBoard.alreadyShotAt(r, c, false)){
+                pendingTargets.add(new Ship.Coordinate(r, c));
             }
         }
     }
+
 
     public void makeRandomMove(Board ownBoard, Board playerBoard, GridPane opponentGridPane, List<Ship> playerShips, Runnable onTurnEnd , GameController gameController){
         int row, col;

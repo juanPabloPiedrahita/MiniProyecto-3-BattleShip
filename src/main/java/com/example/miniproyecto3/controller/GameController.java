@@ -86,7 +86,7 @@ public class GameController {
     private boolean continueGame;
 
     //esto ayudara a la IA a tener memoria a la hora de disparar
-    private List<int[]> pendingTargets;
+    private List<Ship.Coordinate> pendingTargets;
     private String selectedDifficulty;  // Para almacenar la dificultad seleccionada.
 
     //para jugar con las imágenes bien.
@@ -504,11 +504,11 @@ public class GameController {
             return;
         }
 
-        List<int[]> coords = ship.getCoordinates();
+        List<Ship.Coordinate> coords = ship.getCoordinates();
         for (int i = 0; i < coords.size(); i++) {
-            int[] coord = coords.get(i);
-            int row = coord[0];
-            int col = coord[1];
+            Ship.Coordinate coord = coords.get(i);
+            int row = coord.getRow();
+            int col = coord.getCol();
             boolean isFirst = (i == 0);
             boolean isLast = (i == coords.size() - 1);
             StackPane cell = getStackPaneAt(board, row, col);
@@ -678,7 +678,7 @@ public class GameController {
                 }
             }
         }
-        debugEnemyBoard();
+        debugBoards();
     }
 
 
@@ -781,19 +781,28 @@ public class GameController {
         }
     }
 
-    private void debugEnemyBoard() {
+    private void debugBoards() {
         System.out.println("=== DEBUG: enemyBoardModel ===");
-        boolean[][] enemyGrid = enemyBoardModel.getEnemyBoard();
+        ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
+        ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
 
-        for (int row = 0; row < 10; row++) {
-            for (int col = 0; col < 10; col++) {
-                boolean isShip = enemyGrid[row][col];  // No afecta lógica si solo se consulta
+        for (int row = 0; row < enemyGrid.size(); row++) {
+            for (int col = 0; col < enemyGrid.get(row).size(); col++) {
+                boolean isShip = enemyGrid.get(row).get(col);  // No afecta lógica si solo se consulta
+                System.out.print(isShip ? "[X]" : "[ ]");
+            }
+            System.out.println();  // Salto de línea por fila
+        }
+
+        System.out.println("=== DEBUG: playerBoardModel ===");
+        for (int row = 0; row < playerGrid.size(); row++) {
+            for (int col = 0; col < playerGrid.get(row).size(); col++) {
+                boolean isShip = playerGrid.get(row).get(col);  // No afecta lógica si solo se consulta
                 System.out.print(isShip ? "[X]" : "[ ]");
             }
             System.out.println();  // Salto de línea por fila
         }
     }
-
 
     //metodos para la serializcion: (¡Slava Rusia, Z!)
 
@@ -890,11 +899,11 @@ public class GameController {
 
     //metodo para dibujar un barco como hundido
     public void drawSunkShips(Ship ship, GridPane board) {
-        List<int[]> coords = ship.getCoordinates();
+        List<Ship.Coordinate> coords = ship.getCoordinates();
         for (int i = 0; i < coords.size(); i++) {
-            int[] coord = coords.get(i);
-            int row = coord[0];
-            int col = coord[1];
+            Ship.Coordinate coordinate = coords.get(i);
+            int row = coordinate.getRow();
+            int col = coordinate.getCol();
             boolean isFirst = (i == 0);
             boolean isLast = (i == coords.size() - 1);
             StackPane cell = getStackPaneAt(board, row, col);

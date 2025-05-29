@@ -113,23 +113,17 @@ public class Ship implements Serializable {
      * Es estática porque no necesita acceder a los atributos de la clase externa Ship.
      */
     public static class Coordinate {
-        private int row;
-        private int col;
+        private final int row;
+        private final int col;
 
         public Coordinate(int row, int col) {
             this.row = row;
             this.col = col;
         }
 
-        public int getRow() {
-            return row;
-        }
+        public int getRow() {return row;}
+        public int getCol() {return col;}
 
-        public int getCol() {
-            return col;
-        }
-
-        // Sobrescribimos equals() para poder comparar objetos por valor, no por referencia
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -138,7 +132,6 @@ public class Ship implements Serializable {
             return row == that.row && col == that.col;
         }
 
-        // hashCode también se sobrescribe para asegurar compatibilidad con equals()
         @Override
         public int hashCode() {
             return Objects.hash(row, col);
