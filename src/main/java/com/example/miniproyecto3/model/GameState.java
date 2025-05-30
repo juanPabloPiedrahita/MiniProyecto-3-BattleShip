@@ -1,5 +1,6 @@
 package com.example.miniproyecto3.model;
 
+import com.example.miniproyecto3.model.Players.AI;
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,11 +10,14 @@ public class GameState implements Serializable {
     private Board enemyBoard;
     private List<Ship> playerShips;
     private List<Ship> enemyShips;
-    public GameState(Board playerBoard, Board enemyBoard, List<Ship> playerShips, List<Ship> enemyShips) {
+    private AI enemy;
+
+    public GameState(Board playerBoard, Board enemyBoard, List<Ship> playerShips, List<Ship> enemyShips, AI enemy) {
         this.playerBoard = playerBoard;
         this.enemyBoard = enemyBoard;
         this.playerShips = playerShips;
         this.enemyShips = enemyShips;
+        this.enemy = enemy;
     }
 
     //construtor sobrecargado para la preparacion del juego
@@ -38,5 +42,9 @@ public class GameState implements Serializable {
 
     public List<Ship> getEnemyShips() {
         return enemyShips;
+    }
+
+    public AI getEnemy(){
+        return enemy;
     }
 }

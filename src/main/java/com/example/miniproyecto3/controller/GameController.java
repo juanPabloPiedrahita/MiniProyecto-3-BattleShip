@@ -3,6 +3,7 @@ package com.example.miniproyecto3.controller;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.GameState;
 import com.example.miniproyecto3.model.Ship;
+import com.example.miniproyecto3.model.exception.DoubleShootException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
@@ -83,7 +84,6 @@ public class GameController {
     private boolean continueGame;
 
     //esto ayudara a la IA a tener memoria a la hora de disparar
-    private List<Ship.Coordinate> pendingTargets;
     private String selectedDifficulty;  // Para almacenar la dificultad seleccionada.
 
     //para jugar con las imágenes bien.
@@ -128,7 +128,6 @@ public class GameController {
         label1.getStyleClass().add("enemy-turn-label");
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
         musicPlayer.play();
-        pendingTargets = new ArrayList<>();
         planeTextFileHandler = new PlaneTextFileHandler();
         player = WelcomeStage.getInstance().getWelController().getPlayer();
         System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
@@ -233,7 +232,11 @@ public class GameController {
                         placePlayerShip(finalRow, finalCol);
                     } else if (finishedPlacing && !isPlayer && e.getButton() == MouseButton.PRIMARY) {
                         System.out.println("Disparando en la posicion " + finalRow + "," + finalCol);
-                        handlePlayerShot(finalRow, finalCol);
+                        try {
+                            handlePlayerShot(finalRow, finalCol);
+                        } catch (DoubleShootException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 });
 
@@ -538,7 +541,7 @@ public class GameController {
     }
 
     //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
-    private void handlePlayerShot(int row, int col) {
+    private void handlePlayerShot(int row, int col) throws DoubleShootException {
         if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
         Runnable onTurnPlayerEnd = this::endPlayerTurn;
         player.makeMove(row,col,enemyBoardModel,playerBoardModel,enemyBoard,onTurnPlayerEnd,enemyShips,this);
@@ -801,7 +804,7 @@ public class GameController {
 
     //este metodo guarda el estado del juego adentro del archivo GameState.ser, debe ser llamado cada vez que el tablero se actualize
     public void saveGameState() {
-        GameState state = new GameState(playerBoardModel, enemyBoardModel, playerShips, enemyShips);
+        GameState state = new GameState(playerBoardModel, enemyBoardModel, playerShips, enemyShips, enemy);
         SerializableFileHandler handler = new SerializableFileHandler();
         handler.serialize("GameState.ser", state);
         System.out.println("Estado del juego guardado con exito en: GameState.ser");
@@ -816,6 +819,7 @@ public class GameController {
             this.enemyBoardModel = state.getEnemyBoard();
             this.playerShips = state.getPlayerShips();
             this.enemyShips = state.getEnemyShips();
+            this.enemy = state.getEnemy();
             redrawBoards();// redibuja los tableros aquí (gridPanes)
         }
     }

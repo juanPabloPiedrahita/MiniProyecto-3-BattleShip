@@ -112,7 +112,7 @@ public class Ship implements Serializable {
      * Clase interna que representa una coordenada en el tablero.
      * Es estática porque no necesita acceder a los atributos de la clase externa Ship.
      */
-    public static class Coordinate {
+    public static class Coordinate implements Serializable {
         private final int row;
         private final int col;
 
