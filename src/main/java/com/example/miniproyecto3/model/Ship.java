@@ -123,19 +123,6 @@ public class Ship implements Serializable {
 
         public int getRow() {return row;}
         public int getCol() {return col;}
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Coordinate)) return false;
-            Coordinate that = (Coordinate) o;
-            return row == that.row && col == that.col;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(row, col);
-        }
     }
 }
 
