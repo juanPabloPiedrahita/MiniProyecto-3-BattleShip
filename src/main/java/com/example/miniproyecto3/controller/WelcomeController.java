@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.example.miniproyecto3.model.Players.Player;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.TextField;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import javafx.scene.layout.*;
@@ -27,6 +29,8 @@ public class WelcomeController {
     public boolean onContinue;
 
     MusicPlayer musicPlayer;
+
+    Player player;
 
     @FXML
     public void initialize(){
@@ -51,17 +55,18 @@ public class WelcomeController {
     public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
+        int score = Integer.parseInt(data[1]);
         if(!userTxt.getText().isEmpty()) {
             if(Objects.equals(user, userTxt.getText())) {
-                GameStage.getInstance().getController().continueB(false,true);
+                player = new Player(user, score);
                 GameStage.getInstance();
                 onContinue = false;
                 musicPlayer.stop();
             }
             else {
+                player = new Player(userTxt.getText().trim(), 0);
                 planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
                 //WelcomeStage.deleteInstance();
-                GameStage.getInstance().getController().continueB(false);
                 GameStage.getInstance();
                 onContinue = false;
                 musicPlayer.stop();
@@ -69,6 +74,10 @@ public class WelcomeController {
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "Ingresa un usuario antes de continuar!");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+            dialogPane.getStyleClass().add("custom-alert");
+            alert.showAndWait();
             alert.showAndWait();
         }
     }
@@ -76,15 +85,21 @@ public class WelcomeController {
     @FXML
     public void onHandleContinueButtom(javafx.event.ActionEvent event) throws IOException {
         File file = new File("GameState.ser");
+        String data[] = planeTextFileHandler.read("PlayerData.csv");
+        String user = data[0];
+        int score = Integer.parseInt(data[1]);
         if(file.exists()) {
             //WelcomeStage.deleteInstance();
+            player = new Player(user,score);
             onContinue = true;
-            GameStage.getInstance().getController().continueB(true);
             GameStage.getInstance();
             musicPlayer.stop();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+            dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
         }
     }
@@ -100,8 +115,15 @@ public class WelcomeController {
         return onContinue;
     }
 
+    public Player getPlayer(){
+        return player;
+    }
+
     public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {
-
-
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Made by:\nDavid Taborda Montenegro\nJuan Pablo Piedrahita");
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-alert");
+        alert.showAndWait();
     }
 }

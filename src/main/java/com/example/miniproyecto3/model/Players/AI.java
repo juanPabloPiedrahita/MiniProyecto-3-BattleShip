@@ -1,36 +1,43 @@
 package com.example.miniproyecto3.model.Players;
 
+import com.example.miniproyecto3.model.exception.DoubleShootException;
 import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
 import javafx.application.Platform;
 import javafx.scene.layout.*;
 
+import java.io.Serializable;
 import java.util.*;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-public class AI implements IPlayer {
+public class AI extends IPlayerAdapter implements Serializable{
 
-    private final List<int[]> pendingTargets = new ArrayList<>();
+    private List<Ship.Coordinate> pendingTargets = new ArrayList<>();
     private final Random rand = new Random();
     private int score;
     private String name;
+    private String dificulty;
 
-    public AI(int score,String name) {
+    public AI(int score,String name,String dificulty) {
         this.score = score;
         this.name = name;
+        this.dificulty = dificulty;
     }
 
     @Override
-    public void makeMove(int row1, int col1, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
-        // 1) Selección de coordenada
+    public void makeMove(int row1, int col1, Board ownBoard, Board opponentBoardModel,
+                         GridPane opponentGrid, Runnable onTurnEnd,
+                         List<Ship> playerShips, GameController gameController) {
+
         int row, col;
+
         if (!pendingTargets.isEmpty()) {
-            int[] t = pendingTargets.remove(0);
-            row = t[0];
-            col = t[1];
+            Ship.Coordinate coordinate = pendingTargets.remove(0);
+            row = coordinate.getRow();
+            col = coordinate.getCol();
         } else {
             do {
                 row = rand.nextInt(10);
@@ -38,13 +45,10 @@ public class AI implements IPlayer {
             } while (ownBoard.alreadyShotAt(row, col, false));
         }
 
-        // 2) Registrar tiro
         ownBoard.registerShot(row, col, false);
 
-        // 3) Obtener la celda UI
         StackPane cell = gameController.getStackPaneAt(opponentGrid, row, col);
 
-        // 4) Dibujar impacto o fallo
         boolean hit = ownBoard.hasShipAt(row, col, true);
         Canvas c = new Canvas(30, 30);
         GraphicsContext gc = c.getGraphicsContext2D();
@@ -53,46 +57,53 @@ public class AI implements IPlayer {
         gameController.drawShot(gc, hit, false);
         cell.getChildren().add(c);
 
-        // 5) Si impacto, coordinar hunt-mode
         if (hit) {
             Ship s = gameController.getShipAt(playerShips, row, col);
             s.registerHit(row, col);
             if (s.isSunk()) {
-                // marcar hundido
                 gameController.drawSunkShips(s, opponentGrid);
                 pendingTargets.clear();
-                //Platform.runLater(() -> makeMove(ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
+                ownBoard.removeShip(s, true);  // Acá sólo se usa ownBoard también, XD.
+                gameController.debugBoards();
             } else {
                 addAdjacentTargets(row, col, ownBoard);
-                // vuelve a disparar:
-                //Platform.runLater(() -> makeMove(ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
             }
+
             gameController.saveGameState();
             gameController.checkWinCondition();
+
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     javafx.application.Platform.runLater(() -> {
-                        Platform.runLater(() -> makeMove(row1, col1, ownBoard, opponentBoardModel, opponentGrid, onTurnEnd, playerShips, gameController));
-
+                        makeMove(row1, col1, ownBoard, opponentBoardModel,
+                                opponentGrid, onTurnEnd, playerShips, gameController);
                     });
                 }
             }, 1000);
         } else {
-            // fin de turno
             onTurnEnd.run();
         }
     }
 
     private void addAdjacentTargets(int row, int col, Board ownBoard) {
-        int[][] dirs = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        for (int[] d : dirs) {
-            int r = row + d[0], c = col + d[1];
-            if (r >= 0 && r < 10 && c >= 0 && c < 10 && !ownBoard.alreadyShotAt(r, c, false)) {
-                pendingTargets.add(new int[]{r, c});
+        List<Ship.Coordinate> directions = List.of(
+          new Ship.Coordinate(-1, 0),
+          new Ship.Coordinate(1, 0),
+          new Ship.Coordinate(0, -1),
+          new Ship.Coordinate(0, 1)
+        );
+
+        for(Ship.Coordinate dir : directions){
+            int r = row + dir.getRow();
+            int c = col + dir.getCol();
+
+            if(r >= 0 && r < 10 && c >= 0 && c < 10 && !ownBoard.alreadyShotAt(r, c, false)){
+                pendingTargets.add(new Ship.Coordinate(r, c));
             }
         }
     }
+
 
     public void makeRandomMove(Board ownBoard, Board playerBoard, GridPane opponentGridPane, List<Ship> playerShips, Runnable onTurnEnd , GameController gameController){
         int row, col;
@@ -117,6 +128,8 @@ public class AI implements IPlayer {
             targetShip.registerHit(row, col);
             if (targetShip.isSunk()) {
                 gameController.drawSunkShips(targetShip, opponentGridPane);
+                ownBoard.removeShip(targetShip, true);   // Acá sólo se usa ownBoard también, XD.
+                gameController.debugBoards();
             }
             new Timer().schedule(new TimerTask() {
                 @Override
@@ -152,5 +165,13 @@ public class AI implements IPlayer {
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public int getDificulty(){
+        return(dificulty.equals("Fácil") ? 1 : 2);
+    }
+
+    public void setDificulty(String dificulty){
+        this.dificulty = dificulty;
     }
 }
