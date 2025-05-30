@@ -60,6 +60,25 @@ public class Board implements Serializable {
         return null;
     }
 
+    public void removeShip(Ship ship, boolean isPlayer) {
+        for (Ship.Coordinate coordinate : ship.getCoordinates()) {
+            int row = coordinate.getRow();
+            int col = coordinate.getCol();
+            if (isPlayer) {
+                playerBoard.get(row).set(col, false);
+            } else {
+                enemyBoard.get(row).set(col, false);
+            }
+        }
+
+        if (isPlayer) {
+            playerShips.remove(ship);
+        } else {
+            enemyShips.remove(ship);
+        }
+    }
+
+
     public ArrayList<ArrayList<Boolean>> getPlayerBoard() {
         return playerBoard;
     }

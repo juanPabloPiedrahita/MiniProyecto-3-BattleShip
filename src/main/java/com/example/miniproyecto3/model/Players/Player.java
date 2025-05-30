@@ -59,6 +59,8 @@ public class Player extends IPlayerAdapter {
                 System.out.println("Hundiste un barco");
                 playerScore = playerScore + 1;
                 gameController.drawSunkShips(targetShip,opponentGrid);
+                ownBoard.removeShip(targetShip, false);  // Acá ownBoard es el único tablero lógico que se usa, XD.
+                gameController.debugBoards();
             }
             gameController.saveGameState();
             gameController.checkWinCondition();

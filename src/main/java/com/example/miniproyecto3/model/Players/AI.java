@@ -63,6 +63,8 @@ public class AI extends IPlayerAdapter implements Serializable{
             if (s.isSunk()) {
                 gameController.drawSunkShips(s, opponentGrid);
                 pendingTargets.clear();
+                ownBoard.removeShip(s, true);  // Acá sólo se usa ownBoard también, XD.
+                gameController.debugBoards();
             } else {
                 addAdjacentTargets(row, col, ownBoard);
             }
@@ -126,6 +128,8 @@ public class AI extends IPlayerAdapter implements Serializable{
             targetShip.registerHit(row, col);
             if (targetShip.isSunk()) {
                 gameController.drawSunkShips(targetShip, opponentGridPane);
+                ownBoard.removeShip(targetShip, true);   // Acá sólo se usa ownBoard también, XD.
+                gameController.debugBoards();
             }
             new Timer().schedule(new TimerTask() {
                 @Override

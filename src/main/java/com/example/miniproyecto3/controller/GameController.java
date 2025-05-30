@@ -777,7 +777,7 @@ public class GameController {
         }
     }
 
-    private void debugBoards() {
+    public void debugBoards() {
         System.out.println("=== DEBUG: enemyBoardModel ===");
         ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
