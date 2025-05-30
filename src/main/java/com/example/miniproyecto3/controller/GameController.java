@@ -605,6 +605,7 @@ public class GameController {
             File file = new File("GameState.ser");
             file.delete();
             continueGame = false;
+            musicPlayer.stop();
 
         } else if (allPlayerSunk) {
             gameEnded = true;
@@ -616,6 +617,7 @@ public class GameController {
             File file = new File("GameState.ser");
             file.delete();
             continueGame = false;
+            musicPlayer.stop();
         }
     }
 
@@ -633,8 +635,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
-            musicPlayer.play();
+            /*musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer.play();*/
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
 

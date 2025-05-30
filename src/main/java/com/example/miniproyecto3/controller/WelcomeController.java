@@ -120,7 +120,10 @@ public class WelcomeController {
     }
 
     public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {
-
-
+        Alert alert = new Alert(Alert.AlertType.WARNING, "Made by:\nDavid Taborda Montenegro\nJuan Pablo Piedrahita");
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-alert");
+        alert.showAndWait();
     }
 }
