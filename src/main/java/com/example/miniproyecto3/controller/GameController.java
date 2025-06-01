@@ -778,25 +778,24 @@ public class GameController {
     }
 
     public void debugBoards() {
-        System.out.println("=== DEBUG: enemyBoardModel ===");
+        System.out.println("=== DEBUG: enemyBoardModel      |        playerBoardModel  ===");
+
         ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
 
-        for (int row = 0; row < enemyGrid.size(); row++) {
-            for (int col = 0; col < enemyGrid.get(row).size(); col++) {
-                boolean isShip = enemyGrid.get(row).get(col);  // No afecta lógica si solo se consulta
-                System.out.print(isShip ? "[X]" : "[ ]");
-            }
-            System.out.println();  // Salto de línea por fila
-        }
+        int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
 
-        System.out.println("=== DEBUG: playerBoardModel ===");
-        for (int row = 0; row < playerGrid.size(); row++) {
-            for (int col = 0; col < playerGrid.get(row).size(); col++) {
-                boolean isShip = playerGrid.get(row).get(col);  // No afecta lógica si solo se consulta
-                System.out.print(isShip ? "[X]" : "[ ]");
+        for (int row = 0; row < size; row++) {
+            StringBuilder enemyRow = new StringBuilder();
+            StringBuilder playerRow = new StringBuilder();
+
+            for (int col = 0; col < size; col++) {
+                enemyRow.append(enemyGrid.get(row).get(col) ? "[X]" : "[ ]");
+                playerRow.append(playerGrid.get(row).get(col) ? "[X]" : "[ ]");
             }
-            System.out.println();  // Salto de línea por fila
+
+            // Imprime la fila del tablero enemigo y del jugador lado a lado
+            System.out.println(enemyRow + "     " + playerRow);
         }
     }
 
