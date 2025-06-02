@@ -43,6 +43,7 @@ public class Player extends IPlayerAdapter {
 
         StackPane cell = gameController.getStackPaneAt(opponentGrid,row,col);
         ownBoard.registerShot(row,col,true);
+        gameController.debugBoards();
         boolean hit = ownBoard.hasShipAt(row,col,false);
 
         Canvas canvas = new Canvas(30,30);

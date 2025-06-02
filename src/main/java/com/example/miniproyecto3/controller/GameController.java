@@ -790,8 +790,30 @@ public class GameController {
             StringBuilder playerRow = new StringBuilder();
 
             for (int col = 0; col < size; col++) {
-                enemyRow.append(enemyGrid.get(row).get(col) ? "[X]" : "[ ]");
-                playerRow.append(playerGrid.get(row).get(col) ? "[X]" : "[ ]");
+                boolean enemyHasShip = enemyGrid.get(row).get(col);
+                boolean inEnemyShot = enemyBoardModel.alreadyShotAt(row, col, true);
+                boolean playerHasShip = playerGrid.get(row).get(col);
+                boolean inPlayerShot = playerBoardModel.alreadyShotAt(row, col, false);
+
+                if(enemyHasShip && inEnemyShot) {
+                    enemyRow.append("[*]");
+                } else if(enemyHasShip) {
+                    enemyRow.append("[X]");
+                } else if(inEnemyShot) {
+                    enemyRow.append("[~]");
+                } else {
+                    enemyRow.append("[ ]");
+                }
+
+                if(playerHasShip && inPlayerShot) {
+                    playerRow.append("[*]");
+                } else if(playerHasShip) {
+                    playerRow.append("[X]");
+                } else if(inPlayerShot) {
+                    playerRow.append("[~]");
+                } else {
+                    playerRow.append("[ ]");
+                }
             }
 
             // Imprime la fila del tablero enemigo y del jugador lado a lado

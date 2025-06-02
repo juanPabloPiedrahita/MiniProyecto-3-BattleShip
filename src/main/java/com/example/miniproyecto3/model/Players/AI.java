@@ -46,6 +46,7 @@ public class AI extends IPlayerAdapter implements Serializable{
         }
 
         ownBoard.registerShot(row, col, false);
+        gameController.debugBoards();
 
         StackPane cell = gameController.getStackPaneAt(opponentGrid, row, col);
 
