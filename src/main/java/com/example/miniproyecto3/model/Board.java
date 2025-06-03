@@ -87,6 +87,14 @@ public class Board implements Serializable {
         return enemyBoard;
     }
 
+    public ArrayList<ArrayList<Boolean>> getShotsOnEnemyBoard() {
+        return shotsOnEnemyBoard;
+    }
+
+    public ArrayList<ArrayList<Boolean>> getShotsOnPlayerBoard() {
+        return shotsOnPlayerBoard;
+    }
+
     public boolean alreadyShotAt(int row, int col, boolean isPlayer) {
         return isPlayer ? shotsOnEnemyBoard.get(row).get(col) : shotsOnPlayerBoard.get(row).get(col);
     }

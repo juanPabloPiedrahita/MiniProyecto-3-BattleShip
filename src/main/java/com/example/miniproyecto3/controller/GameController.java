@@ -782,6 +782,8 @@ public class GameController {
 
         ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
+        ArrayList<ArrayList<Boolean>> enemyShots = enemyBoardModel.getShotsOnEnemyBoard();
+        ArrayList<ArrayList<Boolean>> playerShots = playerBoardModel.getShotsOnPlayerBoard();
 
         int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
 
@@ -790,26 +792,28 @@ public class GameController {
             StringBuilder playerRow = new StringBuilder();
 
             for (int col = 0; col < size; col++) {
+                boolean enemyHadShip = enemyShots.get(row).get(col) && !enemyGrid.get(row).get(col);
                 boolean enemyHasShip = enemyGrid.get(row).get(col);
-                boolean inEnemyShot = enemyBoardModel.alreadyShotAt(row, col, true);
+                boolean enemyWasShot = enemyShots.get(row).get(col);
+                boolean playerHadShip = playerShots.get(row).get(col) && !playerGrid.get(row).get(col);
                 boolean playerHasShip = playerGrid.get(row).get(col);
-                boolean inPlayerShot = playerBoardModel.alreadyShotAt(row, col, false);
+                boolean playerWasShot = playerShots.get(row).get(col);
 
-                if(enemyHasShip && inEnemyShot) {
+                if (enemyHasShip && enemyWasShot) {
                     enemyRow.append("[*]");
-                } else if(enemyHasShip) {
+                } else if (enemyHasShip) {
                     enemyRow.append("[X]");
-                } else if(inEnemyShot) {
+                } else if (enemyWasShot && !enemyHadShip) {
                     enemyRow.append("[~]");
                 } else {
                     enemyRow.append("[ ]");
                 }
 
-                if(playerHasShip && inPlayerShot) {
+                if (playerHasShip && playerWasShot) {
                     playerRow.append("[*]");
-                } else if(playerHasShip) {
+                } else if (playerHasShip) {
                     playerRow.append("[X]");
-                } else if(inPlayerShot) {
+                } else if (playerWasShot && !playerHadShip) {
                     playerRow.append("[~]");
                 } else {
                     playerRow.append("[ ]");
