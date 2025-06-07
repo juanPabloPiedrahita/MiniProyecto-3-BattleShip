@@ -86,14 +86,6 @@ public class GameController {
     //esto ayudara a la IA a tener memoria a la hora de disparar
     private String selectedDifficulty;  // Para almacenar la dificultad seleccionada.
 
-    //para jugar con las imágenes bien.
-    //private Image defaultBoatImage;
-    //private Image carrierBoatImage;  // para portaaviones.
-    //private Image battleshipImage;
-    //private Image cruiserImage;
-    //private Image submarineImage;
-    //private Image destroyerImage;
-
     private Image explosion;
     private Image miss;
     private Image smoke;
@@ -104,7 +96,7 @@ public class GameController {
     //Para mejora visual.
     private Canvas selectedShipCanvas = null;
     private int selectedShipSize = 0;
-    private Map<Canvas, Integer> canvasToShipSizeMap = new HashMap<>();
+    private final Map<Canvas, Integer> canvasToShipSizeMap = new HashMap<>();
 
     //Para configurar la flota como pide el enunciado.
     private final Map<Integer, Integer> fleetComposition = Map.of(
@@ -114,8 +106,8 @@ public class GameController {
             4, 1        //1 portaaviones de 4 casillas
     );
     private Map<Integer, Image> shipImages; //Para almacenar las imágenes de los barcos.
-    private Map<Integer, Integer> placedShipsCount = new HashMap<>();
-    private Map<Integer, HBox> shipRowMap = new HashMap<>();
+    private final Map<Integer, Integer> placedShipsCount = new HashMap<>();
+    private final Map<Integer, HBox> shipRowMap = new HashMap<>();
 
     private AI enemy = new AI(0,"Enemy", "Fácil");
 
@@ -123,8 +115,6 @@ public class GameController {
     public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         enemyBoard.getStyleClass().add("grid-pane");
         playerBoard.getStyleClass().add("grid-pane");
-        //playerBoardContainer.getStyleClass().add("player-box");
-        //enemyBoardContainer.getStyleClass().add("player-box");
         label1.getStyleClass().add("enemy-turn-label");
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
         musicPlayer.play();
@@ -136,8 +126,6 @@ public class GameController {
         smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
         miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
         explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
-        //defaultBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm());
-        //carrierBoatImage = new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm());
         shipImages = new HashMap<>();
         shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba8.png").toExternalForm()));
         shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
@@ -150,7 +138,6 @@ public class GameController {
             System.out.println("Creando enemyboard");
             createBoard(enemyBoard, false);
             System.out.println("seleccionando primera opcion en shipSizeSelector");
-            //shipSizeSelector.getSelectionModel().selectFirst();
             System.out.println("Creando evento para orientationToggle");
             orientationToggle.setOnAction(e -> toggleOrientation());
             System.out.println("Desactivando monitorMode");
@@ -162,14 +149,12 @@ public class GameController {
             monitorButton.setVisible(false);
             monitorButton.setManaged(false);
             initializeShipSelectorCanvases();
-        } else if (continueGame) { //Si el jugador le dio a continuar carga la partida mas reciente :v
+        } else { //Si el jugador le dio a continuar carga la partida mas reciente :v
             System.out.println("Entrando a cargar el juego mas reciente");
             finishedPlacing = true;
             loadGameState();
-            //checkWinCondition();
             readyButton.setDisable(true);
             orientationToggle.setDisable(true);
-            //shipSizeSelector.setDisable(true);
             placementControls.setVisible(false);
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
@@ -183,9 +168,6 @@ public class GameController {
     //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
     private void createBoard(GridPane board, boolean isPlayer) {
         System.out.println("Creando " + isPlayer + " board (gridpane)");
-        //board.getChildren().clear();
-        //board.getColumnConstraints().clear();
-        //board.getRowConstraints().clear();
         for (int i = 0; i <= 10; i++) {
             ColumnConstraints columnConstraints = new ColumnConstraints(30);
             RowConstraints rowConstraints = new RowConstraints(30);
@@ -475,7 +457,6 @@ public class GameController {
                 difficultySelector.setManaged(true);
 
                 difficultySelector.getItems().addAll("Fácil", "Normal");
-                //difficultySelector.getSelectionModel().selectFirst();
                 difficultySelector.setOnAction(event -> {
                     String difficulty = difficultySelector.getValue();
                     difficultySelector.setDisable(true);
@@ -724,17 +705,6 @@ public class GameController {
             gc.restore();
             return;
         }
-        // Efecto de sombra
-        //DropShadow shadow = new DropShadow();
-        //shadow.setOffsetX(2);
-        //shadow.setOffsetY(2);
-        //shadow.setColor(Color.rgb(30, 30, 30, 0.4));
-        //gc.applyEffect(shadow);
-
-        // Asumiendo que la imagen del barco está dividida en tres partes:
-        // 1. Proa (primer segmento)
-        // 2. Medio (varios segmentos)
-        // 3. Popa (último segmento)
 
         double boatWidth = boatImage.getWidth();
         double boatHeight = boatImage.getHeight();
@@ -759,7 +729,6 @@ public class GameController {
         } else {
             // Si es vertical, necesitamos rotar la imagen para ajustarla
             gc.save();  // Guardamos el contexto actual del GraphicsContext
-            //gc.translate(30, 0); // Acorde a Chat, es para centrar la celda antes de rotar.
             gc.rotate(90); // Rotamos la imagen 90 grados
 
             if (isFirst) {
@@ -784,6 +753,8 @@ public class GameController {
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
         ArrayList<ArrayList<Boolean>> enemyShots = enemyBoardModel.getShotsOnEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerShots = playerBoardModel.getShotsOnPlayerBoard();
+        ArrayList<ArrayList<Boolean>> sunkEnemy = enemyBoardModel.getSunkEnemyShips();
+        ArrayList<ArrayList<Boolean>> sunkPlayer = playerBoardModel.getSunkPlayerShips();
 
         int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
 
@@ -792,31 +763,40 @@ public class GameController {
             StringBuilder playerRow = new StringBuilder();
 
             for (int col = 0; col < size; col++) {
-                boolean enemyHadShip = enemyShots.get(row).get(col) && !enemyGrid.get(row).get(col);
-                boolean enemyHasShip = enemyGrid.get(row).get(col);
-                boolean enemyWasShot = enemyShots.get(row).get(col);
-                boolean playerHadShip = playerShots.get(row).get(col) && !playerGrid.get(row).get(col);
-                boolean playerHasShip = playerGrid.get(row).get(col);
-                boolean playerWasShot = playerShots.get(row).get(col);
-
-                if (enemyHasShip && enemyWasShot) {
-                    enemyRow.append("[*]");
-                } else if (enemyHasShip) {
-                    enemyRow.append("[X]");
-                } else if (enemyWasShot && !enemyHadShip) {
-                    enemyRow.append("[~]");
-                } else {
+                // TABLERO ENEMIGO
+                if (sunkEnemy.get(row).get(col)) {
+                    // Casilla de barco hundido, bloqueada
                     enemyRow.append("[ ]");
+                } else if (enemyGrid.get(row).get(col)) {
+                    if (enemyShots.get(row).get(col)) {
+                        enemyRow.append("[*]"); // Barco impactado
+                    } else {
+                        enemyRow.append("[X]"); // Barco intacto
+                    }
+                } else {
+                    if (enemyShots.get(row).get(col)) {
+                        enemyRow.append("[~]"); // Disparo al agua
+                    } else {
+                        enemyRow.append("[ ]"); // Casilla vacía sin disparo
+                    }
                 }
 
-                if (playerHasShip && playerWasShot) {
-                    playerRow.append("[*]");
-                } else if (playerHasShip) {
-                    playerRow.append("[X]");
-                } else if (playerWasShot && !playerHadShip) {
-                    playerRow.append("[~]");
-                } else {
+                // TABLERO JUGADOR
+                if (sunkPlayer.get(row).get(col)) {
+                    // Casilla de barco hundido, bloqueada
                     playerRow.append("[ ]");
+                } else if (playerGrid.get(row).get(col)) {
+                    if (playerShots.get(row).get(col)) {
+                        playerRow.append("[*]"); // Barco impactado
+                    } else {
+                        playerRow.append("[X]"); // Barco intacto
+                    }
+                } else {
+                    if (playerShots.get(row).get(col)) {
+                        playerRow.append("[~]"); // Disparo al agua
+                    } else {
+                        playerRow.append("[ ]"); // Casilla vacía sin disparo
+                    }
                 }
             }
 
@@ -824,6 +804,7 @@ public class GameController {
             System.out.println(enemyRow + "     " + playerRow);
         }
     }
+
 
     //metodos para la serializcion: (¡Slava Rusia, Z!)
 
