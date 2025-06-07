@@ -1,4 +1,4 @@
-package com.example.miniproyecto3.model.exception;
+package com.example.miniproyecto3.model.exceptions;
 
 public class DoubleShootException extends Exception {
 

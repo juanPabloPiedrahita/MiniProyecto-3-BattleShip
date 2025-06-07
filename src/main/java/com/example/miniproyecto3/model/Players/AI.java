@@ -1,6 +1,5 @@
 package com.example.miniproyecto3.model.Players;
 
-import com.example.miniproyecto3.model.exception.DoubleShootException;
 import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;

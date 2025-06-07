@@ -3,7 +3,7 @@ package com.example.miniproyecto3.controller;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.GameState;
 import com.example.miniproyecto3.model.Ship;
-import com.example.miniproyecto3.model.exception.DoubleShootException;
+import com.example.miniproyecto3.model.exceptions.DoubleShootException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
