@@ -7,13 +7,15 @@ import java.util.List;
 public class Board implements Serializable {
     private static final int SIZE = 10;
 
-    private ArrayList<ArrayList<Boolean>> playerBoard = createEmptyBoard();
-    private ArrayList<ArrayList<Boolean>> enemyBoard = createEmptyBoard();
-    private ArrayList<ArrayList<Boolean>> shotsOnEnemyBoard = createEmptyBoard();
-    private ArrayList<ArrayList<Boolean>> shotsOnPlayerBoard = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> playerBoard = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> enemyBoard = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> shotsOnEnemyBoard = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> shotsOnPlayerBoard = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> sunkPlayerShips = createEmptyBoard();
+    private final ArrayList<ArrayList<Boolean>> sunkEnemyShips = createEmptyBoard();
 
-    private List<Ship> playerShips = new ArrayList<>();
-    private List<Ship> enemyShips = new ArrayList<>();
+    private final List<Ship> playerShips = new ArrayList<>();
+    private final List<Ship> enemyShips = new ArrayList<>();
 
     private ArrayList<ArrayList<Boolean>> createEmptyBoard() {
         ArrayList<ArrayList<Boolean>> board = new ArrayList<>();
@@ -66,8 +68,10 @@ public class Board implements Serializable {
             int col = coordinate.getCol();
             if (isPlayer) {
                 playerBoard.get(row).set(col, false);
+                sunkPlayerShips.get(row).set(col, true);
             } else {
                 enemyBoard.get(row).set(col, false);
+                sunkEnemyShips.get(row).set(col, true);
             }
         }
 
@@ -93,6 +97,14 @@ public class Board implements Serializable {
 
     public ArrayList<ArrayList<Boolean>> getShotsOnPlayerBoard() {
         return shotsOnPlayerBoard;
+    }
+
+    public ArrayList<ArrayList<Boolean>> getSunkPlayerShips() {
+        return sunkPlayerShips;
+    }
+
+    public ArrayList<ArrayList<Boolean>> getSunkEnemyShips() {
+        return sunkEnemyShips;
     }
 
     public boolean alreadyShotAt(int row, int col, boolean isPlayer) {
