@@ -4,6 +4,7 @@ import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.GameState;
 import com.example.miniproyecto3.model.Ship;
 import com.example.miniproyecto3.model.exceptions.DoubleShootException;
+import com.example.miniproyecto3.model.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
@@ -25,8 +26,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import com.example.miniproyecto3.model.Players.AI;
 
-
-import java.io.IOException;
 import java.util.*;
 
 public class GameController {
@@ -112,57 +111,61 @@ public class GameController {
     private AI enemy = new AI(0,"Enemy", "Fácil");
 
     @FXML
-    public void initialize() throws IOException {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
-        enemyBoard.getStyleClass().add("grid-pane");
-        playerBoard.getStyleClass().add("grid-pane");
-        label1.getStyleClass().add("enemy-turn-label");
-        musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
-        musicPlayer.play();
-        planeTextFileHandler = new PlaneTextFileHandler();
-        player = WelcomeStage.getInstance().getWelController().getPlayer();
-        System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
-        continueGame = WelcomeStage.getInstance().getWelController().getContinue();
-        WelcomeStage.deleteInstance();
-        smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
-        miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
-        explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
-        shipImages = new HashMap<>();
-        shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba8.png").toExternalForm()));
-        shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
-        shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
-        shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
-        if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
-            System.out.println("Nuevo juego...");
-            System.out.println("Creando playerboard");
-            createBoard(playerBoard, true);
-            System.out.println("Creando enemyboard");
-            createBoard(enemyBoard, false);
-            System.out.println("seleccionando primera opcion en shipSizeSelector");
-            System.out.println("Creando evento para orientationToggle");
-            orientationToggle.setOnAction(e -> toggleOrientation());
-            System.out.println("Desactivando monitorMode");
-            monitorButton.setDisable(true);
-            placementControls.setVisible(true);
-            placementControls.setManaged(true);
-            enemyBoardContainer.setVisible(false);
-            enemyBoardContainer.setManaged(false);
-            monitorButton.setVisible(false);
-            monitorButton.setManaged(false);
-            initializeShipSelectorCanvases();
-        } else { //Si el jugador le dio a continuar carga la partida mas reciente :v
-            System.out.println("Entrando a cargar el juego mas reciente");
-            finishedPlacing = true;
-            loadGameState();
-            readyButton.setDisable(true);
-            orientationToggle.setDisable(true);
-            placementControls.setVisible(false);
-            placementControls.setManaged(false);
-            enemyBoardContainer.setVisible(true);
-            enemyBoardContainer.setManaged(true);
-            monitorButton.setVisible(true);
-            monitorButton.setManaged(true);
-        }
+    public void initialize() {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+        try {
+                enemyBoard.getStyleClass().add("grid-pane");
+                playerBoard.getStyleClass().add("grid-pane");
+                label1.getStyleClass().add("enemy-turn-label");
+                musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/SelectionTheme.mp3");
+                musicPlayer.play();
+                planeTextFileHandler = new PlaneTextFileHandler();
+                player = WelcomeStage.getInstance().getWelController().getPlayer();
+                System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
+                continueGame = WelcomeStage.getInstance().getWelController().getContinue();
+                WelcomeStage.deleteInstance();
+                smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
+                miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
+                explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
+                shipImages = new HashMap<>();
+                shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba8.png").toExternalForm()));
+                shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
+                shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
+                shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
+                if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
+                    System.out.println("Nuevo juego...");
+                    System.out.println("Creando playerboard");
+                    createBoard(playerBoard, true);
+                    System.out.println("Creando enemyboard");
+                    createBoard(enemyBoard, false);
+                    System.out.println("seleccionando primera opcion en shipSizeSelector");
+                    System.out.println("Creando evento para orientationToggle");
+                    orientationToggle.setOnAction(e -> toggleOrientation());
+                    System.out.println("Desactivando monitorMode");
+                    monitorButton.setDisable(true);
+                    placementControls.setVisible(true);
+                    placementControls.setManaged(true);
+                    enemyBoardContainer.setVisible(false);
+                    enemyBoardContainer.setManaged(false);
+                    monitorButton.setVisible(false);
+                    monitorButton.setManaged(false);
+                    initializeShipSelectorCanvases();
+                } else { //Si el jugador le dio a continuar carga la partida mas reciente :v
+                    System.out.println("Entrando a cargar el juego mas reciente");
+                    finishedPlacing = true;
+                    loadGameState();
+                    readyButton.setDisable(true);
+                    orientationToggle.setDisable(true);
+                    placementControls.setVisible(false);
+                    placementControls.setManaged(false);
+                    enemyBoardContainer.setVisible(true);
+                    enemyBoardContainer.setManaged(true);
+                    monitorButton.setVisible(true);
+                    monitorButton.setManaged(true);
+                }
 
+        } catch (VisualException e) {
+            System.out.println("Error visual al iniciar el juego." + e.getMessage());
+        }
     }
 
     //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
@@ -747,7 +750,7 @@ public class GameController {
     }
 
     public void debugBoards() {
-        System.out.println("=== DEBUG: enemyBoardModel      |        playerBoardModel  ===");
+        System.out.println("=== DEBUG: playerBoardModel     |        enemyBoardModel  ===");
 
         ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
@@ -763,24 +766,6 @@ public class GameController {
             StringBuilder playerRow = new StringBuilder();
 
             for (int col = 0; col < size; col++) {
-                // TABLERO ENEMIGO
-                if (sunkEnemy.get(row).get(col)) {
-                    // Casilla de barco hundido, bloqueada
-                    enemyRow.append("[ ]");
-                } else if (enemyGrid.get(row).get(col)) {
-                    if (enemyShots.get(row).get(col)) {
-                        enemyRow.append("[*]"); // Barco impactado
-                    } else {
-                        enemyRow.append("[X]"); // Barco intacto
-                    }
-                } else {
-                    if (enemyShots.get(row).get(col)) {
-                        enemyRow.append("[~]"); // Disparo al agua
-                    } else {
-                        enemyRow.append("[ ]"); // Casilla vacía sin disparo
-                    }
-                }
-
                 // TABLERO JUGADOR
                 if (sunkPlayer.get(row).get(col)) {
                     // Casilla de barco hundido, bloqueada
@@ -798,10 +783,28 @@ public class GameController {
                         playerRow.append("[ ]"); // Casilla vacía sin disparo
                     }
                 }
+
+                // TABLERO ENEMIGO
+                if (sunkEnemy.get(row).get(col)) {
+                    // Casilla de barco hundido, bloqueada
+                    enemyRow.append("[ ]");
+                } else if (enemyGrid.get(row).get(col)) {
+                    if (enemyShots.get(row).get(col)) {
+                        enemyRow.append("[*]"); // Barco impactado
+                    } else {
+                        enemyRow.append("[X]"); // Barco intacto
+                    }
+                } else {
+                    if (enemyShots.get(row).get(col)) {
+                        enemyRow.append("[~]"); // Disparo al agua
+                    } else {
+                        enemyRow.append("[ ]"); // Casilla vacía sin disparo
+                    }
+                }
             }
 
             // Imprime la fila del tablero enemigo y del jugador lado a lado
-            System.out.println(enemyRow + "     " + playerRow);
+            System.out.println(playerRow + "     " + enemyRow);
         }
     }
 

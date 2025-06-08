@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import com.example.miniproyecto3.model.Players.Player;
+import com.example.miniproyecto3.model.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
@@ -52,25 +53,30 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
+    public void onHandlePlayButtom(javafx.event.ActionEvent event) throws VisualException {
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
         if(!userTxt.getText().isEmpty()) {
-            if(Objects.equals(user, userTxt.getText())) {
-                player = new Player(user, score);
-                GameStage.getInstance();
-                onContinue = false;
-                musicPlayer.stop();
+            try {
+                if(Objects.equals(user, userTxt.getText())) {
+                    player = new Player(user, score);
+                    GameStage.getInstance();
+                    onContinue = false;
+                    musicPlayer.stop();
+                }
+                else {
+                    player = new Player(userTxt.getText().trim(), 0);
+                    planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
+                    //WelcomeStage.deleteInstance();
+                    GameStage.getInstance();
+                    onContinue = false;
+                    musicPlayer.stop();
+                }
+            } catch (VisualException e) {
+                throw new VisualException("Error visual al iniciar el juego: " + e.getMessage());
             }
-            else {
-                player = new Player(userTxt.getText().trim(), 0);
-                planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
-                //WelcomeStage.deleteInstance();
-                GameStage.getInstance();
-                onContinue = false;
-                musicPlayer.stop();
-            }
+
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "Ingresa un usuario antes de continuar!");
@@ -78,22 +84,26 @@ public class WelcomeController {
             dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
             dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
-            alert.showAndWait();
         }
     }
 
     @FXML
-    public void onHandleContinueButtom(javafx.event.ActionEvent event) throws IOException {
+    public void onHandleContinueButtom(javafx.event.ActionEvent event) {
         File file = new File("GameState.ser");
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
         if(file.exists()) {
-            //WelcomeStage.deleteInstance();
-            player = new Player(user,score);
-            onContinue = true;
-            GameStage.getInstance();
-            musicPlayer.stop();
+            try {
+                //WelcomeStage.deleteInstance();
+                player = new Player(user,score);
+                onContinue = true;
+                GameStage.getInstance();
+                musicPlayer.stop();
+            } catch (VisualException e) {
+                System.out.println("Error visual al iniciar el juego: " + e.getMessage());
+            }
+
         }
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");
