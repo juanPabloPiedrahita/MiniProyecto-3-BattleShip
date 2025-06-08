@@ -1,7 +1,7 @@
 package com.example.miniproyecto3.view;
 
 import com.example.miniproyecto3.controller.WelcomeController;
-import com.example.miniproyecto3.model.exceptions.VisualException;
+import com.example.miniproyecto3.model.exceptions.VisualException;  // Creo que la estamos embarrando aquí. Mañana lo corrijo, si puedo.
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,7 +20,7 @@ public class WelcomeStage extends Stage {
             Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
             welController = fxmlLoader.getController();
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());  // Podría colocarse alguna aquí.
             Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno-removebg-preview.png")).toExternalForm());
             getIcons().add(icon);
             setResizable(false);
@@ -28,9 +28,9 @@ public class WelcomeStage extends Stage {
             setScene(scene);
             show();
         } catch (IOException e) {
-            throw new VisualException("Error al cargar el archivo 'home-view'.");
+            throw new VisualException("Error al cargar el archivo 'home-view'.");  // Se aplica así para los bloques múltiples de catch, y porque se está "definiendo" la excepción.
         } catch (NullPointerException ex) {
-            throw new VisualException("Error al cargar el archivo 'home-view'.");
+            throw new VisualException("Error al cargar el archivo 'home-view'.");  // Mismo proceder aquí, JEJE.
         }
 
     }
