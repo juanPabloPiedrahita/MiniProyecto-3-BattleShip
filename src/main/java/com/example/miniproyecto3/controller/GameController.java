@@ -276,8 +276,7 @@ public class GameController {
                     gc.drawImage(shipImage, 0, 0, 30 * size, 30);
                 }
 
-                int finalSize = size; // necesario para el lambda
-                shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, finalSize));
+                shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, size));
 
                 canvasToShipSizeMap.put(shipCanvas, size);
                 shipRow.getChildren().add(shipCanvas);
