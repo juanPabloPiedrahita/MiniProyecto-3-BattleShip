@@ -48,10 +48,6 @@ public class GameController {
     @FXML
     private VBox enemyBoardContainer;
     @FXML
-    private HBox container;
-    @FXML
-    private VBox playerBoardContainer;
-    @FXML
     private Label label1;
     @FXML
     private Label difficultyLabel;

@@ -28,9 +28,9 @@ public class GameStage extends Stage {
                 System.exit(0);
             });
             show();
-        } catch (IOException e) {
+        } catch (IOException e) {  // Aquí también se define la excepción visual.
             throw new VisualException("Error al cargar el archivo 'game-view'. " + e.getMessage());
-        } catch (NullPointerException ex) {
+        } catch (NullPointerException ex) {  // Aquí se complementa la definición.
             throw new VisualException("Error al cargar el archivo 'game-view'. " + ex.getMessage());
         }
 
