@@ -26,6 +26,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import com.example.miniproyecto3.model.Players.AI;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 public class GameController {
@@ -119,14 +121,14 @@ public class GameController {
                 System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
                 continueGame = WelcomeStage.getInstance().getWelController().getContinue();
                 WelcomeStage.deleteInstance();
-                smoke = new Image(getClass().getResource("/com/example/miniproyecto3/Image/blackSmoke23.png").toExternalForm());
-                miss = new Image(getClass().getResource("/com/example/miniproyecto3/Image/waterExplosion.png").toExternalForm());
-                explosion = new Image(getClass().getResource("/com/example/miniproyecto3/Image/explosion08.png").toExternalForm());
+                smoke = loadImageOrThrow("/com/example/miniproyecto3/Image/blackSmoke23.png");
+                miss = loadImageOrThrow("/com/example/miniproyecto3/Image/waterExplosion.png");
+                explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion08.png");
                 shipImages = new HashMap<>();
-                shipImages.put(1, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba8.png").toExternalForm()));
-                shipImages.put(2, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba.png").toExternalForm()));
-                shipImages.put(3, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba4.png").toExternalForm()));
-                shipImages.put(4, new Image(getClass().getResource("/com/example/miniproyecto3/Image/prueba2.png").toExternalForm()));
+                shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba8.png"));
+                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba.png"));
+                shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba4.png"));
+                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba2.png"));
                 if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
                     System.out.println("Nuevo juego...");
                     System.out.println("Creando playerboard");
@@ -135,7 +137,7 @@ public class GameController {
                     createBoard(enemyBoard, false);
                     System.out.println("seleccionando primera opcion en shipSizeSelector");
                     System.out.println("Creando evento para orientationToggle");
-                    orientationToggle.setOnAction(e -> toggleOrientation());
+                    orientationToggle.setOnAction(_ -> toggleOrientation());
                     System.out.println("Desactivando monitorMode");
                     monitorButton.setDisable(true);
                     placementControls.setVisible(true);
@@ -159,9 +161,21 @@ public class GameController {
                     monitorButton.setManaged(true);
                 }
 
-        } catch (VisualException e) {
-            System.out.println("Error visual al iniciar el juego." + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error cargando la imagen." + e.getMessage());
+        } catch (VisualException ex) {
+            System.out.println("Ocurrió un error al cargar el juego." + ex.getMessage());
         }
+    }
+
+    // método utilitario con IOException para las imágenes.
+    private Image loadImageOrThrow(String path) throws IOException {
+        URL resourceUrl = getClass().getResource(path);
+        if(resourceUrl == null) {
+            throw new IOException("No se pudo encontrar el recurso: " + path);
+        }
+
+        return new Image(resourceUrl.toExternalForm());
     }
 
     //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
@@ -276,7 +290,7 @@ public class GameController {
                     gc.drawImage(shipImage, 0, 0, 30 * size, 30);
                 }
 
-                shipCanvas.setOnMouseClicked(e -> selectShipCanvas(shipCanvas, size));
+                shipCanvas.setOnMouseClicked(_ -> selectShipCanvas(shipCanvas, size));
 
                 canvasToShipSizeMap.put(shipCanvas, size);
                 shipRow.getChildren().add(shipCanvas);
@@ -455,7 +469,7 @@ public class GameController {
                 difficultySelector.setManaged(true);
 
                 difficultySelector.getItems().addAll("Fácil", "Normal");
-                difficultySelector.setOnAction(event -> {
+                difficultySelector.setOnAction(_ -> {
                     String difficulty = difficultySelector.getValue();
                     difficultySelector.setDisable(true);
                     selectedDifficulty = difficulty;
@@ -551,9 +565,7 @@ public class GameController {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                javafx.application.Platform.runLater(() -> {
-                    triggerComputerMove();
-                });
+                javafx.application.Platform.runLater(() -> triggerComputerMove());
             }}, 1000);
     }
 
@@ -582,7 +594,9 @@ public class GameController {
             GameStage.deleteInstance();
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
-            file.delete();
+            if(!file.delete()) {
+                System.out.println("Advertencia: No se pudo eliminar GameState.ser después de ganar la partida.");
+            }
             continueGame = false;
 
         } else if (allPlayerSunk) {
@@ -593,7 +607,9 @@ public class GameController {
             GameStage.deleteInstance();
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
-            file.delete();
+            if(!file.delete()) {
+                System.out.println("Advertencia: No se pudo eliminar GameState.ser después de perder.");
+            }
             continueGame = false;
         }
     }
@@ -662,8 +678,7 @@ public class GameController {
     private void toggleEnemyBoard() {
         monitorMode = !monitorMode;
         for (javafx.scene.Node node : enemyBoard.getChildren()) {
-            if (node instanceof StackPane) {
-                StackPane cell = (StackPane) node;
+            if (node instanceof StackPane cell) {
                 for (javafx.scene.Node child : cell.getChildren()) {
                     if (child instanceof Canvas canvas && "enemy".equals(canvas.getUserData())) {
                         canvas.setVisible(monitorMode);
@@ -868,7 +883,6 @@ public class GameController {
 
         // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
-            Image boatImage = shipImages.get(ship.getSize());
             drawShip(playerBoard, ship, true);
             if (ship.isSunk()) {
                 drawSunkShips(ship, playerBoard);
@@ -877,7 +891,6 @@ public class GameController {
 
         // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
-            Image boatImage = shipImages.get(ship.getSize());
             drawShip(enemyBoard, ship, false);
             if (ship.isSunk()) {
                 drawSunkShips(ship, enemyBoard);
@@ -901,12 +914,9 @@ public class GameController {
     //metodo para dibujar un barco como hundido
     public void drawSunkShips(Ship ship, GridPane board) {
         List<Ship.Coordinate> coords = ship.getCoordinates();
-        for (int i = 0; i < coords.size(); i++) {
-            Ship.Coordinate coordinate = coords.get(i);
+        for (Ship.Coordinate coordinate : coords) {
             int row = coordinate.getRow();
             int col = coordinate.getCol();
-            boolean isFirst = (i == 0);
-            boolean isLast = (i == coords.size() - 1);
             StackPane cell = getStackPaneAt(board, row, col);
             if (cell != null) {
                 cell.getChildren().removeIf(node -> node.getUserData() != null && node.getUserData().equals("impacto")); //elimina el node que antes representaba el impacto sobre el barco, esto para evitar la sobreposicion de imagenes :v
