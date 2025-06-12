@@ -768,50 +768,38 @@ public class GameController {
         int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
 
         for (int row = 0; row < size; row++) {
-            StringBuilder enemyRow = new StringBuilder();
-            StringBuilder playerRow = new StringBuilder();
-
-            for (int col = 0; col < size; col++) {
-                // TABLERO JUGADOR
-                if (sunkPlayer.get(row).get(col)) {
-                    // Casilla de barco hundido, bloqueada
-                    playerRow.append("[ ]");
-                } else if (playerGrid.get(row).get(col)) {
-                    if (playerShots.get(row).get(col)) {
-                        playerRow.append("[*]"); // Barco impactado
-                    } else {
-                        playerRow.append("[X]"); // Barco intacto
-                    }
-                } else {
-                    if (playerShots.get(row).get(col)) {
-                        playerRow.append("[~]"); // Disparo al agua
-                    } else {
-                        playerRow.append("[ ]"); // Casilla vacía sin disparo
-                    }
-                }
-
-                // TABLERO ENEMIGO
-                if (sunkEnemy.get(row).get(col)) {
-                    // Casilla de barco hundido, bloqueada
-                    enemyRow.append("[ ]");
-                } else if (enemyGrid.get(row).get(col)) {
-                    if (enemyShots.get(row).get(col)) {
-                        enemyRow.append("[*]"); // Barco impactado
-                    } else {
-                        enemyRow.append("[X]"); // Barco intacto
-                    }
-                } else {
-                    if (enemyShots.get(row).get(col)) {
-                        enemyRow.append("[~]"); // Disparo al agua
-                    } else {
-                        enemyRow.append("[ ]"); // Casilla vacía sin disparo
-                    }
-                }
-            }
+            String playerRow = buildDebugRow(playerGrid, playerShots, sunkPlayer, row);
+            String enemyRow = buildDebugRow(enemyGrid, enemyShots, sunkEnemy, row);
 
             // Imprime la fila del tablero enemigo y del jugador lado a lado
             System.out.println(playerRow + "     " + enemyRow);
         }
+    }
+
+    // Permitirá la creación de las impresiones correctas de ambos tableros, para reducir código duplicado.
+    private String buildDebugRow(ArrayList<ArrayList<Boolean>> grid, ArrayList<ArrayList<Boolean>> shots, ArrayList<ArrayList<Boolean>> sunk, int row) {
+        StringBuilder result = new StringBuilder();
+        int size = grid.size();
+
+        for(int col = 0; col < size; col++) {
+            if(sunk.get(row).get(col)) {
+                result.append("[ ]");
+            } else if(grid.get(row).get(col)) {
+                if(shots.get(row).get(col)) {
+                    result.append("[*]");
+                } else {
+                    result.append("[X]");
+                }
+            } else {
+                if(shots.get(row).get(col)) {
+                    result.append("[~]");
+                } else {
+                    result.append("[ ]");
+                }
+            }
+        }
+
+        return result.toString();
     }
 
 
