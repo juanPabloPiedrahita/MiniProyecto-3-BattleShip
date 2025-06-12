@@ -93,7 +93,6 @@ public class GameController {
     //Para mejora visual.
     private Canvas selectedShipCanvas = null;
     private int selectedShipSize = 0;
-    private final Map<Canvas, Integer> canvasToShipSizeMap = new HashMap<>();
 
     //Para configurar la flota como pide el enunciado.
     private final Map<Integer, Integer> fleetComposition = Map.of(
@@ -268,7 +267,6 @@ public class GameController {
 
     private void initializeShipSelectorCanvases() {
         shipSelectorContainer.getChildren().clear();
-        canvasToShipSizeMap.clear();
         shipRowMap.clear();
 
         List<Integer> sortedSizes = new ArrayList<>(fleetComposition.keySet());
@@ -292,7 +290,6 @@ public class GameController {
 
                 shipCanvas.setOnMouseClicked(_ -> selectShipCanvas(shipCanvas, size));
 
-                canvasToShipSizeMap.put(shipCanvas, size);
                 shipRow.getChildren().add(shipCanvas);
             }
             shipRowMap.put(size, shipRow);  // Para acceder a cada HBox de barcos.
@@ -447,7 +444,6 @@ public class GameController {
                 }
             }
 
-            canvasToShipSizeMap.remove(selectedShipCanvas);
             selectedShipCanvas = null;
             selectedShipSize = 0;
 
