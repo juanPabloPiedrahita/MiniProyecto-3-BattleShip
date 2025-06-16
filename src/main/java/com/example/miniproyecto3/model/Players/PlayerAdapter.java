@@ -7,7 +7,7 @@ import javafx.scene.layout.GridPane;
 
 import java.util.List;
 
-public abstract class IPlayerAdapter implements IPlayer{
+public abstract class PlayerAdapter implements IPlayer{
     @Override
     public void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
 

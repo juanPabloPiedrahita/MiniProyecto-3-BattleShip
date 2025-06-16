@@ -229,7 +229,7 @@ public class GameController {
                         try {
                             handlePlayerShot(finalRow, finalCol);
                         } catch (DoubleShootException ex) {
-                            throw new RuntimeException(ex);
+                            System.out.println("Ya disparaste en esta casilla. Intenta en otra.");
                         }
                     }
                 });

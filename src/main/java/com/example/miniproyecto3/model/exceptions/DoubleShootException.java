@@ -1,6 +1,6 @@
 package com.example.miniproyecto3.model.exceptions;
 
-public class DoubleShootException extends Exception {
+public class DoubleShootException extends RuntimeException {
 
     public DoubleShootException(){
         super();

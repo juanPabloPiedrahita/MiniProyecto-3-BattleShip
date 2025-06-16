@@ -3,6 +3,7 @@ package com.example.miniproyecto3.model.Players;
 import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
+import com.example.miniproyecto3.model.exceptions.DoubleShootException;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.GridPane;
@@ -10,7 +11,7 @@ import javafx.scene.layout.StackPane;
 
 import java.util.List;
 
-public class Player extends IPlayerAdapter {
+public class Player extends PlayerAdapter {
     private String playerName;
     private int playerScore;
 
@@ -36,9 +37,9 @@ public class Player extends IPlayerAdapter {
     }
 
     @Override
-    public void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController){
+    public void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
         if(ownBoard.alreadyShotAt(row,col,true)){
-            return;
+            throw new DoubleShootException("Ya disparaste en la casilla (" + row + "," + col + ").");
         }
 
         StackPane cell = gameController.getStackPaneAt(opponentGrid,row,col);

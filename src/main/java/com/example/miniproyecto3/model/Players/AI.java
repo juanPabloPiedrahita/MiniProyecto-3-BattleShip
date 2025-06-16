@@ -12,7 +12,7 @@ import java.util.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-public class AI extends IPlayerAdapter implements Serializable{
+public class AI extends PlayerAdapter implements Serializable{
 
     private List<Ship.Coordinate> pendingTargets = new ArrayList<>();
     private final Random rand = new Random();
