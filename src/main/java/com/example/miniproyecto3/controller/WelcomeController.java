@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import com.example.miniproyecto3.model.Players.Player;
-import com.example.miniproyecto3.model.exceptions.VisualException;
+import com.example.miniproyecto3.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;

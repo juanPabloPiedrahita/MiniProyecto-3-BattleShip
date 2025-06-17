@@ -3,7 +3,7 @@ package com.example.miniproyecto3.model.Players;
 import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
-import com.example.miniproyecto3.model.exceptions.DoubleShootException;
+import com.example.miniproyecto3.exceptions.DoubleShootException;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.GridPane;

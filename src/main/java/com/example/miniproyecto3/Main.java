@@ -1,6 +1,6 @@
 package com.example.miniproyecto3;
 
-import com.example.miniproyecto3.model.exceptions.VisualException;
+import com.example.miniproyecto3.exceptions.VisualException;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import com.example.miniproyecto3.view.WelcomeStage;

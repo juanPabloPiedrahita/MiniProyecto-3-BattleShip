@@ -1,4 +1,4 @@
-package com.example.miniproyecto3.model.exceptions;  // Pasarlas a paquete externo.
+package com.example.miniproyecto3.exceptions;  // Pasarlas a paquete externo.
 
 public class VisualException extends Exception {
     public VisualException(String message) {

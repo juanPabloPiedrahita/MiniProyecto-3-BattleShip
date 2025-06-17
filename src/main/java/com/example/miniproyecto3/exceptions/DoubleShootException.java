@@ -1,4 +1,4 @@
-package com.example.miniproyecto3.model.exceptions;
+package com.example.miniproyecto3.exceptions;
 
 public class DoubleShootException extends RuntimeException {
 

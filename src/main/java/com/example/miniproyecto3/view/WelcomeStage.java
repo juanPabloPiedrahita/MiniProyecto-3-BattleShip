@@ -1,7 +1,7 @@
 package com.example.miniproyecto3.view;
 
 import com.example.miniproyecto3.controller.WelcomeController;
-import com.example.miniproyecto3.model.exceptions.VisualException;  // Creo que la estamos embarrando aquí. Mañana lo corrijo, si puedo.
+import com.example.miniproyecto3.exceptions.VisualException;  // Creo que la estamos embarrando aquí. Mañana lo corrijo, si puedo.
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

@@ -1,7 +1,7 @@
 package com.example.miniproyecto3.view;
 
 import com.example.miniproyecto3.controller.GameController;
-import com.example.miniproyecto3.model.exceptions.VisualException;
+import com.example.miniproyecto3.exceptions.VisualException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
