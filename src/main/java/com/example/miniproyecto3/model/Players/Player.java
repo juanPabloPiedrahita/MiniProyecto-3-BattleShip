@@ -9,9 +9,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Player extends PlayerAdapter {
+public class Player extends PlayerAdapter implements Serializable {
     private String playerName;
     private int playerScore;
 
