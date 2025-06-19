@@ -44,8 +44,8 @@
                   <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
               </VBox>
    
-             <VBox alignment="CENTER">
-                 <Button fx:id="monitorButton" alignment="CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" />
+             <VBox alignment="CENTER" stylesheets="@../CSS/styles.css" >
+                 <Button fx:id="monitorButton" alignment="CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" styleClass="button" />
              </VBox>
 
           </VBox>

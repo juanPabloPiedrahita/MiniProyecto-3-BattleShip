@@ -2,7 +2,6 @@ package com.example.miniproyecto3.controller;
 
 //import java.io.IO;
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
 import com.example.miniproyecto3.model.Players.Player;
@@ -10,12 +9,13 @@ import com.example.miniproyecto3.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextField;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import javafx.scene.layout.*;
 import com.example.miniproyecto3.model.MusicPlayer;
+import javafx.event.ActionEvent;
+import javafx.scene.text.TextAlignment;
 
 
 public class WelcomeController {
@@ -53,7 +53,7 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandlePlayButtom(javafx.event.ActionEvent event) throws VisualException {
+    public void onHandlePlayButtom(ActionEvent event) throws VisualException {
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
@@ -88,7 +88,7 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandleContinueButtom(javafx.event.ActionEvent event) {
+    public void onHandleContinueButtom(ActionEvent event) {
         File file = new File("GameState.ser");
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
@@ -116,7 +116,7 @@ public class WelcomeController {
 
 
     @FXML
-    public void onHandleQuitButtom(javafx.event.ActionEvent event) throws IOException {
+    public void onHandleQuitButtom(ActionEvent event) {
 
         WelcomeStage.deleteInstance();
     }
@@ -129,8 +129,48 @@ public class WelcomeController {
         return player;
     }
 
-    public void onHandleCreditsButtom(javafx.event.ActionEvent event) throws IOException {
+    @FXML
+    public void onHandleCreditsButtom() {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.setTitle("Créditos del juego");
+        alert.setHeaderText(null);
 
+        // Personalizar tamaño y fondo
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setMinWidth(550);
+        dialogPane.setMinHeight(350);
+        dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+        dialogPane.getStyleClass().add("custom-alert");
+
+        // Crear layout con estilo
+        VBox content = new VBox(10);
+        content.setAlignment(Pos.CENTER);
+        content.setStyle("-fx-background-color: transparent; -fx-padding: 20;");
+
+        Label title = new Label("BATALLA NAVAL");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        Label authors = new Label(
+                "Desarrollado por:\n\n" +
+                        "Juan Pablo Piedrahita Triana      202342...-3743      juan.pablo.piedrahita@correounivalle.edu.co\n" +
+                        "David Taborda Montenegro          202242264-3743      taborda.david@correounivalle.edu.co"
+        );
+        authors.setStyle("-fx-font-size: 13px; -fx-text-fill: white;");
+        authors.setWrapText(true);
+        authors.setTextAlignment(TextAlignment.CENTER);
+        authors.setAlignment(Pos.CENTER);
+
+        Label thanks = new Label("\n¡Gracias por jugar!");
+        thanks.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        content.getChildren().addAll(title, authors, thanks);
+        dialogPane.setContent(content);
+
+        // Botón de cerrar
+        ButtonType closeButton = new ButtonType("Cerrar", ButtonBar.ButtonData.OK_DONE);
+        alert.getButtonTypes().setAll(closeButton);
+
+        alert.showAndWait();
 
     }
 }
