@@ -1,13 +1,8 @@
 package com.example.miniproyecto3.model.Players;
 
-import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
 import com.example.miniproyecto3.exceptions.DoubleShootException;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 
 import java.io.Serializable;
 import java.util.List;
@@ -38,39 +33,26 @@ public class Player extends PlayerAdapter implements Serializable {
     }
 
     @Override
-    public void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController) {
-        if(ownBoard.alreadyShotAt(row,col,true)){
+    public boolean makeMove(int row, int col, Board opponentBoardModel, List<Ship> opponentShips) {
+        if(opponentBoardModel.alreadyShotAt(row,col,true)){
             throw new DoubleShootException("Ya disparaste en la casilla (" + row + "," + col + ").");
         }
 
-        StackPane cell = gameController.getStackPaneAt(opponentGrid,row,col);
-        ownBoard.registerShot(row,col,true);
-        gameController.debugBoards();
-        boolean hit = ownBoard.hasShipAt(row,col,false);
+        opponentBoardModel.registerShot(row, col, true);
+        boolean hit = opponentBoardModel.hasShipAt(row, col, false);
 
-        Canvas canvas = new Canvas(30,30);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        canvas.setMouseTransparent(true);
-        canvas.setManaged(false);
-        canvas.setUserData(hit ? "impacto" : "fallo");
-        gameController.drawShot(gc,hit,false);
-        cell.getChildren().add(canvas);
-        if(hit){
-            Ship targetShip = gameController.getShipAt(playerShips,row,col);
-            targetShip.registerHit(row,col);
-            if(targetShip.isSunk()){
-                System.out.println("Hundiste un barco");
-                playerScore = playerScore + 1;
-                gameController.drawSunkShips(targetShip,opponentGrid);
-                ownBoard.removeShip(targetShip, false);  // Acá ownBoard es el único tablero lógico que se usa, XD.
-                gameController.debugBoards();
+        if(hit) {
+            for(Ship ship : opponentShips) {
+                if(ship.occupies(row, col)) {
+                    ship.registerHit(row, col);
+                    if(ship.isSunk()) {
+                        playerScore += 1;
+                        opponentBoardModel.removeShip(ship, false);
+                    }
+                    break;
+                }
             }
-            gameController.saveGameState();
-            gameController.checkWinCondition();
         }
-        else{
-            onTurnEnd.run();
-        }
-
+        return hit;
     }
 }

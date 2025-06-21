@@ -7,6 +7,7 @@ import com.example.miniproyecto3.exceptions.DoubleShootException;
 import com.example.miniproyecto3.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -532,26 +533,85 @@ public class GameController {
     //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
     private void handlePlayerShot(int row, int col) throws DoubleShootException {
         if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
-        Runnable onTurnPlayerEnd = this::endPlayerTurn;
-        player.makeMove(row,col,enemyBoardModel,playerBoardModel,enemyBoard,onTurnPlayerEnd,enemyShips,this);
+        boolean hit = player.makeMove(row, col, enemyBoardModel, enemyShips);
+
+        StackPane cell = getStackPaneAt(enemyBoard, row, col);
+        Canvas canvas = new Canvas(30, 30);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        canvas.setMouseTransparent(true);
+        canvas.setManaged(false);
+        canvas.setUserData(hit ? "impacto" : "fallo");
+        drawShot(gc, hit, false);
+        cell.getChildren().add(canvas);
+
+        if(hit) {
+            Ship ship = getShipAt(enemyShips, row, col);
+            if(ship != null && ship.isSunk()) {
+                System.out.println("Hundiste un barco.");
+                drawSunkShips(ship, enemyBoard);
+                debugBoards();
+            }
+            saveGameState();
+            checkWinCondition();
+        } else {
+            endPlayerTurn();
+            debugBoards();
+        }
+
+        debugBoards();
         planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
     }
 
     //aqui se llama a la IA para que dispare, luego lo modificamos para que el jugador elija la dificultad
     private void triggerComputerMove() {
         playerTurn = false;
-        Runnable onTurnEnd = this::endComputerTurn;
+        boolean hit;
+
         if (enemy.getDificulty() == 1) {
-            enemy.makeRandomMove(playerBoardModel, enemyBoardModel, playerBoard, playerShips, onTurnEnd, this);
+            hit = enemy.makeRandomMove(playerBoardModel, playerShips);
         } else {
-            enemy.makeMove(0, 0, playerBoardModel, enemyBoardModel, playerBoard, onTurnEnd, playerShips, this);
+            hit = enemy.makeMove(0, 0, playerBoardModel, playerShips);
         }
+
+        int lastRow = enemy.getLastShotRow();
+        int lastCol = enemy.getLastShotCol();
+
+        StackPane cell = getStackPaneAt(playerBoard, lastRow, lastCol);
+        Canvas canvas = new Canvas(30, 30);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        canvas.setMouseTransparent(true);
+        canvas.setUserData(hit ? "impacto" : "fallo");
+        drawShot(gc, hit, false);
+        cell.getChildren().add(canvas);
+
+        if(hit) {
+            Ship ship = getShipAt(playerShips, lastRow, lastCol);
+            if(ship != null && ship.isSunk()) {
+                drawSunkShips(ship, playerBoard);
+                debugBoards();
+            }
+
+            saveGameState();
+            checkWinCondition();
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> triggerComputerMove());
+                }
+            }, 1000);
+        } else {
+            endComputerTurn();
+            debugBoards();
+        }
+
+        debugBoards();
     }
 
     private void endComputerTurn() {
         playerTurn = true;
-        checkWinCondition();
         saveGameState();
+        checkWinCondition();
     }
 
     private void endPlayerTurn(){
