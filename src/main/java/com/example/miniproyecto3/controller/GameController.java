@@ -551,6 +551,8 @@ public class GameController {
                 drawSunkShips(ship, enemyBoard);
                 debugBoards();
             }
+
+            debugBoards();
             saveGameState();
             checkWinCondition();
         } else {
@@ -558,7 +560,6 @@ public class GameController {
             debugBoards();
         }
 
-        debugBoards();
         planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
     }
 
@@ -591,6 +592,7 @@ public class GameController {
                 debugBoards();
             }
 
+            debugBoards();
             saveGameState();
             checkWinCondition();
 
@@ -604,8 +606,6 @@ public class GameController {
             endComputerTurn();
             debugBoards();
         }
-
-        debugBoards();
     }
 
     private void endComputerTurn() {
