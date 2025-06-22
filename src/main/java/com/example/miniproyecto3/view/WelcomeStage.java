@@ -1,6 +1,7 @@
 package com.example.miniproyecto3.view;
 
 import com.example.miniproyecto3.controller.WelcomeController;
+import com.example.miniproyecto3.exceptions.VisualException;  // Creo que la estamos embarrando aquí. Mañana lo corrijo, si puedo.
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,18 +14,25 @@ import java.util.Objects;
 public class WelcomeStage extends Stage {
     WelcomeController welController;
 
-    public WelcomeStage() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/home-view1.fxml"));
-        Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
-        welController = fxmlLoader.getController();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());
-        Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno-removebg-preview.png")).toExternalForm());
-        getIcons().add(icon);
-        setResizable(false);
-        setTitle("BattleShip");
-        setScene(scene);
-        show();
+    public WelcomeStage() throws VisualException {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/home-view1.fxml"));
+            Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
+            welController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());  // Podría colocarse alguna aquí.
+            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno-removebg-preview.png")).toExternalForm());
+            getIcons().add(icon);
+            setResizable(false);
+            setTitle("BattleShip");
+            setScene(scene);
+            show();
+        } catch (IOException e) {
+            throw new VisualException("Error al cargar el archivo 'home-view'.");  // Se aplica así para los bloques múltiples de catch, y porque se está "definiendo" la excepción.
+        } catch (NullPointerException ex) {
+            throw new VisualException("Error al cargar el archivo 'home-view'.");  // Mismo proceder aquí, JEJE.
+        }
+
     }
 
     private static class WelcomeStageHolder {
@@ -32,7 +40,7 @@ public class WelcomeStage extends Stage {
     }
 
 
-    public static WelcomeStage getInstance() throws IOException {
+    public static WelcomeStage getInstance() throws VisualException {
         WelcomeStage.WelcomeStageHolder.INSTANCE =
                 WelcomeStage.WelcomeStageHolder.INSTANCE != null ?
                         WelcomeStage.WelcomeStageHolder.INSTANCE : new WelcomeStage();
