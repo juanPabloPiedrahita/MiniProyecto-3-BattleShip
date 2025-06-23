@@ -226,7 +226,7 @@ public class GameController {
                         System.out.println("poniendo barco del jugador en la posicion " + finalRow + "," + finalCol);
                         placePlayerShip(finalRow, finalCol);
                     } else if (finishedPlacing && !isPlayer && e.getButton() == MouseButton.PRIMARY) {
-                        System.out.println("Disparando en la posicion " + finalRow + "," + finalCol);
+                        System.out.printf("Disparando en la posicion [%d%c], es decir (%d,%d)\n", finalRow + 1, (char)('A' + finalCol), finalRow,  finalCol);
                         try {
                             handlePlayerShot(finalRow, finalCol);
                         } catch (DoubleShootException ex) {
@@ -544,22 +544,22 @@ public class GameController {
         drawShot(gc, hit, false);
         cell.getChildren().add(canvas);
 
+        //debugBoards();
+
         if(hit) {
             Ship ship = getShipAt(enemyShips, row, col);
             if(ship != null && ship.isSunk()) {
                 System.out.println("Hundiste un barco.");
                 drawSunkShips(ship, enemyBoard);
-                debugBoards();
+                //debugBoards();
             }
 
-            debugBoards();
-            saveGameState();
             checkWinCondition();
         } else {
             endPlayerTurn();
-            debugBoards();
         }
-
+        debugBoards();
+        saveGameState();
         planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
     }
 
@@ -585,39 +585,40 @@ public class GameController {
         drawShot(gc, hit, false);
         cell.getChildren().add(canvas);
 
+        //debugBoards();
+
         if(hit) {
             Ship ship = getShipAt(playerShips, lastRow, lastCol);
             if(ship != null && ship.isSunk()) {
                 drawSunkShips(ship, playerBoard);
-                debugBoards();
+                //debugBoards();
             }
 
-            debugBoards();
-            saveGameState();
             checkWinCondition();
 
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Platform.runLater(() -> triggerComputerMove());
-                }
-            }, 1000);
+            if(!gameEnded) {
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Platform.runLater(() -> triggerComputerMove());
+                    }
+                }, 1000);
+            }
         } else {
             endComputerTurn();
-            debugBoards();
         }
+        debugBoards();
+        saveGameState();
     }
 
     private void endComputerTurn() {
         playerTurn = true;
-        saveGameState();
         checkWinCondition();
     }
 
     private void endPlayerTurn(){
         playerTurn = false;
         checkWinCondition();
-        saveGameState();
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {

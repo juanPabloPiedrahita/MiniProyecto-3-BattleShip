@@ -48,7 +48,7 @@ public class AI extends PlayerAdapter implements Serializable{
                 if(ship.occupies(row, col)) {
                     ship.registerHit(row, col);
                     if(ship.isSunk()) {
-                        opponentBoardModel.removeShip(ship, false);
+                        opponentBoardModel.removeShip(ship, true);
                         pendingTargets.clear();
                     } else {
                         addAdjacentTargets(row, col, opponentBoardModel);
@@ -96,7 +96,7 @@ public class AI extends PlayerAdapter implements Serializable{
                 if(ship.occupies(row, col)) {
                     ship.registerHit(row, col);
                     if(ship.isSunk()) {
-                        opponentBoardModel.removeShip(ship, false);
+                        opponentBoardModel.removeShip(ship, true);
                     }
                     break;
                 }
