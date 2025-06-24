@@ -817,7 +817,7 @@ public class GameController {
     }
 
     public void debugBoards() {
-        System.out.println("=== DEBUG: playerBoardModel     |        enemyBoardModel  ===");
+        System.out.println("=== DEBUG: playerBoardModel                    enemyBoardModel  ===");
 
         ArrayList<ArrayList<Boolean>> enemyGrid = enemyBoardModel.getEnemyBoard();
         ArrayList<ArrayList<Boolean>> playerGrid = playerBoardModel.getPlayerBoard();
@@ -828,12 +828,22 @@ public class GameController {
 
         int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
 
+        String spacing = "    ";
+        System.out.print(spacing);
+        for (int col = 0; col < size; col++) {
+            System.out.printf(" %c ", 'A' + col);
+        }
+        System.out.print("   "); // Separación entre los dos tableros
+        System.out.print(spacing);
+        for (int col = 0; col < size; col++) {
+            System.out.printf(" %c ", 'A' + col);
+        }
+        System.out.println();
+
         for (int row = 0; row < size; row++) {
             String playerRow = buildDebugRow(playerGrid, playerShots, sunkPlayer, row);
             String enemyRow = buildDebugRow(enemyGrid, enemyShots, sunkEnemy, row);
-
-            // Imprime la fila del tablero enemigo y del jugador lado a lado
-            System.out.println(playerRow + "     " + enemyRow);
+            System.out.printf("%2d  %s   %2d  %s%n", row + 1, playerRow, row + 1, enemyRow);
         }
     }
 
