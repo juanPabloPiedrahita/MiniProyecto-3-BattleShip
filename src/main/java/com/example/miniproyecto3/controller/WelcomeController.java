@@ -48,16 +48,22 @@ public class WelcomeController {
         borderPane.setBackground(new Background(fondo));*/
         planeTextFileHandler = new PlaneTextFileHandler();
 
+        File filePlayerData = new File("PlayerData.csv");
+        if(!filePlayerData.exists()){
+            planeTextFileHandler.write("PlayerData.csv", userTxt.getText().trim() + "," + 0);
+        }
         //player = new Player(userTxt.getText(),0);
     }
 
     @FXML
     public void onHandlePlayButtom(javafx.event.ActionEvent event) throws IOException {
+
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
-        if(!userTxt.getText().isEmpty()) {
-            if(Objects.equals(user, userTxt.getText())) {
+
+        if(!userTxt.getText().isEmpty()) { //Find if username field is empty
+            if(Objects.equals(user, userTxt.getText())) { //If username field equals to an already profile in the file, then we use the same file
                 player = new Player(user, score);
                 GameStage.getInstance();
                 onContinue = false;

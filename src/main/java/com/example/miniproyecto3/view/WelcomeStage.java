@@ -18,7 +18,7 @@ public class WelcomeStage extends Stage {
         Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
         welController = fxmlLoader.getController();
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/styles.css").toExternalForm());
         Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno-removebg-preview.png")).toExternalForm());
         getIcons().add(icon);
         setResizable(false);
