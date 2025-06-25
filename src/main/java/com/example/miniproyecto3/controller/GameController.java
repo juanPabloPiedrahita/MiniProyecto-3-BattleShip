@@ -233,7 +233,8 @@ public class GameController {
                             handlePlayerShot(finalRow, finalCol);
                         } catch (DoubleShootException ex) {
                             System.out.println(ex.getMessage() + " Intenta disparar en otra.");
-                            UIVisualHelper.showTemporaryLabel(errorLabel, ex.getMessage() + "\nIntenta en otra casilla.");
+                            String message = String.format("Ya disparaste en la casilla [%d%c].\nIntenta en otra.", finalRow + 1, (char)('A' + finalCol));
+                            UIVisualHelper.showTemporaryLabel(errorLabel, message);
                         }
                     }
                 });
