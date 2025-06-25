@@ -58,6 +58,8 @@ public class GameController {
     private ComboBox<String> difficultySelector;
     @FXML
     private Label configLabel;
+    @FXML
+    private Label errorLabel;
 
 
     //Objetos para llevar la logica interna del juego
@@ -231,6 +233,7 @@ public class GameController {
                             handlePlayerShot(finalRow, finalCol);
                         } catch (DoubleShootException ex) {
                             System.out.println(ex.getMessage() + " Intenta disparar en otra.");
+                            UIVisualHelper.showTemporaryLabel(errorLabel, ex.getMessage() + "\nIntenta en otra casilla.");
                         }
                     }
                 });
