@@ -81,7 +81,7 @@ public class WelcomeController {
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "Ingresa un usuario antes de continuar!");
             DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/game-style2.css").toExternalForm());
             dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
         }
@@ -108,7 +108,7 @@ public class WelcomeController {
         else{
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior, cree una partida nueva!");
             DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+            dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/game-style2.css").toExternalForm());
             dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
         }
@@ -139,7 +139,7 @@ public class WelcomeController {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setMinWidth(550);
         dialogPane.setMinHeight(350);
-        dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/CSS/game-style2.css").toExternalForm());
+        dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/game-style2.css").toExternalForm());
         dialogPane.getStyleClass().add("custom-alert");
 
         // Crear layout con estilo
