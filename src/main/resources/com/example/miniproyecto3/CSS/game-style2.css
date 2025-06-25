@@ -101,6 +101,16 @@
     -fx-font-size: 13px;
 }
 
+.combo-box:disabled {
+    -fx-opacity: 1.0;
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: white;
+}
+
+.combo-box:disabled .text {
+    -fx-fill: white;
+}
+
 .warning-label {
     -fx-background-color: #c0392b;
     -fx-text-fill: white;
