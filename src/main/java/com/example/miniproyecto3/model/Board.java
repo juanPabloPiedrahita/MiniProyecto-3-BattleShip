@@ -2,7 +2,6 @@ package com.example.miniproyecto3.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Board implements Serializable {
     private static final int SIZE = 10;
@@ -14,8 +13,6 @@ public class Board implements Serializable {
     private final ArrayList<ArrayList<Boolean>> sunkPlayerShips = createEmptyBoard();
     private final ArrayList<ArrayList<Boolean>> sunkEnemyShips = createEmptyBoard();
 
-    private final List<Ship> playerShips = new ArrayList<>();
-    private final List<Ship> enemyShips = new ArrayList<>();
 
     private ArrayList<ArrayList<Boolean>> createEmptyBoard() {
         ArrayList<ArrayList<Boolean>> board = new ArrayList<>();
@@ -30,36 +27,34 @@ public class Board implements Serializable {
     }
 
     public Ship placeShip(int row, int col, int size, boolean horizontal, boolean isPlayer) {
-        boolean canPlace = true;
+        if (size <= 0) {
+            throw new IllegalArgumentException("El tamaño del barco debe ser mayor que cero.");
+        }
+
+        if (row < 0 || col < 0 || row >= SIZE || col >= SIZE || (horizontal && col + size > SIZE) || (!horizontal && row + size > SIZE)) {
+            throw new IndexOutOfBoundsException("El barco se sale del tablero.");
+        }
 
         for (int i = 0; i < size; i++) {
             int r = row + (horizontal ? 0 : i);
             int c = col + (horizontal ? i : 0);
-            if (r >= SIZE || c >= SIZE || (isPlayer ? playerBoard.get(r).get(c) : enemyBoard.get(r).get(c))) {
-                canPlace = false;
-                break;
+            boolean occupied = isPlayer ? playerBoard.get(r).get(c) : enemyBoard.get(r).get(c);
+            if (occupied) {
+                throw new IllegalStateException("Ya existe un barco en la ubicación deseada.");
             }
         }
 
-        if (canPlace) {
-            for (int i = 0; i < size; i++) {
-                int r = row + (horizontal ? 0 : i);
-                int c = col + (horizontal ? i : 0);
-                if (isPlayer) {
-                    playerBoard.get(r).set(c, true);
-                } else {
-                    enemyBoard.get(r).set(c, true);
-                }
-            }
-            Ship ship = new Ship(size, row, col, horizontal);
+        for (int i = 0; i < size; i++) {
+            int r = row + (horizontal ? 0 : i);
+            int c = col + (horizontal ? i : 0);
             if (isPlayer) {
-                playerShips.add(ship);
+                playerBoard.get(r).set(c, true);
             } else {
-                enemyShips.add(ship);
+                enemyBoard.get(r).set(c, true);
             }
-            return ship;
         }
-        return null;
+
+        return new Ship(size, row, col, horizontal);
     }
 
     public void removeShip(Ship ship, boolean isPlayer) {
@@ -73,12 +68,6 @@ public class Board implements Serializable {
                 enemyBoard.get(row).set(col, false);
                 sunkEnemyShips.get(row).set(col, true);
             }
-        }
-
-        if (isPlayer) {
-            playerShips.remove(ship);
-        } else {
-            enemyShips.remove(ship);
         }
     }
 

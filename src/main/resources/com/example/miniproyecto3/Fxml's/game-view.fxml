@@ -11,7 +11,10 @@
                 <!-- VBox izquierda: Tablero del jugador -->
           <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
               <Label fx:id="label1" styleClass="enemy-turn-label" text="Tu tablero:" />
-              <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" maxHeight="300" maxWidth="300" prefHeight="300" prefWidth="300" styleClass="grid-pane" vgap="5" />
+              <StackPane prefHeight="300" prefWidth="300">
+                  <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" maxHeight="300" maxWidth="300" prefHeight="300" prefWidth="300" styleClass="grid-pane" vgap="5" />
+                  <Label fx:id="exceptLabel" mouseTransparent="true" alignment="CENTER" contentDisplay="CENTER" prefWidth="300" style="-fx-background-color: rgba(255,0,0,0.75); -fx-text-fill: white; -fx-padding: 6px; -fx-font-weight: bold;" text=" " textAlignment="CENTER" visible="false" />
+              </StackPane>
               <VBox alignment="CENTER">
                   <Region maxHeight="40.0" minHeight="40.0" />
               </VBox>
