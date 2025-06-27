@@ -39,7 +39,6 @@
                   </ComboBox>
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
-
                     <!-- Tablero enemigo (inicialmente oculto) -->
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
                   <Label styleClass="enemy-turn-label" text="Tablero enemigo:" />

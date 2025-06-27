@@ -666,6 +666,7 @@ public class GameController {
                 System.out.println("Advertencia: No se pudo eliminar GameState.ser después de ganar la partida.");
             }
             continueGame = false;
+            musicPlayer.stop();
 
         } else if (allPlayerSunk) {
             gameEnded = true;
@@ -679,6 +680,7 @@ public class GameController {
                 System.out.println("Advertencia: No se pudo eliminar GameState.ser después de perder.");
             }
             continueGame = false;
+            musicPlayer.stop();
         }
     }
 
@@ -696,8 +698,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
-            musicPlayer.play();
+            /*musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer.play();*/
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
 
