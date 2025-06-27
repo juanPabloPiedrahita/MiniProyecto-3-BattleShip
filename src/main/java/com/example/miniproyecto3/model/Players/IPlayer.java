@@ -1,9 +1,7 @@
 package com.example.miniproyecto3.model.Players;
 
-import com.example.miniproyecto3.controller.GameController;
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;
-import javafx.scene.layout.*;
 
 import java.util.List;
 
@@ -12,13 +10,14 @@ public interface IPlayer {
     //Esta doc la hice con JavaDoc solo para probar ;v
     /**
      * Ejecuta un disparo contra el oponente.
-     * @param ownBoard   El tablero de este jugador (para registrar impactos)
-     * @param opponentBoardModel  El modelo del tablero oponente
-     * @param opponentGrid  El GridPane donde se muestran los disparos en la UI
-     * @param onTurnEnd  Un runnable que se ejecuta al terminar el turno (por fallo)
+     *
+     * @param row Representa la fila a donde disparar.
+     * @param col Representa la columna a donde impactar.
+     * @param opponentBoardModel El modelo del tablero oponente
+     * @param opponentShips La lista de las embarcaciones del enemigo correspondiente.
      */
 
-    void makeMove(int row, int col, Board ownBoard, Board opponentBoardModel, GridPane opponentGrid, Runnable onTurnEnd, List<Ship> playerShips, GameController gameController);
+    boolean makeMove(int row, int col, Board opponentBoardModel, List<Ship> opponentShips);
 
     String getName();
 

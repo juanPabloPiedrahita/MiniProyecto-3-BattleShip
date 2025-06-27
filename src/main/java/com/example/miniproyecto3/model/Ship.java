@@ -3,7 +3,6 @@ package com.example.miniproyecto3.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Representa un barco en el juego de Batalla Naval.
@@ -11,11 +10,11 @@ import java.util.Objects;
  * una orientación (horizontal o vertical) y una lista de impactos.
  */
 public class Ship implements Serializable {
-    private int size;
-    private int startRow;
-    private int startCol;
-    private boolean horizontal;
-    private List<Boolean> hits; // Lista que guarda si cada parte del barco fue impactada
+    private final int size;
+    private final int startRow;
+    private final int startCol;
+    private final boolean horizontal;
+    private final List<Boolean> hits; // Lista que guarda si cada parte del barco fue impactada
 
     /**
      * Constructor del barco.

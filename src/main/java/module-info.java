@@ -12,4 +12,6 @@ module com.example.miniproyecto3 {
     opens com.example.miniproyecto3.model to javafx.fxml;
     exports com.example.miniproyecto3.model.Players;
     opens com.example.miniproyecto3.model.Players to javafx.fxml;
+    opens com.example.miniproyecto3.exceptions to javafx.fxml;
+    exports com.example.miniproyecto3.exceptions to javafx.fxml;
 }
