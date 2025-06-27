@@ -698,8 +698,6 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            /*musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
-            musicPlayer.play();*/
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
 
