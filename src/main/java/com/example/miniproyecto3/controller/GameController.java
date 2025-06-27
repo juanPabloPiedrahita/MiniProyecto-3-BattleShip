@@ -720,6 +720,9 @@ public class GameController {
                 4, 1   // 1 portaaviones de tamaño 4
         );
 
+        int lastSize = shipSizes.get(shipSizes.size() - 1);
+        int lastIndex = fleetCount.get(lastSize) - 1;
+
         for (int size : shipSizes) {
             int count = fleetCount.getOrDefault(size, 1);
             for (int i = 0; i < count; i++) {
@@ -737,13 +740,16 @@ public class GameController {
                             placed = true;
                         }
                     } catch (IllegalArgumentException | IndexOutOfBoundsException | IllegalStateException e) {
-                        System.out.println("Error de la máquina: " +  e.getMessage());
+                        System.out.println("Error de la máquina: " +  e.getMessage() + " Volviendo a ubicar el barco.");
                     } finally {
-                        debugBoards();
+                        if(placed && size == lastSize && i == lastIndex) {
+                            System.out.println("Todos los barcos de la IA fueron colocados correctamente.");
+                        }
                     }
                 }
             }
         }
+        debugBoards();
     }
 
 
