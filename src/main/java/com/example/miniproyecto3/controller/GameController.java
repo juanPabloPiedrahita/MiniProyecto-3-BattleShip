@@ -720,7 +720,7 @@ public class GameController {
                 4, 1   // 1 portaaviones de tamaño 4
         );
 
-        int lastSize = shipSizes.get(shipSizes.size() - 1);
+        int lastSize = shipSizes.getLast();
         int lastIndex = fleetCount.get(lastSize) - 1;
 
         for (int size : shipSizes) {
