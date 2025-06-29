@@ -667,6 +667,8 @@ public class GameController {
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
 
         } else if (allPlayerSunk) {
             gameEnded = true;
@@ -681,6 +683,8 @@ public class GameController {
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
         }
     }
 
