@@ -5,7 +5,7 @@ import java.io.*;
 
 public class PlaneTextFileHandler implements IPlaneTextFileHandler{
     @Override
-    public void write(String filename, String content) {
+    public void write(String filename, String content) throws IOException{
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(filename))){
             writer.write(content);
             writer.flush();

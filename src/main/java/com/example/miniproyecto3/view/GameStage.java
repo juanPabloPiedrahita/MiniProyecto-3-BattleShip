@@ -16,7 +16,7 @@ public class GameStage extends Stage {
 
     public GameStage() throws VisualException {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxml's/game-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxmls/game-view.fxml"));
             Parent root = loader.load();
             gameController = loader.getController();
             Scene scene = new Scene(root);
