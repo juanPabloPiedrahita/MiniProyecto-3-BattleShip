@@ -4,9 +4,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="455.0" prefWidth="800.0" stylesheets="@../CSS/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
+<AnchorPane prefHeight="455.0" prefWidth="800.0" stylesheets="@../css/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
-      <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../css/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       
                 <!-- VBox izquierda: Tablero del jugador -->
           <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
@@ -48,7 +48,7 @@
                   </StackPane>
               </VBox>
    
-             <VBox alignment="CENTER" stylesheets="@../CSS/styles.css">
+             <VBox alignment="CENTER" stylesheets="@../css/styles.css">
                  <Button fx:id="monitorButton" alignment="CENTER" managed="false" onAction="#toggleEnemyBoard" styleClass="button" text="Mostrar embarcaciones enemigas" visible="false" />
              </VBox>
 
