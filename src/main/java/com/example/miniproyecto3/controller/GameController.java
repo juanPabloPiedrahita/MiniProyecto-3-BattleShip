@@ -659,7 +659,7 @@ public class GameController {
             GameStage.deleteInstance();
             UIVisualHelper.showGameAlert("VICTORIA", "¡Ganaste! Has hundido todos los barcos enemigos.");
             playerTurn = false;
-            System.out.println("Eliminando la partida...");
+            System.out.println("Eliminando la partida...");  // Diferencia para labrat.
             File file = new File("GameState.ser");
             if(!file.delete()) {
                 System.out.println("Advertencia: No se pudo eliminar GameState.ser después de ganar la partida.");
