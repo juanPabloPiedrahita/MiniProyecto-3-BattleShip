@@ -694,6 +694,8 @@ public class GameController {
         //si ya colocaste todos tus barcos empieza la fase de batalla; indica que finishedplacing = true y llama a placeEnemyShips() para que la maquina coloque sus barcos
         if (shipSelectorContainer.getChildren().isEmpty()) {
             musicPlayer.stop();
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer.play();
             finishedPlacing = true;
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
