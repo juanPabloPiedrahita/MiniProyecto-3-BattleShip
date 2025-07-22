@@ -656,10 +656,9 @@ public class GameController {
 
         if (allEnemySunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
+            UIVisualHelper.showGameAlert("VICTORIA", "¡Ganaste! Has hundido todos los barcos enemigos.");
+            playerTurn = false;
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
             if(!file.delete()) {
@@ -672,10 +671,9 @@ public class GameController {
 
         } else if (allPlayerSunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
+            UIVisualHelper.showGameAlert("DERROTA", "¡Has perdido! La máquina ha hundido todos tus barcos.");
+            playerTurn = false;
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
             if(!file.delete()) {
