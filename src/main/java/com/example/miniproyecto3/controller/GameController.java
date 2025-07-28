@@ -23,6 +23,7 @@ import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.MusicPlayer;
 import com.example.miniproyecto3.model.Players.Player;
 import java.io.File;
+
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import com.example.miniproyecto3.model.Players.AI;
@@ -183,7 +184,7 @@ public class GameController {
     }
 
     //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
-    private void createBoard(GridPane board, boolean isPlayer) {
+    private void createBoard(GridPane board, boolean isPlayer) throws IOException{
         System.out.println("Creando " + isPlayer + " board (gridpane)");
         for (int i = 0; i <= 10; i++) {
             ColumnConstraints columnConstraints = new ColumnConstraints(30);
@@ -237,6 +238,9 @@ public class GameController {
                             System.out.println(ex.getMessage() + " Intenta disparar en otra.");
                             String message = String.format("Ya disparaste en la casilla [%d%c].\nIntenta en otra.", finalRow + 1, (char)('A' + finalCol));
                             UIVisualHelper.showTemporaryLabel(errorLabel, message);
+                        } catch (IOException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
                         }
                     }
                 });
@@ -542,7 +546,7 @@ public class GameController {
     }
 
     //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
-    private void handlePlayerShot(int row, int col) throws DoubleShootException {
+    private void handlePlayerShot(int row, int col) throws DoubleShootException, IOException{
         if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
         boolean hit = player.makeMove(row, col, enemyBoardModel, enemyShips);
 
@@ -702,6 +706,8 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer.play();
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
 
@@ -912,7 +918,7 @@ public class GameController {
     }
 
     //este metodo carga el juego desde el estado en el que se dejo cuando el jugador lo cerro
-    public void loadGameState() {
+    public void loadGameState() throws IOException {
         SerializableFileHandler handler = new SerializableFileHandler();
         GameState state = (GameState) handler.deserialize("GameState.ser");
         if (state != null) {
@@ -958,7 +964,7 @@ public class GameController {
         }
     }
 
-    private void redrawBoards() {
+    private void redrawBoards() throws IOException {
         // Limpia los tableros visuales
         createBoard(playerBoard, true);
         createBoard(enemyBoard, false);
