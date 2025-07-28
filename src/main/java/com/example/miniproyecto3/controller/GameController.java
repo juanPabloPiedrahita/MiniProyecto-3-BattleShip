@@ -130,9 +130,9 @@ public class GameController {
                 explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion08.png");
                 shipImages = new HashMap<>();
                 shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba8.png"));
-                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba.png"));
+                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba14.png"));
                 shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba4.png"));
-                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba2.png"));
+                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba10.png"));
                 if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
                     System.out.println("Nuevo juego...");
                     System.out.println("Creando playerboard");
