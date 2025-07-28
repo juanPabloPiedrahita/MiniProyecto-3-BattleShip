@@ -22,7 +22,7 @@ public class GameStage extends Stage {
             Scene scene = new Scene(root);
             setTitle("Batalla Naval");
             setScene(scene);
-            setOnCloseRequest(event -> {
+            setOnCloseRequest(_ -> {
                 deleteInstance();
                 Platform.exit();
                 System.exit(0);
