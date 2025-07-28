@@ -14,7 +14,6 @@ public class Main extends Application {
         } catch (VisualException ex) {
             System.out.println("Error al cargar el archivo 'home-view'." + ex.getMessage());
         }
-
     }
     public static void main(String[] args) {
         launch(args);

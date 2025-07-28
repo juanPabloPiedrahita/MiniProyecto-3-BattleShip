@@ -63,6 +63,8 @@ public class GameController {
     private Label errorLabel;
     @FXML
     private Label exceptLabel;
+    @FXML
+    private Label labelScore;
 
 
     //Objetos para llevar la logica interna del juego
@@ -116,6 +118,7 @@ public class GameController {
     @FXML
     public void initialize() {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
         try {
+                labelScore.setVisible(false);
                 enemyBoard.getStyleClass().add("grid-pane");
                 playerBoard.getStyleClass().add("grid-pane");
                 label1.getStyleClass().add("enemy-turn-label");
@@ -164,6 +167,8 @@ public class GameController {
                     enemyBoardContainer.setManaged(true);
                     monitorButton.setVisible(true);
                     monitorButton.setManaged(true);
+                    labelScore.setVisible(true);
+                    labelScore.setText("Tu puntaje :" + Integer.toString(player.getPlayerScore()));
                 }
 
         } catch (IOException e) {
@@ -566,6 +571,7 @@ public class GameController {
             if(ship != null && ship.isSunk()) {
                 System.out.println("Hundiste un barco.");
                 drawSunkShips(ship, enemyBoard);
+                labelScore.setText("Tu puntaje: " + Integer.toString(player.getPlayerScore()));
                 //debugBoards();
             }
 
@@ -710,6 +716,9 @@ public class GameController {
             musicPlayer.play();
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
+            labelScore.setVisible(true);
+            System.out.println("Debugg para score: " + Integer.toString(player.getPlayerScore()));
+            labelScore.setText("Tu puntaje: " + Integer.toString(player.getPlayerScore()));
 
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {
