@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
-<AnchorPane prefHeight="400.0" prefWidth="800.0" stylesheets="@../CSS/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
+<AnchorPane prefHeight="455.0" prefWidth="800.0" stylesheets="@../css/game-style2.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
-      <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../CSS/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../css/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       
                 <!-- VBox izquierda: Tablero del jugador -->
           <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
               <Label fx:id="label1" styleClass="enemy-turn-label" text="Tu tablero:" />
               <GridPane fx:id="playerBoard" alignment="CENTER" hgap="5" maxHeight="300" maxWidth="300" prefHeight="300" prefWidth="300" styleClass="grid-pane" vgap="5" />
               <VBox alignment="CENTER">
-                  <Region minHeight="40.0" maxHeight="40.0" />
+                  <Region maxHeight="40.0" minHeight="40.0" />
               </VBox>
           </VBox>
 
@@ -27,12 +27,11 @@
                         <VBox fx:id="shipSelectorContainer" alignment="CENTER" spacing="10">
 
                         </VBox>
-
                         <ToggleButton fx:id="orientationToggle" styleClass="button" text="Vertical" />
-                  <Label fx:id="difficultyLabel" text="Selecciona la dificultad del oponente:" visible="false" managed="false" styleClass="enemy-turn-label" />
-                  <ComboBox fx:id="difficultySelector" visible="false" managed="false" styleClass="combo-box">
+                  <Label fx:id="difficultyLabel" managed="false" styleClass="enemy-turn-label" text="Selecciona la dificultad del oponente:" visible="false" />
+                  <ComboBox fx:id="difficultySelector" managed="false" styleClass="combo-box" visible="false">
                       <VBox.margin>
-                          <Insets top="10" bottom="40" />
+                          <Insets bottom="40" top="10" />
                       </VBox.margin>
                   </ComboBox>
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
@@ -40,11 +39,14 @@
                     <!-- Tablero enemigo (inicialmente oculto) -->
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
                   <Label styleClass="enemy-turn-label" text="Tablero enemigo:" />
-                  <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
+                  <StackPane prefHeight="300" prefWidth="300">
+                      <GridPane fx:id="enemyBoard" alignment="CENTER" hgap="1" vgap="1" />
+                      <Label fx:id="errorLabel" alignment="CENTER" contentDisplay="CENTER" prefWidth="300" style="-fx-background-color: rgba(255,0,0,0.75); -fx-text-fill: white; -fx-padding: 6px; -fx-font-weight: bold;" text=" " textAlignment="CENTER" visible="false" />
+                  </StackPane>
               </VBox>
    
-             <VBox alignment="CENTER" stylesheets="@../CSS/styles.css" >
-                 <Button fx:id="monitorButton" alignment="CENTER" managed="false" onAction="#toggleEnemyBoard" text="Mostrar embarcaciones enemigas" visible="false" styleClass="button" />
+             <VBox alignment="CENTER" stylesheets="@../css/styles.css">
+                 <Button fx:id="monitorButton" alignment="CENTER" managed="false" onAction="#toggleEnemyBoard" styleClass="button" text="Mostrar embarcaciones enemigas" visible="false" />
              </VBox>
 
           </VBox>
