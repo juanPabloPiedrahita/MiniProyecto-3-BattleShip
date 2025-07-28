@@ -22,7 +22,7 @@
             <children>
                 <ImageView fitHeight="220.0" fitWidth="280.0" preserveRatio="true" styleClass="image-view">
                     <image>
-                        <Image url="@../Image/Logo1-removebg-preview.png" />
+                        <Image url="@../Image/logodef.png" />
                     </image>
                 </ImageView>
                 <TextField fx:id="userTxt" promptText="Type your username" styleClass="text-field" />

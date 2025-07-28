@@ -3,6 +3,7 @@ package com.example.miniproyecto3.controller;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
 
@@ -24,5 +25,12 @@ public class UIVisualHelper {
 
         SequentialTransition sequence = new SequentialTransition(fadeIn, pause, fadeOut);
         sequence.play();
+    }
+
+    public static void showGameAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 }

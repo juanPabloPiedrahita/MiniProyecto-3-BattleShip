@@ -21,7 +21,7 @@ public class WelcomeStage extends Stage {
             welController = fxmlLoader.getController();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/styles.css").toExternalForm());  // Podría colocarse alguna aquí.
-            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno-removebg-preview.png")).toExternalForm());
+            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
             getIcons().add(icon);
             setResizable(false);
             setTitle("BattleShip");

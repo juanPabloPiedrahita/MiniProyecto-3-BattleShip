@@ -60,6 +60,8 @@ public class GameController {
     private Label configLabel;
     @FXML
     private Label errorLabel;
+    @FXML
+    private Label exceptLabel;
 
 
     //Objetos para llevar la logica interna del juego
@@ -128,9 +130,9 @@ public class GameController {
                 explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion08.png");
                 shipImages = new HashMap<>();
                 shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba8.png"));
-                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba.png"));
+                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba14.png"));
                 shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba4.png"));
-                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba2.png"));
+                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba10.png"));
                 if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
                     System.out.println("Nuevo juego...");
                     System.out.println("Creando playerboard");
@@ -430,59 +432,64 @@ public class GameController {
 
         boolean horizontal = !orientationToggle.isSelected();
 
-        Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
-        if (ship != null) {
-            playerShips.add(ship);
+        try {
+            Ship ship = playerBoardModel.placeShip(row, col, size, horizontal, true);
+            if (ship != null) {
+                playerShips.add(ship);
 
-            drawShip(playerBoard, ship, true);
+                drawShip(playerBoard, ship, true);
 
-            // Actualizar contador
-            placedShipsCount.put(size, placed + 1);
+                // Actualizar contador
+                placedShipsCount.put(size, placed + 1);
 
-            // Eliminar el HBox correspondiente (igual que la figura sola).
-            HBox shipRow = shipRowMap.get(size);
-            if (shipRow != null) {
-                shipRow.getChildren().remove(selectedShipCanvas);
-                if (shipRow.getChildren().isEmpty()) {
-                    shipSelectorContainer.getChildren().remove(shipRow);
-                    shipRowMap.remove(size);
+                // Eliminar el HBox correspondiente (igual que la figura sola).
+                HBox shipRow = shipRowMap.get(size);
+                if (shipRow != null) {
+                    shipRow.getChildren().remove(selectedShipCanvas);
+                    if (shipRow.getChildren().isEmpty()) {
+                        shipSelectorContainer.getChildren().remove(shipRow);
+                        shipRowMap.remove(size);
+                    }
                 }
+
+                selectedShipCanvas = null;
+                selectedShipSize = 0;
+
+                // Si no quedan más barcos por colocar, desactivar controles
+                boolean hasRemainingShips = shipSelectorContainer.getChildren().stream()
+                        .anyMatch(node -> node instanceof HBox && !((HBox) node).getChildren().isEmpty());
+
+                if (!hasRemainingShips) {
+                    configLabel.setVisible(false);
+                    orientationToggle.setDisable(true);
+                    orientationToggle.setVisible(false);
+                    orientationToggle.setManaged(false);
+                    monitorButton.setDisable(false);
+                    difficultyLabel.setVisible(true);
+                    difficultyLabel.setManaged(true);
+                    difficultySelector.setVisible(true);
+                    difficultySelector.setManaged(true);
+
+                    difficultySelector.getItems().addAll("Fácil", "Normal");
+                    difficultySelector.setOnAction(_ -> {
+                        String difficulty = difficultySelector.getValue();
+                        difficultySelector.setDisable(true);
+                        selectedDifficulty = difficulty;
+                        enemy.setDificulty(selectedDifficulty);
+                        System.out.println("Dificultad seleccionada: " + selectedDifficulty);
+                        difficultyLabel.setVisible(false);
+                        difficultyLabel.setManaged(false);
+
+                    });
+                }
+            } else {
+                System.out.println("No se pudo colocar el barco en esa posición.");
             }
-
-            selectedShipCanvas = null;
-            selectedShipSize = 0;
-
+        } catch (IllegalArgumentException | IndexOutOfBoundsException | IllegalStateException e ) {
+            System.out.println("Error: " + e.getMessage());
+            UIVisualHelper.showTemporaryLabel(exceptLabel, "¡Cuidado!\n" + e.getMessage());
+        } finally {
             saveGameState();
-
-            // Si no quedan más barcos por colocar, desactivar controles
-            boolean hasRemainingShips = shipSelectorContainer.getChildren().stream()
-                    .anyMatch(node -> node instanceof HBox && !((HBox) node).getChildren().isEmpty());
-
-            if (!hasRemainingShips) {
-                configLabel.setVisible(false);
-                orientationToggle.setDisable(true);
-                orientationToggle.setVisible(false);
-                orientationToggle.setManaged(false);
-                monitorButton.setDisable(false);
-                difficultyLabel.setVisible(true);
-                difficultyLabel.setManaged(true);
-                difficultySelector.setVisible(true);
-                difficultySelector.setManaged(true);
-
-                difficultySelector.getItems().addAll("Fácil", "Normal");
-                difficultySelector.setOnAction(_ -> {
-                    String difficulty = difficultySelector.getValue();
-                    difficultySelector.setDisable(true);
-                    selectedDifficulty = difficulty;
-                    enemy.setDificulty(selectedDifficulty);
-                    System.out.println("Dificultad seleccionada: " + selectedDifficulty);
-                    difficultyLabel.setVisible(false);
-                    difficultyLabel.setManaged(false);
-
-                });
-            }
-        } else {
-            System.out.println("No se pudo colocar el barco en esa posición.");
         }
     }
 
@@ -649,24 +656,24 @@ public class GameController {
 
         if (allEnemySunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
-            System.out.println("Eliminando la partida...");
+            UIVisualHelper.showGameAlert("VICTORIA", "¡Ganaste! Has hundido todos los barcos enemigos.");
+            playerTurn = false;
+            System.out.println("Eliminando la partida...");  // Diferencia para labrat.
             File file = new File("GameState.ser");
             if(!file.delete()) {
                 System.out.println("Advertencia: No se pudo eliminar GameState.ser después de ganar la partida.");
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
 
         } else if (allPlayerSunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
+            UIVisualHelper.showGameAlert("DERROTA", "¡Has perdido! La máquina ha hundido todos tus barcos.");
+            playerTurn = false;
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
             if(!file.delete()) {
@@ -674,6 +681,8 @@ public class GameController {
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
         }
     }
 
@@ -683,6 +692,8 @@ public class GameController {
         //si ya colocaste todos tus barcos empieza la fase de batalla; indica que finishedplacing = true y llama a placeEnemyShips() para que la maquina coloque sus barcos
         if (shipSelectorContainer.getChildren().isEmpty()) {
             musicPlayer.stop();
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer.play();
             finishedPlacing = true;
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
@@ -691,8 +702,6 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            /*musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
-            musicPlayer.play();*/
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
 
@@ -715,6 +724,9 @@ public class GameController {
                 4, 1   // 1 portaaviones de tamaño 4
         );
 
+        int lastSize = shipSizes.getLast();
+        int lastIndex = fleetCount.get(lastSize) - 1;
+
         for (int size : shipSizes) {
             int count = fleetCount.getOrDefault(size, 1);
             for (int i = 0; i < count; i++) {
@@ -723,11 +735,20 @@ public class GameController {
                     int row = rand.nextInt(10);
                     int col = rand.nextInt(10);
                     boolean horizontal = rand.nextBoolean();
-                    Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
-                    if (ship != null) {
-                        enemyShips.add(ship);
-                        drawShip(enemyBoard, ship, false);
-                        placed = true;
+
+                    try {
+                        Ship ship = enemyBoardModel.placeShip(row, col, size, horizontal, false);
+                        if (ship != null) {
+                            enemyShips.add(ship);
+                            drawShip(enemyBoard, ship, false);
+                            placed = true;
+                        }
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException | IllegalStateException e) {
+                        System.out.println("Error de la máquina: " +  e.getMessage() + " Volviendo a ubicar el barco.");
+                    } finally {
+                        if(placed && size == lastSize && i == lastIndex) {
+                            System.out.println("Todos los barcos de la IA fueron colocados correctamente.");
+                        }
                     }
                 }
             }
