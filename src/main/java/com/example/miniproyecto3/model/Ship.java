@@ -58,7 +58,7 @@ public class Ship implements Serializable {
             int r = startRow + (horizontal ? 0 : i);
             int c = startCol + (horizontal ? i : 0);
             if (r == row && c == col) {
-                hits.set(i, true); // Marca esa parte como impactada
+                hits.set(i, true);
                 break;
             }
         }

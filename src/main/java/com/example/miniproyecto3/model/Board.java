@@ -40,7 +40,7 @@ public class Board implements Serializable {
             int c = col + (horizontal ? i : 0);
             boolean occupied = isPlayer ? playerBoard.get(r).get(c) : enemyBoard.get(r).get(c);
             if (occupied) {
-                throw new IllegalStateException("Ya existe un barco en la ubicación deseada.");
+                throw new IllegalStateException("Ya existe un barco en la ubicación seleccionada.");
             }
         }
 
