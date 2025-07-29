@@ -12,14 +12,14 @@ public class AI extends PlayerAdapter implements Serializable{
     private final Random rand = new Random();
     private int score;
     private String name;
-    private String dificulty;
+    private String difficulty;
     private int lastShotRow;
     private int lastShotCol;
 
-    public AI(int score,String name,String dificulty) {
+    public AI(int score,String name,String difficulty) {
         this.score = score;
         this.name = name;
-        this.dificulty = dificulty;
+        this.difficulty = difficulty;
     }
 
     @Override
@@ -118,27 +118,11 @@ public class AI extends PlayerAdapter implements Serializable{
         return name;
     }
 
-    @Override
-    public int getScore() {
-        return score;
+    public int getDifficulty(){
+        return(difficulty.equals("Fácil") ? 1 : 2);
     }
 
-    @Override
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    @Override
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public int getDificulty(){
-        return(dificulty.equals("Fácil") ? 1 : 2);
-    }
-
-    public void setDificulty(String dificulty){
-        this.dificulty = dificulty;
+    public void setDifficulty(String difficulty){
+        this.difficulty = difficulty;
     }
 }

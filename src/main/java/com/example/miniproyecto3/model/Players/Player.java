@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Player extends PlayerAdapter implements Serializable {
-    private String playerName;
+    private final String playerName;
     private int playerScore;
 
     public Player(String playerName, int playerScore) {
@@ -22,14 +22,6 @@ public class Player extends PlayerAdapter implements Serializable {
 
     public int getPlayerScore() {
         return playerScore;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public void setPlayerScore(int playerScore) {
-        this.playerScore = playerScore;
     }
 
     @Override

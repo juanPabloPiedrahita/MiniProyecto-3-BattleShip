@@ -1,6 +1,5 @@
 package com.example.miniproyecto3.model.planeTextFiles;
 
-import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import java.io.*;
 
 public class PlaneTextFileHandler implements IPlaneTextFileHandler{

@@ -15,8 +15,6 @@ public class WelcomeStage extends Stage {
     WelcomeController welController;
     public WelcomeStage() throws VisualException {
         try {
-            /*FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/src/main/resources/com/example/miniproyecto3/Fxml's/home-view1.fxml"));
-            */
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxmls/home-view1.fxml"));
 
             Parent root = fxmlLoader.load(); //crea una instancia de gameController y llama a initialize()
@@ -26,7 +24,7 @@ public class WelcomeStage extends Stage {
             Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
             getIcons().add(icon);
             setResizable(false);
-            setTitle("BattleShip");
+            setTitle("Miniproyecto 3 - Batalla Naval");
             setScene(scene);
             show();
         } catch (IOException e) {

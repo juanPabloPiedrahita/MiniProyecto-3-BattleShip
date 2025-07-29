@@ -16,18 +16,4 @@ public abstract class PlayerAdapter implements IPlayer{
         return "";
     }
 
-    @Override
-    public int getScore() {
-        return 0;
-    }
-
-    @Override
-    public void setScore(int score) {
-
-    }
-
-    @Override
-    public void setName(String name) {
-
-    }
 }

@@ -1,7 +1,6 @@
 package com.example.miniproyecto3.model.serializable;
 
 import java.io.*;
-import com.example.miniproyecto3.model.serializable.ISerializableFileHandler;
 
 public class SerializableFileHandler implements ISerializableFileHandler{
     @Override
@@ -16,7 +15,7 @@ public class SerializableFileHandler implements ISerializableFileHandler{
     @Override
     public Object deserialize(String filename) {
         try(ObjectInputStream inp = new ObjectInputStream(new FileInputStream(filename))){
-            return (Object) inp.readObject();
+            return inp.readObject();
         }catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }

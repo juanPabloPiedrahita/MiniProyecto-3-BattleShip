@@ -168,7 +168,7 @@ public class GameController {
                     monitorButton.setVisible(true);
                     monitorButton.setManaged(true);
                     labelScore.setVisible(true);
-                    labelScore.setText("Tu puntaje :" + Integer.toString(player.getPlayerScore()));
+                    labelScore.setText("Tu puntaje :" + player.getPlayerScore());
                 }
 
         } catch (IOException e) {
@@ -484,7 +484,7 @@ public class GameController {
                         String difficulty = difficultySelector.getValue();
                         difficultySelector.setDisable(true);
                         selectedDifficulty = difficulty;
-                        enemy.setDificulty(selectedDifficulty);
+                        enemy.setDifficulty(selectedDifficulty);
                         System.out.println("Dificultad seleccionada: " + selectedDifficulty);
                         difficultyLabel.setVisible(false);
                         difficultyLabel.setManaged(false);
@@ -571,7 +571,7 @@ public class GameController {
             if(ship != null && ship.isSunk()) {
                 System.out.println("Hundiste un barco.");
                 drawSunkShips(ship, enemyBoard);
-                labelScore.setText("Tu puntaje: " + Integer.toString(player.getPlayerScore()));
+                labelScore.setText("Tu puntaje: " + player.getPlayerScore());
                 //debugBoards();
             }
 
@@ -589,7 +589,7 @@ public class GameController {
         playerTurn = false;
         boolean hit;
 
-        if (enemy.getDificulty() == 1) {
+        if (enemy.getDifficulty() == 1) {
             hit = enemy.makeRandomMove(playerBoardModel, playerShips);
         } else {
             hit = enemy.makeMove(0, 0, playerBoardModel, playerShips);
@@ -717,8 +717,8 @@ public class GameController {
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
             labelScore.setVisible(true);
-            System.out.println("Debugg para score: " + Integer.toString(player.getPlayerScore()));
-            labelScore.setText("Tu puntaje: " + Integer.toString(player.getPlayerScore()));
+            System.out.println("Debugg para score: " + player.getPlayerScore());
+            labelScore.setText("Tu puntaje: " + player.getPlayerScore());
 
             //si aun no se colocan todos los barcos muestra una advertancia
         } else {

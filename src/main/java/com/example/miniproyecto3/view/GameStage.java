@@ -6,9 +6,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class GameStage extends Stage {
 
@@ -20,7 +22,10 @@ public class GameStage extends Stage {
             Parent root = loader.load();
             gameController = loader.getController();
             Scene scene = new Scene(root);
-            setTitle("Batalla Naval");
+            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
+            getIcons().add(icon);
+            setResizable(false);
+            setTitle("Miniproyecto 3 - Batalla Naval");
             setScene(scene);
             setOnCloseRequest(_ -> {
                 deleteInstance();

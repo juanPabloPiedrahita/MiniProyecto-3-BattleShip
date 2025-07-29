@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface IPlayer {
 
-    //Esta doc la hice con JavaDoc solo para probar ;v
     /**
      * Ejecuta un disparo contra el oponente.
      *
@@ -20,10 +19,4 @@ public interface IPlayer {
     boolean makeMove(int row, int col, Board opponentBoardModel, List<Ship> opponentShips);
 
     String getName();
-
-    int getScore();
-
-    void setScore(int score);
-
-    void setName(String name);
 }

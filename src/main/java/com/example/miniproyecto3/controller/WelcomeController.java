@@ -1,11 +1,7 @@
 package com.example.miniproyecto3.controller;
 
-//import java.io.IO;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import com.example.miniproyecto3.model.Players.Player;
@@ -25,8 +21,6 @@ import javafx.scene.text.TextAlignment;
 public class WelcomeController {
 
     @FXML
-    private BorderPane borderPane;
-    @FXML
     private TextField userTxt;
 
     private PlaneTextFileHandler planeTextFileHandler;
@@ -41,16 +35,6 @@ public class WelcomeController {
     public void initialize(){
         musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/MenuMainTheme.mp3");
         musicPlayer.play();
-        /*BackgroundImage fondo = new BackgroundImage(
-                backgroundImage,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                new BackgroundSize(
-                        100, 100, true, true, true, false
-                )
-        );
-        borderPane.setBackground(new Background(fondo));*/
         planeTextFileHandler = new PlaneTextFileHandler();
 
         try{
@@ -61,12 +45,10 @@ public class WelcomeController {
         }catch(IOException e){
             e.printStackTrace();
         }
-
-        //player = new Player(userTxt.getText(),0);
     }
 
     @FXML
-    public void onHandlePlayButtom(ActionEvent event) throws VisualException, IOException {
+    public void onHandlePlayButton(ActionEvent event) throws VisualException, IOException {
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
@@ -81,7 +63,6 @@ public class WelcomeController {
                 else {
                     player = new Player(userTxt.getText().trim(), 0);
                     planeTextFileHandler.write("PlayerData.csv", userTxt.getText() + "," + 0);
-                    //WelcomeStage.deleteInstance();
                     GameStage.getInstance();
                     onContinue = false;
                     musicPlayer.stop();
@@ -101,14 +82,13 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandleContinueButtom(ActionEvent event) {
+    public void onHandleContinueButton(ActionEvent event) {
         File file = new File("GameState.ser");
         String data[] = planeTextFileHandler.read("PlayerData.csv");
         String user = data[0];
         int score = Integer.parseInt(data[1]);
         if(file.exists()) {
             try {
-                //WelcomeStage.deleteInstance();
                 player = new Player(user,score);
                 onContinue = true;
                 GameStage.getInstance();
@@ -128,7 +108,7 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandleQuitButtom(ActionEvent event) {
+    public void onHandleQuitButton(ActionEvent event) {
 
         WelcomeStage.deleteInstance();
     }
@@ -142,19 +122,17 @@ public class WelcomeController {
     }
 
     @FXML
-    public void onHandleCreditsButtom() {
+    public void onHandleCreditsButton() {
         Alert alert = new Alert(Alert.AlertType.NONE);
         alert.setTitle("Créditos del juego");
         alert.setHeaderText(null);
 
-        // Personalizar tamaño y fondo
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setMinWidth(550);
         dialogPane.setMinHeight(350);
         dialogPane.getStylesheets().add(getClass().getResource("/com/example/miniproyecto3/css/game-style2.css").toExternalForm());
         dialogPane.getStyleClass().add("custom-alert");
 
-        // Crear layout con estilo
         VBox content = new VBox(10);
         content.setAlignment(Pos.CENTER);
         content.setStyle("-fx-background-color: transparent; -fx-padding: 20;");
@@ -178,7 +156,6 @@ public class WelcomeController {
         content.getChildren().addAll(title, authors, thanks);
         dialogPane.setContent(content);
 
-        // Botón de cerrar
         ButtonType closeButton = new ButtonType("Cerrar", ButtonBar.ButtonData.OK_DONE);
         alert.getButtonTypes().setAll(closeButton);
 

@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.Region?>
 <AnchorPane prefHeight="455.0" prefWidth="800.0" stylesheets="@../css/game-style2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
       <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../css/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -24,6 +25,7 @@
               </StackPane>
               <VBox alignment="CENTER">
                <Label text="Tu puntaje: " fx:id="labelScore" styleClass="enemy-turn-label" />
+                  <Region maxHeight="05.0" minHeight="05.0" />
               </VBox>
           </VBox>
 

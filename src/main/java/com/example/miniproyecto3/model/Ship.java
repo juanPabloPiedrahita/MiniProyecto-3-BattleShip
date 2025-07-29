@@ -14,7 +14,7 @@ public class Ship implements Serializable {
     private final int startRow;
     private final int startCol;
     private final boolean horizontal;
-    private final List<Boolean> hits; // Lista que guarda si cada parte del barco fue impactada
+    private final List<Boolean> hits;
 
     /**
      * Constructor del barco.
@@ -31,7 +31,7 @@ public class Ship implements Serializable {
         this.horizontal = horizontal;
         this.hits = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            hits.add(false); // Inicialmente, ninguna parte del barco ha sido impactada
+            hits.add(false);
         }
     }
 
@@ -96,8 +96,6 @@ public class Ship implements Serializable {
         }
         return false;
     }
-
-    // Getters públicos para acceder a los atributos del barco
 
     public int getSize() {
         return size;
