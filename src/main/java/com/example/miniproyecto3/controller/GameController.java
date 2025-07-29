@@ -126,6 +126,7 @@ public class GameController {
                 musicPlayer.play();
                 planeTextFileHandler = new PlaneTextFileHandler();
                 player = WelcomeStage.getInstance().getWelController().getPlayer();
+                label1.setText("Tu tablero, " + player.getPlayerName() + ":");
                 System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
                 continueGame = WelcomeStage.getInstance().getWelController().getContinue();
                 WelcomeStage.deleteInstance();

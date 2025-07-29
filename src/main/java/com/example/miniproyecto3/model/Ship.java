@@ -5,24 +5,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa un barco en el juego de Batalla Naval.
- * Cada barco tiene un tamaño, una posición inicial (fila y columna),
- * una orientación (horizontal o vertical) y una lista de impactos.
+ * This class represents a ship in the game.
+
+ * A ship has a size, a starting position (row and column) and an orientation (horizontal and vertical).
+
+ * @author David Taborda Montenegro.
+
+ * @version 3.0
+
+ * @since version 1.0
  */
 public class Ship implements Serializable {
+    /**
+     * The number of cells the ship occupies on the board.
+     */
     private final int size;
+
+    /**
+     * The starting row of the ship on the board.
+     */
     private final int startRow;
+
+    /**
+     * The starting column of the ship on the board.
+     */
     private final int startCol;
+
+    /**
+     * Indicates whether the ship is placed horizontally or vertically.
+     */
     private final boolean horizontal;
+
+    /**
+     * List of booleans representing hits on each segment of the ship.
+     */
     private final List<Boolean> hits;
 
     /**
-     * Constructor del barco.
-     *
-     * @param size       Tamaño del barco (número de casillas que ocupa)
-     * @param startRow   Fila inicial donde comienza el barco
-     * @param startCol   Columna inicial donde comienza el barco
-     * @param horizontal true si el barco está en orientación horizontal
+     * Constructs a new Ship instance.
+     * @param size The number of cells the ship occupies.
+     * @param startRow Starting row of the ship on the board.
+     * @param startCol Starting column of the ship on the board.
+     * @param horizontal True if the ship is horizontal, false if vertical.
      */
     public Ship(int size, int startRow, int startCol, boolean horizontal) {
         this.size = size;
@@ -36,9 +60,8 @@ public class Ship implements Serializable {
     }
 
     /**
-     * Verifica si el barco ha sido hundido (todas sus partes han sido impactadas).
-     *
-     * @return true si todas las posiciones fueron impactadas
+     * Checks whether the ship is completely sunk.
+     * @return True if all segments have been hit.
      */
     public boolean isSunk() {
         for (boolean hit : hits) {
@@ -48,10 +71,9 @@ public class Ship implements Serializable {
     }
 
     /**
-     * Registra un impacto en el barco si la coordenada coincide con alguna parte del barco.
-     *
-     * @param row Fila del impacto
-     * @param col Columna del impacto
+     * Registers a hit on the ship if the given coordinates match a segment.
+     * @param row Row of the impact.
+     * @param col Column of the impact.
      */
     public void registerHit(int row, int col) {
         for (int i = 0; i < size; i++) {
@@ -65,9 +87,8 @@ public class Ship implements Serializable {
     }
 
     /**
-     * Devuelve una lista de coordenadas que ocupa el barco en el tablero.
-     *
-     * @return Lista de objetos Coordinate con las posiciones ocupadas
+     * Returns a list of coordinates occupied by the ship on the board.
+     * @return List of {@link Coordinate} objects, representing the ship's position.
      */
     public List<Coordinate> getCoordinates() {
         List<Coordinate> coordinates = new ArrayList<>();
@@ -80,11 +101,10 @@ public class Ship implements Serializable {
     }
 
     /**
-     * Verifica si el barco ocupa una coordenada específica.
-     *
-     * @param row Fila a verificar
-     * @param col Columna a verificar
-     * @return true si el barco ocupa esa coordenada
+     * Checks whether the ship occupies a specific coordinate.
+     * @param row Row to check.
+     * @param col Column to check.
+     * @return True if the ship occupies the given coordinate.
      */
     public boolean occupies(int row, int col) {
         for (int i = 0; i < size; i++) {
@@ -97,29 +117,61 @@ public class Ship implements Serializable {
         return false;
     }
 
+    /**
+     * To get the size of the ship.
+     * @return The size of the ship.
+     */
     public int getSize() {
         return size;
     }
 
+    /**
+     * To get the orientation of the ship.
+     * @return True if the ship is placed horizontally, false if is placed vertically.
+     */
     public boolean isHorizontal() {
         return horizontal;
     }
 
     /**
-     * Clase interna que representa una coordenada en el tablero.
-     * Es estática porque no necesita acceder a los atributos de la clase externa Ship.
+     * Inner static class that represents a coordinate on the board.
+     * Used for storing the ship's occupied positions.
      */
     public static class Coordinate implements Serializable {
+        /**
+         * Row index of the coordinate.
+         */
         private final int row;
+
+        /**
+         * Column index of the coordinate.
+         */
         private final int col;
 
+        /**
+         * Constructs a coordinate with specified row and column.
+         * @param row The row index.
+         * @param col The column index.
+         */
         public Coordinate(int row, int col) {
             this.row = row;
             this.col = col;
         }
 
-        public int getRow() {return row;}
-        public int getCol() {return col;}
+        /**
+         * To get the row where the ship is placed.
+         * @return The row index.
+         */
+        public int getRow() {
+            return row;
+        }
+
+        /**
+         * To get the column where the ship is placed.
+         * @return The column index.
+         */
+        public int getCol() {
+            return col;
+        }
     }
 }
-
