@@ -220,9 +220,10 @@ public class WelcomeController {
      */
     private Label buildAuthorLabel() {
         String authorText = """
-        \t\tDesarrollado por:
+        Desarrollado por:
 
         Juan Pablo Piedrahita Triana      202342374-3743      juan.pablo.piedrahita@correounivalle.edu.co
+        
         David Taborda Montenegro          202242264-3743      taborda.david@correounivalle.edu.co
         """;
 
