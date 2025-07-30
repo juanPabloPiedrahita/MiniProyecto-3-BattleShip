@@ -1,0 +1,156 @@
+.root {
+    -fx-background-image: url("../Image/fondo3.jpg");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+.grid-pane {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-padding: 10;
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+    -fx-border-color: #0c4e80;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.grid-button {
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.3), 3, 0, 1, 1);
+}
+
+.grid-button:hover {
+    -fx-background-color: #3c73a8;
+}
+
+.grid-button.hit {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.grid-button.miss {
+    -fx-background-color: #95a5a6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.status-label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.player-box {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-padding: 10;
+    -fx-background-radius: 10;
+    -fx-border-color: #2c5364;
+    -fx-border-radius: 10;
+}
+
+.enemy-turn-label {
+    -fx-background-color: #e67e22;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 12;
+    -fx-background-radius: 8;
+}
+
+.button {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 25;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.4), 4, 0.0, 2, 2);
+    -fx-cursor: hand;
+}
+
+.combo-box {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 6;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #1e3a5f;
+}
+
+.combo-box .arrow-button:hover {
+    -fx-background-color: #3c73a8;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: black;
+    -fx-font-size: 13px;
+}
+
+.combo-box:disabled {
+    -fx-opacity: 1.0;
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: white;
+}
+
+.combo-box:disabled .text {
+    -fx-fill: white;
+}
+
+.warning-label {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-padding: 6 12;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.4), 4, 0, 2, 2);
+}
+
+.custom-alert {
+    -fx-background-color: linear-gradient(to bottom, #2c5364, #203a43);
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+.custom-alert .header-panel {
+    -fx-background-color: #1e3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+}
+
+.custom-alert .content {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+}
+
+.custom-alert .button-bar .button {
+    -fx-background-color: #3c73a8;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+}
+
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: #559cd6;
+}

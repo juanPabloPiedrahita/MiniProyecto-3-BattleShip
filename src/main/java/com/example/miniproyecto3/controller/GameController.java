@@ -21,19 +21,42 @@ import javafx.scene.Node;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.MusicPlayer;
-import com.example.miniproyecto3.model.Players.Player;
+import com.example.miniproyecto3.model.players.Player;
 import java.io.File;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
-import com.example.miniproyecto3.model.Players.AI;
-
+import com.example.miniproyecto3.model.players.AI;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * Controller class for managing the core gameplay logic and visual components
+ * of the Battleship game. This class is responsible for:
+   - Initializing boards and ships for both player and AI.
+   - Handling GUI events via FXML.
+   - Managing turn-taking logic.
+   - Handling AI difficulty and ship placement.
+   - Tracking game state for serialization and continuation.
+   - Coordinating music playback.
+
+ * @author David Taborda Montenegro and Juan Pablo Piedrahita Triana.
+ * @version 3.2
+ * @since version 1.0
+
+ * @see GameStage
+ * @see Player
+ * @see AI
+ * @see Board
+ * @see Ship
+ * @see SerializableFileHandler
+ * @see PlaneTextFileHandler
+ */
 public class GameController {
 
-    //Objetos del Fxml (visual)
+    /**
+     * The FXML objects to make references, allowing to control the visual flow of the game.
+     */
     @FXML
     private GridPane playerBoard;
     @FXML
@@ -62,59 +85,85 @@ public class GameController {
     private Label errorLabel;
     @FXML
     private Label exceptLabel;
+    @FXML
+    private Label labelScore;
 
-
-    //Objetos para llevar la logica interna del juego
+    /**
+     * Logic elements to control the logic behavior of the game.
+     */
     private Board playerBoardModel = new Board();
     private Board enemyBoardModel = new Board();
     private List<Ship> playerShips = new ArrayList<>();
     private List<Ship> enemyShips = new ArrayList<>();
 
-    //atributos para llevar monitoreo constante del estado del juego
+    /**
+     * Boolean attributes for the control of the current state of the game.
+     */
     private boolean finishedPlacing = false;
     private boolean monitorMode = false;
     private boolean playerTurn = true;
     private boolean gameEnded = false;
 
-    //planeTextFileHandler
+    /** Attribute for manage the plane text file savings. */
     private PlaneTextFileHandler planeTextFileHandler;
 
-    //player
+    /** Object that represents the human player. */
     private Player player;
 
-    //variable para saber si le dio a continuar
+    /** Boolean attribute for check if the player wants to continue a saved game. */
     private boolean continueGame;
 
-    //esto ayudara a la IA a tener memoria a la hora de disparar
-    private String selectedDifficulty;  // Para almacenar la dificultad seleccionada.
+    /** Boolean attribute for save the difficulty that the machine will implement. */
+    private String selectedDifficulty;
 
+    /**
+     * For the visual interactions with the logic.
+     */
     private Image explosion;
     private Image miss;
     private Image smoke;
 
-    //Objeto para reproducir musica
+    /** Object for the music background. */
     MusicPlayer musicPlayer;
 
-    //Para mejora visual.
+    /**
+     * For the selection screen.
+     */
     private Canvas selectedShipCanvas = null;
     private int selectedShipSize = 0;
 
-    //Para configurar la flota como pide el enunciado.
+    /**
+     * Elements that allow the float configuration.
+     */
     private final Map<Integer, Integer> fleetComposition = Map.of(
-            1, 4,  //4 fragatas de 1 casilla
-            2, 3,     //3 destructores de 2 casillas
-            3, 2,    //2 submarinos de 3 casillas
-            4, 1        //1 portaaviones de 4 casillas
+            1, 4,
+            2, 3,
+            3, 2,
+            4, 1
     );
-    private Map<Integer, Image> shipImages; //Para almacenar las imágenes de los barcos.
+    private Map<Integer, Image> shipImages;
     private final Map<Integer, Integer> placedShipsCount = new HashMap<>();
     private final Map<Integer, HBox> shipRowMap = new HashMap<>();
 
+    /** Object that represents the machine. */
     private AI enemy = new AI(0,"Enemy", "Fácil");
 
+    /**
+     * Initializes the game controller. It sets up the UI components, initializes
+     * resources such as images and music, and handles logic for starting a new game
+     * or continuing a saved one.
+     * It distinguishes between a new game and a resumed game using the 'continueGame'
+     * flag, and performs corresponding setup actions such as enabling or disabling
+     * controls, loading images, creating boards, and setting up the ship selector.
+
+     * If an image file cannot be loaded, it manages an IOException.
+     * If a problem occurs when loading a saved game, it manages a VisualException.
+     * @see com.example.miniproyecto3.exceptions.VisualException
+     */
     @FXML
-    public void initialize() {//Esta funcion es el punto de partida de la ventana GameStage, cualquier Fmxl tiene una de estas y se llama automaticamente al abrir una instancia de GameStage
+    public void initialize() {
         try {
+                labelScore.setVisible(false);
                 enemyBoard.getStyleClass().add("grid-pane");
                 playerBoard.getStyleClass().add("grid-pane");
                 label1.getStyleClass().add("enemy-turn-label");
@@ -122,27 +171,26 @@ public class GameController {
                 musicPlayer.play();
                 planeTextFileHandler = new PlaneTextFileHandler();
                 player = WelcomeStage.getInstance().getWelController().getPlayer();
+                label1.setText("Tu tablero, " + player.getPlayerName() + ":");
                 System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
                 continueGame = WelcomeStage.getInstance().getWelController().getContinue();
                 WelcomeStage.deleteInstance();
-                smoke = loadImageOrThrow("/com/example/miniproyecto3/Image/blackSmoke23.png");
-                miss = loadImageOrThrow("/com/example/miniproyecto3/Image/waterExplosion.png");
-                explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion08.png");
+                smoke = loadImageOrThrow("/com/example/miniproyecto3/Image/smoke.png");
+                miss = loadImageOrThrow("/com/example/miniproyecto3/Image/water.png");
+                explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion.png");
                 shipImages = new HashMap<>();
-                shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba8.png"));
-                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba.png"));
-                shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba4.png"));
-                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba2.png"));
-                if (!continueGame) { //Si el jugador le dio a jugar (no continuar) el juego crea una nueva partida desde 0
+                shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/fragate.png"));
+                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/destroyer.png"));
+                shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/submarine.png"));
+                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/aircraft.png"));
+
+                if (!continueGame) {
                     System.out.println("Nuevo juego...");
                     System.out.println("Creando playerboard");
                     createBoard(playerBoard, true);
                     System.out.println("Creando enemyboard");
                     createBoard(enemyBoard, false);
-                    System.out.println("seleccionando primera opcion en shipSizeSelector");
-                    System.out.println("Creando evento para orientationToggle");
                     orientationToggle.setOnAction(_ -> toggleOrientation());
-                    System.out.println("Desactivando monitorMode");
                     monitorButton.setDisable(true);
                     placementControls.setVisible(true);
                     placementControls.setManaged(true);
@@ -151,10 +199,12 @@ public class GameController {
                     monitorButton.setVisible(false);
                     monitorButton.setManaged(false);
                     initializeShipSelectorCanvases();
-                } else { //Si el jugador le dio a continuar carga la partida mas reciente :v
+                } else {
                     System.out.println("Entrando a cargar el juego mas reciente");
                     finishedPlacing = true;
                     loadGameState();
+                    musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
+                    musicPlayer.play();
                     readyButton.setDisable(true);
                     orientationToggle.setDisable(true);
                     placementControls.setVisible(false);
@@ -163,28 +213,49 @@ public class GameController {
                     enemyBoardContainer.setManaged(true);
                     monitorButton.setVisible(true);
                     monitorButton.setManaged(true);
+                    labelScore.setVisible(true);
+                    labelScore.setText("Tu puntaje: " + player.getPlayerScore());
                 }
-
         } catch (IOException e) {
-            System.out.println("Error cargando la imagen." + e.getMessage());
+            System.out.println("Error cargando el juego." + e.getMessage());
         } catch (VisualException ex) {
             System.out.println("Ocurrió un error al cargar el juego." + ex.getMessage());
         }
     }
 
-    // método utilitario con IOException para las imágenes.
+    /**
+     * Loads an image from the given resource path. If the resource is not found,
+     * an IOException is thrown.
+     *
+     * @param path the path to the image resource.
+     * @return the loaded {@link Image}.
+     * @throws IOException if the image resource could not be found or accessed.
+     */
     private Image loadImageOrThrow(String path) throws IOException {
         URL resourceUrl = getClass().getResource(path);
         if(resourceUrl == null) {
             throw new IOException("No se pudo encontrar el recurso: " + path);
         }
-
         return new Image(resourceUrl.toExternalForm());
     }
 
-    //Este metodo crea los gridpanes (tableros visuales) de amboss jugadores, tanto jugador como maquina
-    private void createBoard(GridPane board, boolean isPlayer) {
-        System.out.println("Creando " + isPlayer + " board (gridpane)");
+    /**
+     * Creates a 10x10 battleship board within the specified {@link GridPane}.
+     * It sets up column and row constraints, adds labels for coordinates (A - J for the columns; 1 – 10 for the rows),
+     * and fills the grid with buttons. Each button is placed inside a {@link StackPane}
+     * for better control of visual stacking and click handling.
+
+     * If the board is for the player, buttons are configured to place ships during the
+     * setup phase. If the board is for the machine, buttons are configured to handle
+     * shooting logic after setup is completed.
+     *
+     * @param board the GridPane that will represent the game board.
+     * @param isPlayer True if the board belongs to the player, false if it is the enemy board.
+     * @throws IOException if an error occurs during board setup.
+     * @see UIVisualHelper
+     */
+    private void createBoard(GridPane board, boolean isPlayer) throws IOException{
+        System.out.println("Creando el tablero del jugador.");
         for (int i = 0; i <= 10; i++) {
             ColumnConstraints columnConstraints = new ColumnConstraints(30);
             RowConstraints rowConstraints = new RowConstraints(30);
@@ -210,7 +281,6 @@ public class GameController {
 
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                System.out.println("Creando  + isPlayer +  board (gridpane). Coords: )" + row + "," + col);
                 StackPane cell = new StackPane();
                 cell.setPrefSize(30, 30);
                 cell.setMinSize(30, 30);
@@ -227,20 +297,21 @@ public class GameController {
                 int finalCol = col;
                 btn.setOnMouseClicked(e -> {
                     if (!finishedPlacing && isPlayer) {
-                        System.out.println("poniendo barco del jugador en la posicion " + finalRow + "," + finalCol);
+                        System.out.println("Colocando barco del jugador en la posición " + finalRow + "," + finalCol);
                         placePlayerShip(finalRow, finalCol);
                     } else if (finishedPlacing && !isPlayer && e.getButton() == MouseButton.PRIMARY) {
-                        System.out.printf("Disparando en la posicion [%d%c], es decir (%d,%d)\n", finalRow + 1, (char)('A' + finalCol), finalRow,  finalCol);
+                        System.out.printf("Disparando en la posición [%d%c], es decir (%d,%d)\n", finalRow + 1, (char)('A' + finalCol), finalRow,  finalCol);
                         try {
                             handlePlayerShot(finalRow, finalCol);
                         } catch (DoubleShootException ex) {
                             System.out.println(ex.getMessage() + " Intenta disparar en otra.");
                             String message = String.format("Ya disparaste en la casilla [%d%c].\nIntenta en otra.", finalRow + 1, (char)('A' + finalCol));
                             UIVisualHelper.showTemporaryLabel(errorLabel, message);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
                         }
                     }
                 });
-
                 board.add(cell, col + 1, row + 1);
             }
         }
@@ -249,6 +320,10 @@ public class GameController {
         board.setSnapToPixel(true);
     }
 
+    /**
+     * Toggles the orientation of the ship to be placed (horizontal or vertical),
+     * updates the text of the toggle button, and redraws the currently selected ship canvas accordingly.
+     */
     private void toggleOrientation() {
         if (orientationToggle.isSelected()) {
             orientationToggle.setText("Horizontal");
@@ -259,32 +334,34 @@ public class GameController {
         if (selectedShipCanvas != null) {
             boolean horizontal = !orientationToggle.isSelected();
 
-            // Ajustar el tamaño del canvas según la orientación
             double width = horizontal ? selectedShipSize * 30 : 30;
             double height = horizontal ? 30 : selectedShipSize * 30;
             selectedShipCanvas.setWidth(width);
             selectedShipCanvas.setHeight(height);
 
-            // Redibujar el barco con la nueva orientación
             GraphicsContext gc = selectedShipCanvas.getGraphicsContext2D();
             drawShipOnCanvas(gc, horizontal, selectedShipSize);
         }
     }
 
-
+    /**
+     * Initializes the canvas elements inside the ship selector container,
+     * displaying each ship size according to the configured fleet composition.
+     * It also sets the click handlers for selecting a ship canvas.
+     */
     private void initializeShipSelectorCanvases() {
         shipSelectorContainer.getChildren().clear();
         shipRowMap.clear();
 
         List<Integer> sortedSizes = new ArrayList<>(fleetComposition.keySet());
-        Collections.sort(sortedSizes);  // Fragatas (1)  ->  Portaaviones (4).
+        Collections.sort(sortedSizes);
 
         for (int size : sortedSizes) {
             int quantity = fleetComposition.get(size);
 
-            HBox shipRow = new HBox(5);  //Espaciado para barcos del mismo tipo.
+            HBox shipRow = new HBox(5);
             shipRow.setAlignment(Pos.CENTER_LEFT);
-            shipRow.setPadding(new Insets(5));  //Margen alrededor de la fila.
+            shipRow.setPadding(new Insets(5));
 
             for (int i = 0; i < quantity; i++) {
                 Canvas shipCanvas = new Canvas(30 * size, 30);
@@ -294,22 +371,23 @@ public class GameController {
                 if (shipImage != null) {
                     gc.drawImage(shipImage, 0, 0, 30 * size, 30);
                 }
-
                 shipCanvas.setOnMouseClicked(_ -> selectShipCanvas(shipCanvas, size));
-
                 shipRow.getChildren().add(shipCanvas);
             }
-            shipRowMap.put(size, shipRow);  // Para acceder a cada HBox de barcos.
+            shipRowMap.put(size, shipRow);
             shipSelectorContainer.getChildren().add(shipRow);
         }
-
         selectedShipCanvas = null;
         selectedShipSize = 0;
     }
 
-
-
-
+    /**
+     * Draws a ship onto the specified canvas graphics context based on the given orientation and size.
+     *
+     * @param gc the {@link GraphicsContext} of the canvas where the ship will be drawn.
+     * @param horizontal True if the ship is horizontal; false for vertical.
+     * @param size the size of the ship to draw.
+     */
     private void drawShipOnCanvas(GraphicsContext gc, boolean horizontal, int size) {
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 
@@ -357,14 +435,22 @@ public class GameController {
                 x = 0;
                 y = 0;
             }
-
             drawBoatShapeSegment(gc, isFirst, isLast, size, boatImage, x, y);
-
             gc.restore();
         }
     }
 
-
+    /**
+     * Draws a single segment of a boat (either head, body, or tail) on the canvas.
+     *
+     * @param gc the {@link GraphicsContext} for drawing.
+     * @param isFirst True if the segment is the first (front of the ship).
+     * @param isLast  True if the segment is the last (rear of the ship).
+     * @param shipLength the total length of the ship.
+     * @param boatImage the image representing the boat.
+     * @param x the X (horizontal) position to draw the segment.
+     * @param y the Y (vertical) position to draw the segment.
+     */
     private void drawBoatShapeSegment(GraphicsContext gc, boolean isFirst, boolean isLast, int shipLength, Image boatImage, double x, double y) {
         if(shipLength == 1) {
             gc.drawImage(boatImage, x, y);
@@ -386,22 +472,26 @@ public class GameController {
         }
     }
 
-
+    /**
+     * Replaces the previously selected ship canvas with a new, semi-transparent canvas
+     * indicating the selected ship size and orientation. Updates internal selection tracking.
+     *
+     * @param oldCanvas the canvas that was previously displayed and selected.
+     * @param size the size of the ship to select.
+     */
     private void selectShipCanvas(Canvas oldCanvas, int size) {
         if (selectedShipCanvas != null) {
-            selectedShipCanvas.setOpacity(1.0); // Deselecciona el anterior
+            selectedShipCanvas.setOpacity(1.0);
         }
         boolean horizontal = !orientationToggle.isSelected();
         double canvasWidth = horizontal ? size * 30 : 30;
         double canvasHeight = horizontal ? 30 : size * 30;
 
-        // Crea un nuevo Canvas
         Canvas newCanvas = new Canvas(canvasWidth, canvasHeight);
         GraphicsContext gc = newCanvas.getGraphicsContext2D();
         drawShipOnCanvas(gc, horizontal, size);
-        newCanvas.setOpacity(0.6); // visualmente seleccionado
+        newCanvas.setOpacity(0.6);
 
-        // Reemplaza en el HBox el viejo canvas por el nuevo
         if (oldCanvas.getParent() instanceof Pane parent) {
             int index = parent.getChildrenUnmodifiable().indexOf(oldCanvas);
             if (index != -1) {
@@ -413,7 +503,16 @@ public class GameController {
         selectedShipSize = size;
     }
 
-
+    /**
+     * Attempts to place a ship on the player's board at the specified position.
+     * Handles constraints such as maximum ships per size, overlapping validation,
+     * and updates the visual representation. Once all ships are placed,
+     * it enables difficulty selection for the enemy AI.
+     *
+     * @param row the row index to place the ship's starting coordinate.
+     * @param col the column index to place the ship's starting coordinate.
+     * @see UIVisualHelper
+     */
     private void placePlayerShip(int row, int col) {
         if (selectedShipCanvas == null) {
             System.out.println("No hay barco seleccionado para colocar.");
@@ -422,7 +521,6 @@ public class GameController {
 
         int size = selectedShipSize;
 
-        // Verificar si ya se alcanzó el límite de barcos para ese tamaño
         int placed = placedShipsCount.getOrDefault(size, 0);
         int maxAllowed = fleetComposition.getOrDefault(size, 0);
         if (placed >= maxAllowed) {
@@ -439,10 +537,8 @@ public class GameController {
 
                 drawShip(playerBoard, ship, true);
 
-                // Actualizar contador
                 placedShipsCount.put(size, placed + 1);
 
-                // Eliminar el HBox correspondiente (igual que la figura sola).
                 HBox shipRow = shipRowMap.get(size);
                 if (shipRow != null) {
                     shipRow.getChildren().remove(selectedShipCanvas);
@@ -451,11 +547,9 @@ public class GameController {
                         shipRowMap.remove(size);
                     }
                 }
-
                 selectedShipCanvas = null;
                 selectedShipSize = 0;
 
-                // Si no quedan más barcos por colocar, desactivar controles
                 boolean hasRemainingShips = shipSelectorContainer.getChildren().stream()
                         .anyMatch(node -> node instanceof HBox && !((HBox) node).getChildren().isEmpty());
 
@@ -469,13 +563,12 @@ public class GameController {
                     difficultyLabel.setManaged(true);
                     difficultySelector.setVisible(true);
                     difficultySelector.setManaged(true);
-
-                    difficultySelector.getItems().addAll("Fácil", "Normal");
+                    difficultySelector.getItems().addAll("Fácil", "Difícil");
                     difficultySelector.setOnAction(_ -> {
                         String difficulty = difficultySelector.getValue();
                         difficultySelector.setDisable(true);
                         selectedDifficulty = difficulty;
-                        enemy.setDificulty(selectedDifficulty);
+                        enemy.setDifficulty(selectedDifficulty);
                         System.out.println("Dificultad seleccionada: " + selectedDifficulty);
                         difficultyLabel.setVisible(false);
                         difficultyLabel.setManaged(false);
@@ -493,6 +586,14 @@ public class GameController {
         }
     }
 
+    /**
+     * Visually draws a ship on the given game board by adding canvas segments to the grid.
+     * Handles orientation and whether it's the player's ship or the machine's.
+     *
+     * @param board the board {@link GridPane} where the ship should be drawn.
+     * @param ship the {@link Ship} instance to render.
+     * @param playerShip True if the ship belongs to the player; false for machine ships.
+     */
     private void drawShip(GridPane board, Ship ship, boolean playerShip) {
         Image boatImage = shipImages.get(ship.getSize());
 
@@ -525,8 +626,14 @@ public class GameController {
         }
     }
 
-
-    //metodo que devuelve la celda (StackPane) de un GridPane y coordenas dado.
+    /**
+     * Retrieves the StackPane at the specified logical board coordinates (row, col).
+     *
+     * @param board The GridPane board.
+     * @param row The row index of the desired cell.
+     * @param col The column index of the desired cell.
+     * @return The StackPane at the specified coordinates, or null if not found.
+     */
     public StackPane getStackPaneAt(GridPane board, int row, int col) {
         int visualRow = row + 1;
         int visualCol = col + 1;
@@ -541,9 +648,19 @@ public class GameController {
         return null;
     }
 
-    //metodo que se encarga de manejar los disparos del jugador en la cuadricula de la maquina (modificado para que ahora no pase el turno si acierta o hunde un barco enemigo (en viceversa para la maquina)
-    private void handlePlayerShot(int row, int col) throws DoubleShootException {
-        if (!playerTurn || gameEnded) return; //si el turno es de la maquina o el juego ya acabo no hace nada
+    /**
+     * Handles the player's shot action on the enemy's board.
+     * Updates the UI, evaluates the result, and checks for win conditions.
+     *
+     * @param row The row where the player fires.
+     * @param col The column where the player fires.
+     * @throws DoubleShootException If the player attempts to shoot the same cell more than once.
+     * @throws IOException If the writing player data to the text file fail.
+     * @see com.example.miniproyecto3.exceptions.DoubleShootException
+     */
+    private void handlePlayerShot(int row, int col) throws DoubleShootException, IOException{
+        if (!playerTurn || gameEnded) return;
+
         boolean hit = player.makeMove(row, col, enemyBoardModel, enemyShips);
 
         StackPane cell = getStackPaneAt(enemyBoard, row, col);
@@ -555,16 +672,13 @@ public class GameController {
         drawShot(gc, hit, false);
         cell.getChildren().add(canvas);
 
-        //debugBoards();
-
         if(hit) {
             Ship ship = getShipAt(enemyShips, row, col);
             if(ship != null && ship.isSunk()) {
                 System.out.println("Hundiste un barco.");
                 drawSunkShips(ship, enemyBoard);
-                //debugBoards();
+                labelScore.setText("Tu puntaje: " + player.getPlayerScore());
             }
-
             checkWinCondition();
         } else {
             endPlayerTurn();
@@ -574,12 +688,15 @@ public class GameController {
         planeTextFileHandler.write("PlayerData.csv",player.getPlayerName() + "," + player.getPlayerScore());
     }
 
-    //aqui se llama a la IA para que dispare, luego lo modificamos para que el jugador elija la dificultad
+    /**
+     * Triggers the machine's move based on the current difficulty setting.
+     * Executes the enemy shot, updates the board, and evaluates the hit.
+     */
     private void triggerComputerMove() {
         playerTurn = false;
         boolean hit;
 
-        if (enemy.getDificulty() == 1) {
+        if (enemy.getDifficulty() == 1) {
             hit = enemy.makeRandomMove(playerBoardModel, playerShips);
         } else {
             hit = enemy.makeMove(0, 0, playerBoardModel, playerShips);
@@ -596,13 +713,10 @@ public class GameController {
         drawShot(gc, hit, false);
         cell.getChildren().add(canvas);
 
-        //debugBoards();
-
         if(hit) {
             Ship ship = getShipAt(playerShips, lastRow, lastCol);
             if(ship != null && ship.isSunk()) {
                 drawSunkShips(ship, playerBoard);
-                //debugBoards();
             }
 
             checkWinCondition();
@@ -622,11 +736,18 @@ public class GameController {
         saveGameState();
     }
 
+    /**
+     * Ends the computer's turn and switches control back to the player.
+     * Also checks for any win condition.
+     */
     private void endComputerTurn() {
         playerTurn = true;
         checkWinCondition();
     }
 
+    /**
+     * Ends the player's turn and schedules the computer's response move with delay.
+     */
     private void endPlayerTurn(){
         playerTurn = false;
         checkWinCondition();
@@ -637,7 +758,15 @@ public class GameController {
             }}, 1000);
     }
 
-    //metodo que devuelve el barco que esta en esa lista de barcos "ships" si no esta no devuelve nada
+    /**
+     * Retrieves the ship occupying the given coordinates, if any.
+     *
+     * @param ships The list of ships to search.
+     * @param row The row coordinate.
+     * @param col The column coordinate.
+     * @return The {@link Ship} that occupies the given coordinates, or null if none found.
+     * @see Ship
+     */
     public Ship getShipAt(List<Ship> ships, int row, int col) {
         for (Ship ship : ships) {
             if (ship.occupies(row, col)) {
@@ -647,7 +776,13 @@ public class GameController {
         return null;
     }
 
-    //Metodo que verifica si alguno de los dos jugadores (player o maquina) ah ganado (hundido todos los barcos de su rival)
+    /**
+     * Checks whether the game has reached a win condition (either player or machine wins).
+     * If the condition is met, displays the corresponding alert, stops the music,
+     * deletes the saved game file, and exits the application.
+     *
+     * @see UIVisualHelper
+     */
     public void checkWinCondition() {
         if (gameEnded) return;
 
@@ -656,10 +791,9 @@ public class GameController {
 
         if (allEnemySunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Ganaste! Has hundido todos los barcos enemigos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
+            UIVisualHelper.showGameAlert("VICTORIA", "¡Ganaste! Has hundido todos los barcos enemigos.");
+            playerTurn = false;
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
             if(!file.delete()) {
@@ -667,13 +801,14 @@ public class GameController {
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
 
         } else if (allPlayerSunk) {
             gameEnded = true;
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "¡Has perdido! La máquina ha hundido todos tus barcos.");
-            alert.showAndWait();
-            playerTurn = false;
             GameStage.deleteInstance();
+            UIVisualHelper.showGameAlert("DERROTA", "¡Has perdido! La máquina ha hundido todos tus barcos.");
+            playerTurn = false;
             System.out.println("Eliminando la partida...");
             File file = new File("GameState.ser");
             if(!file.delete()) {
@@ -681,15 +816,22 @@ public class GameController {
             }
             continueGame = false;
             musicPlayer.stop();
+            Platform.exit();
+            System.exit(0);
         }
     }
 
-    //Este metodo maneja el evento generado por darle al boton de "listo" que indica haber terminado de poner los barcos
+    /**
+     * Handles the finalization of the player's ship placement.
+     * Starts the machine ship placement and sets up the game for battle.
+     * If ships are missing, prompts the user with a warning alert.
+     */
     @FXML
     private void handleFinishPlacement() {
-        //si ya colocaste todos tus barcos empieza la fase de batalla; indica que finishedplacing = true y llama a placeEnemyShips() para que la maquina coloque sus barcos
         if (shipSelectorContainer.getChildren().isEmpty()) {
             musicPlayer.stop();
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
+            musicPlayer.play();
             finishedPlacing = true;
             placeEnemyShips();
             readyButton.setDisable(finishedPlacing);
@@ -698,31 +840,36 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            /*musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
-            musicPlayer.play();*/
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
+            musicPlayer.play();
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);
-
-            //si aun no se colocan todos los barcos muestra una advertancia
+            labelScore.setVisible(true);
+            System.out.println("Debug para score: " + player.getPlayerScore());
+            labelScore.setText("Tu puntaje: " + player.getPlayerScore());
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Coloca todos los barcos antes de continuar.", ButtonType.OK);
             alert.showAndWait();
         }
     }
 
+    /**
+     * Places the enemy ships on the board randomly using predefined fleet sizes.
+     * Ships are placed only if they do not overlap or go out of bounds.
+     * Any placement errors are logged, and the method retries until placement is valid.
+     */
     private void placeEnemyShips() {
         Random rand = new Random();
         List<Integer> shipSizes = Arrays.asList(1, 2, 3, 4);
 
-        // Ajusta la cantidad de barcos según la flota real (4 fragatas, 3 destructores, etc.)
         Map<Integer, Integer> fleetCount = Map.of(
-                1, 4,  // 4 fragatas de tamaño 1
-                2, 3,  // 3 destructores de tamaño 2
-                3, 2,  // 2 submarinos de tamaño 3
-                4, 1   // 1 portaaviones de tamaño 4
+                1, 4,
+                2, 3,
+                3, 2,
+                4, 1
         );
 
-        int lastSize = shipSizes.get(shipSizes.size() - 1);
+        int lastSize = shipSizes.getLast();
         int lastIndex = fleetCount.get(lastSize) - 1;
 
         for (int size : shipSizes) {
@@ -755,7 +902,10 @@ public class GameController {
     }
 
 
-    //Muestra o desactiva la vista de los barcos enemigos en la tabla de la maquina
+    /**
+     * Toggles the visibility of the enemy ships on the board.
+     * Changes the label of the toggle button accordingly.
+     */
     @FXML
     private void toggleEnemyBoard() {
         monitorMode = !monitorMode;
@@ -771,14 +921,24 @@ public class GameController {
 
         if (monitorMode) {
             monitorButton.setText("Ocultar embarcaciones enemigas");
+            System.out.println("Modo monitor activado.");
         } else {
             monitorButton.setText("Mostrar embarcaciones enemigas");
         }
     }
 
-    //metodo que dibuja los barcos dependiendo de su orientacion y tamaño (no usa canvas)
+    /**
+     * Draws a specific segment of a ship image on a canvas cell depending on its position and orientation.
+     *
+     * @param gc the GraphicsContext used to draw on the canvas.
+     * @param horizontal true if the ship is placed horizontally, false if vertically.
+     * @param isFirst true if the segment is the first part of the ship.
+     * @param isLast true if the segment is the last part of the ship.
+     * @param shipLength the total length of the ship.
+     * @param boatImage the image used to represent the ship.
+     */
     private void drawBoatShape(GraphicsContext gc, boolean horizontal, boolean isFirst, boolean isLast, int shipLength, Image boatImage) {
-        gc.clearRect(0, 0, 30, 30); //borra cualquier contenido previo en ese rectangulo de 30px  x 30 px
+        gc.clearRect(0, 0, 30, 30);
 
         if(shipLength == 1) {
             gc.save();
@@ -803,44 +963,39 @@ public class GameController {
 
         double boatWidth = boatImage.getWidth();
         double boatHeight = boatImage.getHeight();
-        double segmentWidth = boatWidth / 3; // Dividimos la imagen en 3 partes iguales
+        double segmentWidth = boatWidth / 3;
 
-        // Sólo aplicar margen visual si es el portaaviones el que se está dibujando (longitud 4).
-        double inset = (shipLength == 4) ? 0.2 : 0.0;   //El portaaviones sale como recortado, entonces hay que hacer que se vea junto.
+        double inset = (shipLength == 4) ? 0.2 : 0.0;
         double destSize = 30 - 2 * inset;
 
-        // Si es horizontal, no hacemos rotación
         if (horizontal) {
             if (isFirst) {
-                // Dibuja la proa (primer segmento de la imagen)
-                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja solo la proa
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize);
             } else if (isLast) {
-                // Dibuja la popa (último segmento de la imagen)
-                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja solo la popa
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize);
             } else {
-                // Dibuja el medio (segmento central de la imagen)
-                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize); // Dibuja el medio
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset, destSize, destSize);
             }
         } else {
-            // Si es vertical, necesitamos rotar la imagen para ajustarla
-            gc.save();  // Guardamos el contexto actual del GraphicsContext
-            gc.rotate(90); // Rotamos la imagen 90 grados
+            gc.save();
+            gc.rotate(90);
 
             if (isFirst) {
-                // Dibuja la proa (primer segmento de la imagen) rotada
-                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja solo la proa (rotada)
+                gc.drawImage(boatImage, 0, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize);
             } else if (isLast) {
-                // Dibuja la popa (último segmento de la imagen) rotada
-                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja solo la popa (rotada)
+                gc.drawImage(boatImage, 2 * segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize);
             } else {
-                // Dibuja el medio (segmento central de la imagen) rotado
-                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize); // Dibuja el medio (rotado)
+                gc.drawImage(boatImage, segmentWidth, 0, segmentWidth, boatHeight, inset, inset - 30, destSize, destSize);
             }
 
-            gc.restore(); // Restauramos el contexto al estado original (sin rotación)
+            gc.restore();
         }
     }
 
+    /**
+     * Prints a debug representation of both the player and machine boards to the console,
+     * including ship positions, hits, and sunk ship status.
+     */
     public void debugBoards() {
         System.out.println("=== DEBUG: playerBoardModel                    enemyBoardModel  ===");
 
@@ -851,14 +1006,14 @@ public class GameController {
         ArrayList<ArrayList<Boolean>> sunkEnemy = enemyBoardModel.getSunkEnemyShips();
         ArrayList<ArrayList<Boolean>> sunkPlayer = playerBoardModel.getSunkPlayerShips();
 
-        int size = enemyGrid.size(); // Se asume que ambos tableros son del mismo tamaño
+        int size = enemyGrid.size();
 
         String spacing = "    ";
         System.out.print(spacing);
         for (int col = 0; col < size; col++) {
             System.out.printf(" %c ", 'A' + col);
         }
-        System.out.print("   "); // Separación entre los dos tableros
+        System.out.print("   ");
         System.out.print(spacing);
         for (int col = 0; col < size; col++) {
             System.out.printf(" %c ", 'A' + col);
@@ -872,7 +1027,16 @@ public class GameController {
         }
     }
 
-    // Permitirá la creación de las impresiones correctas de ambos tableros, para reducir código duplicado.
+    /**
+     * Constructs a formatted string representing a single row of the debug board,
+     * showing ship positions, hits, and sunk status.
+     *
+     * @param grid the grid indicating where ships are placed.
+     * @param shots the grid of cells that have been shot at.
+     * @param sunk the grid indicating which ships have been sunk.
+     * @param row the index of the row to build.
+     * @return a formatted string representing that row.
+     */
     private String buildDebugRow(ArrayList<ArrayList<Boolean>> grid, ArrayList<ArrayList<Boolean>> shots, ArrayList<ArrayList<Boolean>> sunk, int row) {
         StringBuilder result = new StringBuilder();
         int size = grid.size();
@@ -898,19 +1062,24 @@ public class GameController {
         return result.toString();
     }
 
-
-    //metodos para la serializcion: (¡Slava Rusia, Z!)
-
-    //este metodo guarda el estado del juego adentro del archivo GameState.ser, debe ser llamado cada vez que el tablero se actualize
+    /**
+     * Saves the current state of the game to a serialized file.
+     * The game state includes both boards, ships, and machine AI.
+     */
     public void saveGameState() {
         GameState state = new GameState(playerBoardModel, enemyBoardModel, playerShips, enemyShips, enemy);
         SerializableFileHandler handler = new SerializableFileHandler();
         handler.serialize("GameState.ser", state);
-        System.out.println("Estado del juego guardado con exito en: GameState.ser");
+        System.out.println("Estado del juego guardado con éxito en: GameState.ser");
     }
 
-    //este metodo carga el juego desde el estado en el que se dejo cuando el jugador lo cerro
-    public void loadGameState() {
+    /**
+     * Loads the game state from a previously saved serialized file.
+     * Updates both logical and graphical representations of the game.
+     *
+     * @throws IOException if there is an error during file reading or UI board creation.
+     */
+    public void loadGameState() throws IOException {
         SerializableFileHandler handler = new SerializableFileHandler();
         GameState state = (GameState) handler.deserialize("GameState.ser");
         if (state != null) {
@@ -919,29 +1088,34 @@ public class GameController {
             this.playerShips = state.getPlayerShips();
             this.enemyShips = state.getEnemyShips();
             this.enemy = state.getEnemy();
-            redrawBoards();// redibuja los tableros aquí (gridPanes)
+            redrawBoards();
         }
     }
 
-    //Este metodo re dibuja los disparos sobre los gridPane
+    /**
+     * Restores all the shots (hits and misses) on a given board after loading a saved game.
+     *
+     * @param boardModel The logical board model to determine shot positions.
+     * @param board The visual GridPane where the shots will be rendered.
+     * @param isPlayerBoard True if restoring on player's board, false for machine's board.
+     */
     private void restoreShots(Board boardModel, GridPane board, boolean isPlayerBoard) {
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                if (!boardModel.alreadyShotAt(row, col, isPlayerBoard)) continue; //si no se ha disparado sobre esta celda pasa a la siguiente iteracion (continue)
+                if (!boardModel.alreadyShotAt(row, col, isPlayerBoard)) continue;
 
                 StackPane cell = getStackPaneAt(board, row, col);
-                if (cell == null) continue; //si la celda esta nula continua con la siguiente iteracion (continue)
+                if (cell == null) continue;
 
-                boolean skip = false; //esta nos ayuda a saber si ya esta dibujad sobre aquel celda
-                for (Node node : cell.getChildren()) { //recorre cada node de la celda
-                    if ("hundido".equals(node.getUserData())) { //si en uno de los nodos hay un hundido entonces pone a skip = true y brekea el for
-                        skip = true; //si haya un nodo "hundido" breakea el for de nodos y pone skip = true
+                boolean skip = false;
+                for (Node node : cell.getChildren()) {
+                    if ("hundido".equals(node.getUserData())) {
+                        skip = true;
                         break;
                     }
                 }
-                if (skip) continue; //si skip es igual a true, osea si hayo un nodo adentro de la celdas que se llame hundido entonces salta la iteracion actual y pasa a la siguente
+                if (skip) continue;
 
-                // Dibujar el disparo
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 canvas.setMouseTransparent(true);
@@ -956,12 +1130,16 @@ public class GameController {
         }
     }
 
-    private void redrawBoards() {
-        // Limpia los tableros visuales
+    /**
+     * Reconstructs and redraws both the player’s and the machine’s boards visually and logically.
+     * Includes ships, sunk states, and restored shots.
+     *
+     * @throws IOException if board creation fails due to I/O errors.
+     */
+    private void redrawBoards() throws IOException {
         createBoard(playerBoard, true);
         createBoard(enemyBoard, false);
 
-        // Dibuja los barcos del jugador
         for (Ship ship : playerShips) {
             drawShip(playerBoard, ship, true);
             if (ship.isSunk()) {
@@ -969,7 +1147,6 @@ public class GameController {
             }
         }
 
-        // Dibuja los barcos del enemigo (ocultos)
         for (Ship ship : enemyShips) {
             drawShip(enemyBoard, ship, false);
             if (ship.isSunk()) {
@@ -977,21 +1154,32 @@ public class GameController {
             }
         }
 
-        // Restaura disparos del jugador sobre enemigo
         restoreShots(enemyBoardModel, enemyBoard, true);
-        // Restaura disparos de la máquina sobre jugador
         restoreShots(playerBoardModel, playerBoard, false);
     }
 
-    //este metodo dibuja la imagen en el canvas de la celda dependiendo de si esta hundido, golpeado o no le dio a nada
+    /**
+     * Draws a visual representation of a shot on the canvas.
+     * The image displayed depends on whether the shot was a hit, a sunk ship, or a miss.
+     *
+     * @param gc The GraphicsContext used to draw the image.
+     * @param isHit True if the shot hit a ship.
+     * @param isSunk True if the shot sunk a ship.
+     */
     public void drawShot(GraphicsContext gc, boolean isHit, boolean isSunk) {
         gc.clearRect(0, 0, 30, 30);
-        Image imgToDraw = isSunk ? explosion : (isHit ? smoke : miss);
+        Image imgToDraw = isSunk ? smoke : (isHit ? explosion : miss);
         gc.drawImage(imgToDraw, 0, 0, 30, 30);
         gc.restore();
     }
 
-    //metodo para dibujar un barco como hundido
+    /**
+     * Draws visual indicators for all coordinates of a sunk ship on the game board.
+     * Replaces previous "hit" markers with special visuals indicating that the ship has been destroyed.
+     *
+     * @param ship The Ship object that has been sunk.
+     * @param board The GridPane on which the ship is drawn (either player's or machine's board).
+     */
     public void drawSunkShips(Ship ship, GridPane board) {
         List<Ship.Coordinate> coords = ship.getCoordinates();
         for (Ship.Coordinate coordinate : coords) {
@@ -999,7 +1187,7 @@ public class GameController {
             int col = coordinate.getCol();
             StackPane cell = getStackPaneAt(board, row, col);
             if (cell != null) {
-                cell.getChildren().removeIf(node -> node.getUserData() != null && node.getUserData().equals("impacto")); //elimina el node que antes representaba el impacto sobre el barco, esto para evitar la sobreposicion de imagenes :v
+                cell.getChildren().removeIf(node -> node.getUserData() != null && node.getUserData().equals("impacto"));
                 Canvas canvas = new Canvas(30, 30);
                 GraphicsContext gc = canvas.getGraphicsContext2D();
                 drawShot(gc, false, true);
