@@ -9,10 +9,10 @@
     <left>
         <VBox alignment="CENTER" prefWidth="190.0" spacing="30.0" BorderPane.alignment="CENTER">
             <children>
-                <Button onAction="#onHandlePlayButton" prefHeight="38.0" prefWidth="114.0" styleClass="button" text="Play" />
+                <Button onAction="#onHandlePlayButton" prefHeight="38.0" prefWidth="114.0" styleClass="button" text="Jugar" />
                 <Button onAction="#onHandleContinueButton" styleClass="button" text="Continuar" />
-                <Button onAction="#onHandleQuitButton" styleClass="button" text="Quit game" />
-                <Button onAction="#onHandleCreditsButton" styleClass="button" text="Credits" />
+                <Button onAction="#onHandleQuitButton" styleClass="button" text="Salir" />
+                <Button onAction="#onHandleCreditsButton" styleClass="button" text="Créditos" />
             </children>
         </VBox>
     </left>

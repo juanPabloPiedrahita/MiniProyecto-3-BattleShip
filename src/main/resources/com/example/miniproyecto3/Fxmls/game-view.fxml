@@ -10,13 +10,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.layout.Region?>
+
 <AnchorPane prefHeight="455.0" prefWidth="800.0" stylesheets="@../css/game-style2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.miniproyecto3.controller.GameController">
    <children>
       <HBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 20;" stylesheets="@../css/game-style2.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      
-                <!-- VBox izquierda: Tablero del jugador -->
+
           <VBox alignment="CENTER" prefHeight="200.0" spacing="10">
               <Label fx:id="label1" styleClass="enemy-turn-label" text="Tu tablero:" />
               <StackPane prefHeight="300" prefWidth="300">
@@ -29,10 +28,8 @@
               </VBox>
           </VBox>
 
-                <!-- VBox derecha: Controles de preparación y tablero enemigo (intercambiables) -->
           <VBox alignment="CENTER" minHeight="300" minWidth="350" prefHeight="300" prefWidth="350" spacing="10">
 
-                    <!-- Controles de colocación -->
               <VBox fx:id="placementControls" alignment="CENTER" spacing="10" styleClass="player-box">
                   <Label fx:id="configLabel" styleClass="enemy-turn-label" text="Configurar barco:" />
 
@@ -48,7 +45,7 @@
                   </ComboBox>
                   <Button fx:id="readyButton" onAction="#handleFinishPlacement" text="Listo" />
               </VBox>
-                    <!-- Tablero enemigo (inicialmente oculto) -->
+
               <VBox fx:id="enemyBoardContainer" alignment="CENTER" managed="false" prefHeight="200.0" spacing="10" visible="false">
                   <Label styleClass="enemy-turn-label" text="Tablero enemigo:" />
                   <StackPane prefHeight="300" prefWidth="300">
