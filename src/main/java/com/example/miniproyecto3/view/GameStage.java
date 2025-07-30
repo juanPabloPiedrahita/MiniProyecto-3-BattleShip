@@ -33,7 +33,7 @@ public class GameStage extends Stage {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxmls/game-view.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
+            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/favicon.jpg")).toExternalForm());
             getIcons().add(icon);
             setResizable(false);
             setTitle("Miniproyecto 3 - Batalla Naval");

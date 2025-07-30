@@ -4,6 +4,6 @@ com.example.miniproyecto3.controller
 com.example.miniproyecto3.exceptions
 com.example.miniproyecto3.model
 com.example.miniproyecto3.model.planeTextFiles
-com.example.miniproyecto3.model.Players
+com.example.miniproyecto3.model.players
 com.example.miniproyecto3.model.serializable
 com.example.miniproyecto3.view

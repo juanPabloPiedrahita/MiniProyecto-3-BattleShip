@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
-import com.example.miniproyecto3.model.Players.Player;
+import com.example.miniproyecto3.model.players.Player;
 import com.example.miniproyecto3.exceptions.VisualException;
 import com.example.miniproyecto3.view.GameStage;
 import com.example.miniproyecto3.view.WelcomeStage;
@@ -97,11 +97,11 @@ public class WelcomeController {
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "¡Ingresa un usuario antes de continuar!");
             DialogPane dialogPane = alert.getDialogPane();
-            URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/game-style2.css");
+            URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/styles-game2.css");
             if (cssUrl != null) {
                 dialogPane.getStylesheets().add(cssUrl.toExternalForm());
             } else {
-                System.err.println("No se encontró el archivo CSS: /com/example/miniproyecto3/css/game-style2.css");
+                System.err.println("No se encontró el archivo CSS: /com/example/miniproyecto3/css/styles-game2.css");
             }
             dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
@@ -132,11 +132,11 @@ public class WelcomeController {
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING, "No existe una partida anterior. Crea una partida nueva.");
             DialogPane dialogPane = alert.getDialogPane();
-            URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/game-style2.css");
+            URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/styles-game2.css");
             if (cssUrl != null) {
                 dialogPane.getStylesheets().add(cssUrl.toExternalForm());
             } else {
-                System.err.println("Error con el archivo CSS: /com/example/miniproyecto3/css/game-style2.css");
+                System.err.println("Error con el archivo CSS: /com/example/miniproyecto3/css/styles-game2.css");
             }
             dialogPane.getStyleClass().add("custom-alert");
             alert.showAndWait();
@@ -184,11 +184,11 @@ public class WelcomeController {
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setMinWidth(550);
         dialogPane.setMinHeight(350);
-        URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/game-style2.css");
+        URL cssUrl = getClass().getResource("/com/example/miniproyecto3/css/styles-game2.css");
         if (cssUrl != null) {
             dialogPane.getStylesheets().add(cssUrl.toExternalForm());
         } else {
-            System.err.println("El archivo CSS /com/example/miniproyecto3/css/game-style2.css, no se halla.");
+            System.err.println("El archivo CSS /com/example/miniproyecto3/css/styles-game2.css, no se halla.");
         }
         dialogPane.getStyleClass().add("custom-alert");
 

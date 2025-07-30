@@ -21,11 +21,11 @@ import javafx.scene.Node;
 import com.example.miniproyecto3.model.serializable.SerializableFileHandler;
 import com.example.miniproyecto3.model.planeTextFiles.PlaneTextFileHandler;
 import com.example.miniproyecto3.model.MusicPlayer;
-import com.example.miniproyecto3.model.Players.Player;
+import com.example.miniproyecto3.model.players.Player;
 import java.io.File;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
-import com.example.miniproyecto3.model.Players.AI;
+import com.example.miniproyecto3.model.players.AI;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -175,14 +175,14 @@ public class GameController {
                 System.out.println("Player: " + player.getPlayerName() + ", " + player.getPlayerScore());
                 continueGame = WelcomeStage.getInstance().getWelController().getContinue();
                 WelcomeStage.deleteInstance();
-                smoke = loadImageOrThrow("/com/example/miniproyecto3/Image/blackSmoke23.png");
-                miss = loadImageOrThrow("/com/example/miniproyecto3/Image/waterExplosion.png");
-                explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion08.png");
+                smoke = loadImageOrThrow("/com/example/miniproyecto3/Image/smoke.png");
+                miss = loadImageOrThrow("/com/example/miniproyecto3/Image/water.png");
+                explosion = loadImageOrThrow("/com/example/miniproyecto3/Image/explosion.png");
                 shipImages = new HashMap<>();
-                shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba8.png"));
-                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba14.png"));
-                shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba4.png"));
-                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/prueba10.png"));
+                shipImages.put(1, loadImageOrThrow("/com/example/miniproyecto3/Image/fragate.png"));
+                shipImages.put(2, loadImageOrThrow("/com/example/miniproyecto3/Image/destroyer.png"));
+                shipImages.put(3, loadImageOrThrow("/com/example/miniproyecto3/Image/submarine.png"));
+                shipImages.put(4, loadImageOrThrow("/com/example/miniproyecto3/Image/aircraft.png"));
 
                 if (!continueGame) {
                     System.out.println("Nuevo juego...");
@@ -203,7 +203,7 @@ public class GameController {
                     System.out.println("Entrando a cargar el juego mas reciente");
                     finishedPlacing = true;
                     loadGameState();
-                    musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+                    musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
                     musicPlayer.play();
                     readyButton.setDisable(true);
                     orientationToggle.setDisable(true);
@@ -214,7 +214,7 @@ public class GameController {
                     monitorButton.setVisible(true);
                     monitorButton.setManaged(true);
                     labelScore.setVisible(true);
-                    labelScore.setText("Tu puntaje:" + player.getPlayerScore());
+                    labelScore.setText("Tu puntaje: " + player.getPlayerScore());
                 }
         } catch (IOException e) {
             System.out.println("Error cargando el juego." + e.getMessage());
@@ -830,7 +830,7 @@ public class GameController {
     private void handleFinishPlacement() {
         if (shipSelectorContainer.getChildren().isEmpty()) {
             musicPlayer.stop();
-            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
             musicPlayer.play();
             finishedPlacing = true;
             placeEnemyShips();
@@ -840,7 +840,7 @@ public class GameController {
             placementControls.setManaged(false);
             enemyBoardContainer.setVisible(true);
             enemyBoardContainer.setManaged(true);
-            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/RedAlert3Theme.mp3");
+            musicPlayer = new MusicPlayer("/com/example/miniproyecto3/Media/BattleTheme.mp3");
             musicPlayer.play();
             monitorButton.setVisible(true);
             monitorButton.setManaged(true);

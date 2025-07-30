@@ -1,4 +1,4 @@
-package com.example.miniproyecto3.model.Players;
+package com.example.miniproyecto3.model.players;
 
 import com.example.miniproyecto3.model.Board;
 import com.example.miniproyecto3.model.Ship;

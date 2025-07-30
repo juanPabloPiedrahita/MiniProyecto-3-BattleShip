@@ -1,5 +1,5 @@
 .root {
-    -fx-background-image: url("../Image/Fondo3.jpg");
+    -fx-background-image: url("../Image/fondo2.jpg");
     -fx-background-size: 730, 650, 650;
     -fx-background-color: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
     -fx-font-family: 'Segoe UI', sans-serif;

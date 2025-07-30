@@ -38,13 +38,13 @@ public class WelcomeStage extends Stage {
      */
     public WelcomeStage() throws VisualException {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxmls/home-view1.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/miniproyecto3/Fxmls/home-view.fxml"));
 
             Parent root = fxmlLoader.load();
             welController = fxmlLoader.getController();
             Scene scene = new Scene(root);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/css/styles.css"), "CSS file not found").toExternalForm());
-            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/LogoModerno.jpg")).toExternalForm());
+            Image icon = new Image(Objects.requireNonNull(getClass().getResource("/com/example/miniproyecto3/Image/favicon.jpg")).toExternalForm());
             getIcons().add(icon);
             setResizable(false);
             setTitle("Miniproyecto 3 - Batalla Naval");

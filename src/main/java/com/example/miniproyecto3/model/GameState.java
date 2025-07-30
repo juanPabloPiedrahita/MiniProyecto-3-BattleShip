@@ -1,6 +1,6 @@
 package com.example.miniproyecto3.model;
 
-import com.example.miniproyecto3.model.Players.AI;
+import com.example.miniproyecto3.model.players.AI;
 import java.io.Serializable;
 import java.util.List;
 
